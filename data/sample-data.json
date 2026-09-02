@@ -1,0 +1,1529 @@
+{
+ "app": "eigomimi",
+ "schema": 1,
+ "exportedAt": "2026-09-01T21:00:00.000Z",
+ "sample": true,
+ "note": "サンプルデータ。設定画面から読み込むと日付が今日に合わせて再基準化されます。",
+ "data": {
+  "progress": [
+   {
+    "itemId": "v01",
+    "sounds": [
+     "ɑ",
+     "æ",
+     "ʌ"
+    ],
+    "tracks": [
+     26,
+     27,
+     28
+    ],
+    "stage": 3,
+    "status": "review",
+    "currentDay": 2,
+    "dayCount": 2,
+    "lastDate": "2026-08-29",
+    "nextDate": "2026-09-05",
+    "lastRating": "◎",
+    "ratings": [
+     {
+      "date": "2026-08-25",
+      "day": 1,
+      "rating": "△",
+      "type": "new"
+     },
+     {
+      "date": "2026-08-26",
+      "day": 2,
+      "rating": "○",
+      "type": "new"
+     },
+     {
+      "date": "2026-08-27",
+      "day": 2,
+      "rating": "○",
+      "type": "review"
+     },
+     {
+      "date": "2026-08-29",
+      "day": 2,
+      "rating": "◎",
+      "type": "review"
+     }
+    ],
+    "totalReps": 180,
+    "notes": "2026-08-25: /æ/ で顎が下がりにくい"
+   },
+   {
+    "itemId": "v02",
+    "sounds": [
+     "iː",
+     "ɪ",
+     "e"
+    ],
+    "tracks": [
+     29
+    ],
+    "stage": 0,
+    "status": "review",
+    "currentDay": 2,
+    "dayCount": 2,
+    "lastDate": "2026-08-30",
+    "nextDate": "2026-09-01",
+    "lastRating": "△",
+    "ratings": [
+     {
+      "date": "2026-08-28",
+      "day": 1,
+      "rating": "○",
+      "type": "new"
+     },
+     {
+      "date": "2026-08-30",
+      "day": 2,
+      "rating": "△",
+      "type": "new"
+     }
+    ],
+    "totalReps": 80,
+    "notes": ""
+   },
+   {
+    "itemId": "v03",
+    "sounds": [
+     "uː",
+     "ʊ"
+    ],
+    "tracks": [
+     30
+    ],
+    "stage": 0,
+    "status": "learning",
+    "currentDay": 2,
+    "dayCount": 2,
+    "lastDate": "2026-08-31",
+    "nextDate": "2026-09-01",
+    "lastRating": "○",
+    "ratings": [
+     {
+      "date": "2026-08-31",
+      "day": 1,
+      "rating": "○",
+      "type": "new"
+     }
+    ],
+    "totalReps": 24,
+    "notes": ""
+   }
+  ],
+  "sessions": [
+   {
+    "date": "2026-08-25",
+    "ts": 0,
+    "itemId": "v01",
+    "sound": [
+     "ɑ",
+     "æ",
+     "ʌ"
+    ],
+    "tracks": [
+     26,
+     27,
+     28
+    ],
+    "stage": 0,
+    "day": 1,
+    "type": "new",
+    "reps": 35,
+    "retries": 4,
+    "quizCorrect": 8,
+    "quizTotal": 10,
+    "rating": "△",
+    "weakWords": [],
+    "recordingIds": [],
+    "memo": "/æ/ で顎が下がりにくい",
+    "durationSec": 900
+   },
+   {
+    "date": "2026-08-26",
+    "ts": 0,
+    "itemId": "v01",
+    "sound": [
+     "ɑ",
+     "æ",
+     "ʌ"
+    ],
+    "tracks": [
+     26,
+     27,
+     28
+    ],
+    "stage": 0,
+    "day": 2,
+    "type": "new",
+    "reps": 60,
+    "retries": 1,
+    "quizCorrect": 10,
+    "quizTotal": 10,
+    "rating": "○",
+    "weakWords": [
+     "blood",
+     "does"
+    ],
+    "recordingIds": [],
+    "memo": "",
+    "durationSec": 900
+   },
+   {
+    "date": "2026-08-27",
+    "ts": 0,
+    "itemId": "v01",
+    "sound": [
+     "ɑ",
+     "æ",
+     "ʌ"
+    ],
+    "tracks": [
+     26,
+     27,
+     28
+    ],
+    "stage": 0,
+    "day": 2,
+    "type": "review",
+    "reps": 40,
+    "retries": 0,
+    "quizCorrect": 10,
+    "quizTotal": 10,
+    "rating": "○",
+    "weakWords": [],
+    "recordingIds": [],
+    "memo": "",
+    "durationSec": 900
+   },
+   {
+    "date": "2026-08-29",
+    "ts": 0,
+    "itemId": "v01",
+    "sound": [
+     "ɑ",
+     "æ",
+     "ʌ"
+    ],
+    "tracks": [
+     26,
+     27,
+     28
+    ],
+    "stage": 0,
+    "day": 2,
+    "type": "review",
+    "reps": 45,
+    "retries": 2,
+    "quizCorrect": 10,
+    "quizTotal": 10,
+    "rating": "◎",
+    "weakWords": [],
+    "recordingIds": [],
+    "memo": "",
+    "durationSec": 900
+   },
+   {
+    "date": "2026-08-28",
+    "ts": 0,
+    "itemId": "v02",
+    "sound": [
+     "iː",
+     "ɪ",
+     "e"
+    ],
+    "tracks": [
+     29
+    ],
+    "stage": 0,
+    "day": 1,
+    "type": "new",
+    "reps": 30,
+    "retries": 2,
+    "quizCorrect": 7,
+    "quizTotal": 10,
+    "rating": "○",
+    "weakWords": [
+     "live",
+     "fill"
+    ],
+    "recordingIds": [],
+    "memo": "",
+    "durationSec": 800
+   },
+   {
+    "date": "2026-08-30",
+    "ts": 0,
+    "itemId": "v02",
+    "sound": [
+     "iː",
+     "ɪ",
+     "e"
+    ],
+    "tracks": [
+     29
+    ],
+    "stage": 0,
+    "day": 2,
+    "type": "new",
+    "reps": 50,
+    "retries": 2,
+    "quizCorrect": 7,
+    "quizTotal": 10,
+    "rating": "△",
+    "weakWords": [
+     "live",
+     "fill"
+    ],
+    "recordingIds": [],
+    "memo": "",
+    "durationSec": 800
+   },
+   {
+    "date": "2026-08-31",
+    "ts": 0,
+    "itemId": "v03",
+    "sound": [
+     "uː",
+     "ʊ"
+    ],
+    "tracks": [
+     30
+    ],
+    "stage": 0,
+    "day": 1,
+    "type": "new",
+    "reps": 24,
+    "retries": 1,
+    "quizCorrect": 7,
+    "quizTotal": 10,
+    "rating": "○",
+    "weakWords": [],
+    "recordingIds": [],
+    "memo": "",
+    "durationSec": 600
+   }
+  ],
+  "repCounts": [
+   {
+    "key": "2026-08-25|ɑ",
+    "date": "2026-08-25",
+    "sound": "ɑ",
+    "count": 9
+   },
+   {
+    "key": "2026-08-25|æ",
+    "date": "2026-08-25",
+    "sound": "æ",
+    "count": 9
+   },
+   {
+    "key": "2026-08-25|ʌ",
+    "date": "2026-08-25",
+    "sound": "ʌ",
+    "count": 9
+   },
+   {
+    "key": "2026-08-26|ɑ",
+    "date": "2026-08-26",
+    "sound": "ɑ",
+    "count": 15
+   },
+   {
+    "key": "2026-08-26|æ",
+    "date": "2026-08-26",
+    "sound": "æ",
+    "count": 15
+   },
+   {
+    "key": "2026-08-26|ʌ",
+    "date": "2026-08-26",
+    "sound": "ʌ",
+    "count": 30
+   },
+   {
+    "key": "2026-08-27|ɑ",
+    "date": "2026-08-27",
+    "sound": "ɑ",
+    "count": 9
+   },
+   {
+    "key": "2026-08-27|æ",
+    "date": "2026-08-27",
+    "sound": "æ",
+    "count": 9
+   },
+   {
+    "key": "2026-08-27|ʌ",
+    "date": "2026-08-27",
+    "sound": "ʌ",
+    "count": 18
+   },
+   {
+    "key": "2026-08-29|ɑ",
+    "date": "2026-08-29",
+    "sound": "ɑ",
+    "count": 9
+   },
+   {
+    "key": "2026-08-29|æ",
+    "date": "2026-08-29",
+    "sound": "æ",
+    "count": 9
+   },
+   {
+    "key": "2026-08-29|ʌ",
+    "date": "2026-08-29",
+    "sound": "ʌ",
+    "count": 18
+   },
+   {
+    "key": "2026-08-28|iː",
+    "date": "2026-08-28",
+    "sound": "iː",
+    "count": 9
+   },
+   {
+    "key": "2026-08-28|ɪ",
+    "date": "2026-08-28",
+    "sound": "ɪ",
+    "count": 9
+   },
+   {
+    "key": "2026-08-28|e",
+    "date": "2026-08-28",
+    "sound": "e",
+    "count": 9
+   },
+   {
+    "key": "2026-08-30|iː",
+    "date": "2026-08-30",
+    "sound": "iː",
+    "count": 16
+   },
+   {
+    "key": "2026-08-30|ɪ",
+    "date": "2026-08-30",
+    "sound": "ɪ",
+    "count": 16
+   },
+   {
+    "key": "2026-08-30|e",
+    "date": "2026-08-30",
+    "sound": "e",
+    "count": 16
+   },
+   {
+    "key": "2026-08-31|uː",
+    "date": "2026-08-31",
+    "sound": "uː",
+    "count": 12
+   },
+   {
+    "key": "2026-08-31|ʊ",
+    "date": "2026-08-31",
+    "sound": "ʊ",
+    "count": 12
+   }
+  ],
+  "wordReps": [
+   {
+    "word": "hot",
+    "itemId": "v01",
+    "count": 3,
+    "lastDate": "2026-08-25"
+   },
+   {
+    "word": "hat",
+    "itemId": "v01",
+    "count": 3,
+    "lastDate": "2026-08-25"
+   },
+   {
+    "word": "hut",
+    "itemId": "v01",
+    "count": 3,
+    "lastDate": "2026-08-25"
+   },
+   {
+    "word": "cop",
+    "itemId": "v01",
+    "count": 3,
+    "lastDate": "2026-08-25"
+   },
+   {
+    "word": "cap",
+    "itemId": "v01",
+    "count": 3,
+    "lastDate": "2026-08-25"
+   },
+   {
+    "word": "cup",
+    "itemId": "v01",
+    "count": 3,
+    "lastDate": "2026-08-25"
+   },
+   {
+    "word": "lock",
+    "itemId": "v01",
+    "count": 3,
+    "lastDate": "2026-08-25"
+   },
+   {
+    "word": "lack",
+    "itemId": "v01",
+    "count": 3,
+    "lastDate": "2026-08-25"
+   },
+   {
+    "word": "luck",
+    "itemId": "v01",
+    "count": 3,
+    "lastDate": "2026-08-25"
+   },
+   {
+    "word": "cot",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "cat",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "cut",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "not",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "gnat",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "nut",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "sock",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "sack",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "suck",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "love",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "come",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "money",
+    "itemId": "v01",
+    "count": 11,
+    "lastDate": "2026-08-29"
+   },
+   {
+    "word": "seat",
+    "itemId": "v02",
+    "count": 3,
+    "lastDate": "2026-08-28"
+   },
+   {
+    "word": "sit",
+    "itemId": "v02",
+    "count": 3,
+    "lastDate": "2026-08-28"
+   },
+   {
+    "word": "set",
+    "itemId": "v02",
+    "count": 3,
+    "lastDate": "2026-08-28"
+   },
+   {
+    "word": "beat",
+    "itemId": "v02",
+    "count": 3,
+    "lastDate": "2026-08-28"
+   },
+   {
+    "word": "bit",
+    "itemId": "v02",
+    "count": 3,
+    "lastDate": "2026-08-28"
+   },
+   {
+    "word": "bet",
+    "itemId": "v02",
+    "count": 3,
+    "lastDate": "2026-08-28"
+   },
+   {
+    "word": "peak",
+    "itemId": "v02",
+    "count": 3,
+    "lastDate": "2026-08-28"
+   },
+   {
+    "word": "pick",
+    "itemId": "v02",
+    "count": 3,
+    "lastDate": "2026-08-28"
+   },
+   {
+    "word": "peck",
+    "itemId": "v02",
+    "count": 3,
+    "lastDate": "2026-08-28"
+   },
+   {
+    "word": "leave",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "live",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "left",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "feel",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "fill",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "fell",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "heat",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "hit",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "head",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "sheep",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "ship",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "shed",
+    "itemId": "v02",
+    "count": 4,
+    "lastDate": "2026-08-30"
+   },
+   {
+    "word": "pool",
+    "itemId": "v03",
+    "count": 4,
+    "lastDate": "2026-08-31"
+   },
+   {
+    "word": "pull",
+    "itemId": "v03",
+    "count": 4,
+    "lastDate": "2026-08-31"
+   },
+   {
+    "word": "fool",
+    "itemId": "v03",
+    "count": 4,
+    "lastDate": "2026-08-31"
+   },
+   {
+    "word": "full",
+    "itemId": "v03",
+    "count": 4,
+    "lastDate": "2026-08-31"
+   },
+   {
+    "word": "Luke",
+    "itemId": "v03",
+    "count": 4,
+    "lastDate": "2026-08-31"
+   },
+   {
+    "word": "look",
+    "itemId": "v03",
+    "count": 4,
+    "lastDate": "2026-08-31"
+   }
+  ],
+  "quizLog": [
+   {
+    "date": "2026-08-25",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "æ",
+    "chosenSound": "ʌ",
+    "correct": false,
+    "first": true
+   },
+   {
+    "date": "2026-08-25",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-25",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-25",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-25",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-25",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-25",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-25",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-25",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-25",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "æ",
+    "correct": false,
+    "first": true
+   },
+   {
+    "date": "2026-08-26",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-26",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-26",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-26",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-26",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-26",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-26",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-26",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-26",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-26",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-27",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "æ",
+    "chosenSound": "æ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-27",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "æ",
+    "chosenSound": "æ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-27",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "æ",
+    "chosenSound": "æ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-27",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "æ",
+    "chosenSound": "æ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-27",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-27",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-27",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-27",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-27",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "æ",
+    "chosenSound": "æ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-27",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "æ",
+    "chosenSound": "æ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-29",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-29",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-29",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-29",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "æ",
+    "chosenSound": "æ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-29",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-29",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-29",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "æ",
+    "chosenSound": "æ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-29",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "æ",
+    "chosenSound": "æ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-29",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʌ",
+    "chosenSound": "ʌ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-29",
+    "ts": 0,
+    "itemId": "v01",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɑ",
+    "chosenSound": "ɑ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-28",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɪ",
+    "chosenSound": "ɪ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-28",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "iː",
+    "chosenSound": "iː",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-28",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "e",
+    "chosenSound": "e",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-28",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "e",
+    "chosenSound": "ɪ",
+    "correct": false,
+    "first": true
+   },
+   {
+    "date": "2026-08-28",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɪ",
+    "chosenSound": "e",
+    "correct": false,
+    "first": true
+   },
+   {
+    "date": "2026-08-28",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "iː",
+    "chosenSound": "e",
+    "correct": false,
+    "first": true
+   },
+   {
+    "date": "2026-08-28",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "iː",
+    "chosenSound": "iː",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-28",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɪ",
+    "chosenSound": "ɪ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-28",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɪ",
+    "chosenSound": "ɪ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-28",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "iː",
+    "chosenSound": "iː",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-30",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɪ",
+    "chosenSound": "ɪ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-30",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɪ",
+    "chosenSound": "ɪ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-30",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɪ",
+    "chosenSound": "e",
+    "correct": false,
+    "first": true
+   },
+   {
+    "date": "2026-08-30",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "e",
+    "chosenSound": "e",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-30",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɪ",
+    "chosenSound": "e",
+    "correct": false,
+    "first": true
+   },
+   {
+    "date": "2026-08-30",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "iː",
+    "chosenSound": "iː",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-30",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "iː",
+    "chosenSound": "iː",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-30",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "e",
+    "chosenSound": "e",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-30",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɪ",
+    "chosenSound": "iː",
+    "correct": false,
+    "first": true
+   },
+   {
+    "date": "2026-08-30",
+    "ts": 0,
+    "itemId": "v02",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ɪ",
+    "chosenSound": "ɪ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-31",
+    "ts": 0,
+    "itemId": "v03",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "uː",
+    "chosenSound": "uː",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-31",
+    "ts": 0,
+    "itemId": "v03",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʊ",
+    "chosenSound": "ʊ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-31",
+    "ts": 0,
+    "itemId": "v03",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʊ",
+    "chosenSound": "uː",
+    "correct": false,
+    "first": true
+   },
+   {
+    "date": "2026-08-31",
+    "ts": 0,
+    "itemId": "v03",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʊ",
+    "chosenSound": "uː",
+    "correct": false,
+    "first": true
+   },
+   {
+    "date": "2026-08-31",
+    "ts": 0,
+    "itemId": "v03",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʊ",
+    "chosenSound": "ʊ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-31",
+    "ts": 0,
+    "itemId": "v03",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "uː",
+    "chosenSound": "uː",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-31",
+    "ts": 0,
+    "itemId": "v03",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "ʊ",
+    "chosenSound": "ʊ",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-31",
+    "ts": 0,
+    "itemId": "v03",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "uː",
+    "chosenSound": "ʊ",
+    "correct": false,
+    "first": true
+   },
+   {
+    "date": "2026-08-31",
+    "ts": 0,
+    "itemId": "v03",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "uː",
+    "chosenSound": "uː",
+    "correct": true,
+    "first": true
+   },
+   {
+    "date": "2026-08-31",
+    "ts": 0,
+    "itemId": "v03",
+    "mode": "word",
+    "playedWord": "",
+    "playedSound": "uː",
+    "chosenSound": "uː",
+    "correct": true,
+    "first": true
+   }
+  ],
+  "weakWords": [
+   {
+    "word": "blood",
+    "itemId": "v01",
+    "missCount": 2,
+    "lastMiss": "2026-08-30",
+    "dueDate": "2026-09-01"
+   },
+   {
+    "word": "does",
+    "itemId": "v01",
+    "missCount": 1,
+    "lastMiss": "2026-08-30",
+    "dueDate": "2026-09-01"
+   },
+   {
+    "word": "live",
+    "itemId": "v02",
+    "missCount": 1,
+    "lastMiss": "2026-08-30",
+    "dueDate": "2026-09-01"
+   },
+   {
+    "word": "fill",
+    "itemId": "v02",
+    "missCount": 2,
+    "lastMiss": "2026-08-30",
+    "dueDate": "2026-09-01"
+   }
+  ],
+  "settings": [],
+  "recordings": []
+ }
+}

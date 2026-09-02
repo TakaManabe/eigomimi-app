@@ -1,0 +1,5 @@
+# 書籍付属の音声は公開しない（アプリ内取り込みで利用）
+audio/*.mp3
+audio/*.m4a
+node_modules/
+.DS_Store
