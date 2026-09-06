@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 const cur = JSON.parse(readFileSync(new URL('../data/curriculum.json', import.meta.url)));
 const words = JSON.parse(readFileSync(new URL('../data/words.json', import.meta.url)));
 const sample = JSON.parse(readFileSync(new URL('../data/sample-data.json', import.meta.url)));
+const drill = JSON.parse(readFileSync(new URL('../data/drill-words.json', import.meta.url)));
 
 test('カリキュラム順序は正式な順序と一致', () => {
   const expected = [
@@ -55,4 +56,27 @@ test('サンプルデータの形式', () => {
   assert.equal(sample.app, 'eigomimi'); assert.equal(sample.schema, 1);
   for (const k of ['progress', 'sessions', 'repCounts', 'wordReps', 'quizLog', 'weakWords', 'settings', 'recordings']) assert.ok(Array.isArray(sample.data[k]), k);
   assert.ok(sample.data.sessions.length > 0);
+});
+
+test('ドリル単語バンク: セットの音が定義済み、各音に十分な語数、単語は一意', () => {
+  const sounds = new Set(drill.words.map(w => w.sound));
+  const byWord = new Map();
+  for (const w of drill.words) {
+    assert.ok(w.word && w.sound, JSON.stringify(w));
+    assert.ok(!byWord.has(w.word), `重複語 ${w.word}`);
+    byWord.set(w.word, w.sound);
+  }
+  assert.ok(drill.words.length >= 1000, `語数 ${drill.words.length}`);
+  const itemIds = new Set(cur.items.map(i => i.id));
+  for (const s of drill.sets) {
+    assert.ok(itemIds.has(s.itemId), `${s.id} の itemId`);
+    assert.ok(s.sounds.length >= 2);
+    for (const snd of s.sounds) {
+      assert.ok(sounds.has(snd), `${s.id}: 音 ${snd} の単語がない`);
+      const n = drill.words.filter(w => w.sound === snd).length;
+      assert.ok(n >= 20, `${s.id}: ${snd} は ${n} 語しかない`);
+    }
+  }
+  // /ʌ/ 綴り例外はドリルにも入っている
+  for (const w of ['love', 'come', 'blood', 'does', 'young', 'country']) assert.equal(byWord.get(w), 'ʌ', w);
 });

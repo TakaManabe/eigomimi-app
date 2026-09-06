@@ -65,6 +65,22 @@ const flow = async (page, tag) => {
   await page.goto(BASE + '#/sort/v01'); await page.waitForSelector('.sort-card');
   for (let i = 0; i < 4; i++) { await page.click('.sort-col >> nth=0'); await page.waitForTimeout(150); const nb = page.locator('button:has-text("次へ ›")'); if (await nb.isVisible()) await nb.click(); }
   await page.screenshot({ path: `/tmp/shots/${tag}-sort.png`, fullPage: true });
+  // 大量ドリル: 20問を数字キーで回答（1を連打 → 誤答も混ざる）
+  await page.goto(BASE + '#/drill'); await page.waitForSelector('text=大量ドリル');
+  await page.screenshot({ path: `/tmp/shots/${tag}-drill-menu.png`, fullPage: true });
+  await page.goto(BASE + '#/drill/d01'); await page.waitForSelector('text=スタート');
+  await page.click('.seg-btn:has-text("20")'); await page.click('text=スタート'); await page.waitForSelector('.drill-word');
+  await page.screenshot({ path: `/tmp/shots/${tag}-drill.png`, fullPage: true });
+  for (let i = 0; i < 40 && await page.locator('.drill-word').isVisible(); i++) {
+    await page.keyboard.press('1'); await page.waitForTimeout(120);
+    const nb = page.locator('.drill button:has-text("次へ")');
+    if (await nb.isVisible()) await nb.click();
+    else await page.waitForTimeout(600);
+  }
+  await page.waitForSelector('text=結果:', { timeout: 15000 });
+  await page.screenshot({ path: `/tmp/shots/${tag}-drill-result.png`, fullPage: true });
+  const dres = await page.textContent('h2:has-text("結果:")'); if (!/結果: \d+ \/ 20/.test(dres)) errors.push(`[${tag}] drill result: ${dres}`);
+  await page.goto(BASE + '#/drill'); await page.waitForSelector('text=既出');
   // 録音一覧
   await page.goto(BASE + '#/records'); await page.waitForSelector('.recview, .list');
   await page.screenshot({ path: `/tmp/shots/${tag}-records.png`, fullPage: true });

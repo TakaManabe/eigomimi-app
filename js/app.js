@@ -9,10 +9,12 @@ import { renderQuiz } from './quiz.js';
 import { renderRecords } from './records.js';
 import { renderSettings } from './settings.js';
 import { renderCurriculum } from './curriculum.js';
+import { renderDrill } from './drill.js';
 
 export const state = {
   curriculum: null,
   words: null,
+  drill: null,
   settings: null,
   ready: false,
   deferredInstall: null,
@@ -25,6 +27,9 @@ export function wordInfo(word, itemId = null) {
   return state.words.words.find(w => w.word === word && (!itemId || w.item === itemId)) || state.words.words.find(w => w.word === word) || null;
 }
 export function pairsFor(itemId) { return state.words.pairs.filter(p => p.item === itemId); }
+export function drillSets() { return state.drill ? state.drill.sets : []; }
+export function drillSet(id) { return drillSets().find(s => s.id === id); }
+export function drillWordsFor(set) { return state.drill.words.filter(w => set.sounds.includes(w.sound)); }
 
 async function loadJSON(path) {
   const res = await fetch(path, { cache: 'no-cache' }).catch(() => null);
@@ -41,6 +46,7 @@ const routes = {
   'records': renderRecords,
   'settings': renderSettings,
   'curriculum': renderCurriculum,
+  'drill': renderDrill,         // #/drill/:setId
 };
 
 export function navigate(path) { location.hash = '#/' + path.replace(/^#?\/?/, ''); }
@@ -76,7 +82,7 @@ function layout() {
       h('span', { id: 'online', class: 'pill', title: '接続状態' }, navigator.onLine ? 'オンライン' : 'オフライン')),
     h('main', { id: 'main' }),
     h('nav', { class: 'nav' },
-      navLink('home', '今日', '🏠'), navLink('curriculum', '課程', '📚'), navLink('records', '録音', '🎙'), navLink('settings', '設定', '⚙️')),
+      navLink('home', '今日', '🏠'), navLink('curriculum', '課程', '📚'), navLink('drill', 'ドリル', '⚡'), navLink('records', '録音', '🎙'), navLink('settings', '設定', '⚙️')),
   );
   window.addEventListener('online', () => { const o = document.getElementById('online'); if (o) o.textContent = 'オンライン'; });
   window.addEventListener('offline', () => { const o = document.getElementById('online'); if (o) o.textContent = 'オフライン'; });
@@ -90,7 +96,7 @@ async function boot() {
   const main = document.getElementById('main');
   main.append(h('p', { class: 'muted center' }, '読み込み中…'));
   try {
-    [state.curriculum, state.words] = await Promise.all([loadJSON('data/curriculum.json'), loadJSON('data/words.json')]);
+    [state.curriculum, state.words, state.drill] = await Promise.all([loadJSON('data/curriculum.json'), loadJSON('data/words.json'), loadJSON('data/drill-words.json').catch(() => ({ sets: [], words: [] }))]);
   } catch (e) {
     clear(main).append(h('div', { class: 'card error' }, h('h2', {}, 'データを読み込めません'), h('p', {}, e.message),
       h('p', { class: 'muted' }, 'オフラインで初回起動した場合は、一度オンラインで開いてください。')));

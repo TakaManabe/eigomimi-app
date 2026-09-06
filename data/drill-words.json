@@ -1,0 +1,6467 @@
+{
+ "version": 1,
+ "note": "大量ドリル用の単語バンク。sound は強勢母音。note は方言差・綴り例外。sets はドリルの組み合わせ。tests/build-drill-words.py で生成。",
+ "sets": [
+  {
+   "id": "d01",
+   "itemId": "v01",
+   "title": "/ɑ/ /æ/ /ʌ/",
+   "sounds": [
+    "ɑ",
+    "æ",
+    "ʌ"
+   ],
+   "hint": "顎の開き方（大・横・小）で分ける。/ʌ/ は綴りに注意"
+  },
+  {
+   "id": "d02",
+   "itemId": "v02",
+   "title": "/iː/ /ɪ/ /e/",
+   "sounds": [
+    "iː",
+    "ɪ",
+    "e"
+   ],
+   "hint": "舌の高さ（高・中高・中）"
+  },
+  {
+   "id": "d03",
+   "itemId": "v03",
+   "title": "/uː/ /ʊ/",
+   "sounds": [
+    "uː",
+    "ʊ"
+   ],
+   "hint": "唇の緊張（強・弱）。oo は両方あり得る"
+  },
+  {
+   "id": "d04",
+   "itemId": "v04",
+   "title": "/aɪ/ /eɪ/ /ɔɪ/",
+   "sounds": [
+    "aɪ",
+    "eɪ",
+    "ɔɪ"
+   ],
+   "hint": "出発点の口（ア・エ・オ）"
+  },
+  {
+   "id": "d05",
+   "itemId": "v05",
+   "title": "/aʊ/ /oʊ/",
+   "sounds": [
+    "aʊ",
+    "oʊ"
+   ],
+   "hint": "出発点の開き（大・中）"
+  },
+  {
+   "id": "d06",
+   "itemId": "v06",
+   "title": "/ɔː/ /ɑ/",
+   "sounds": [
+    "ɔː",
+    "ɑ"
+   ],
+   "hint": "唇の丸め。merger 地域では区別しないので参考程度に"
+  },
+  {
+   "id": "d07",
+   "itemId": "v07",
+   "title": "/ɝː/ /ɑr/ /ɔr/",
+   "sounds": [
+    "ɝː",
+    "ɑr",
+    "ɔr"
+   ],
+   "hint": "R の前の母音（無・ア・オ）"
+  },
+  {
+   "id": "d08",
+   "itemId": "v07",
+   "title": "/ɪr/ /er/ /ɑr/",
+   "sounds": [
+    "ɪr",
+    "er",
+    "ɑr"
+   ],
+   "hint": "ear / air / are"
+  },
+  {
+   "id": "d09",
+   "itemId": "v02",
+   "title": "/iː/ /ɪ/",
+   "sounds": [
+    "iː",
+    "ɪ"
+   ],
+   "hint": "2択で速さ重視"
+  },
+  {
+   "id": "d10",
+   "itemId": "v01",
+   "title": "/æ/ /ʌ/",
+   "sounds": [
+    "æ",
+    "ʌ"
+   ],
+   "hint": "2択で速さ重視"
+  }
+ ],
+ "words": [
+  {
+   "word": "hot",
+   "sound": "ɑ"
+  },
+  {
+   "word": "pot",
+   "sound": "ɑ"
+  },
+  {
+   "word": "lot",
+   "sound": "ɑ"
+  },
+  {
+   "word": "not",
+   "sound": "ɑ"
+  },
+  {
+   "word": "got",
+   "sound": "ɑ"
+  },
+  {
+   "word": "cot",
+   "sound": "ɑ"
+  },
+  {
+   "word": "dot",
+   "sound": "ɑ"
+  },
+  {
+   "word": "rot",
+   "sound": "ɑ"
+  },
+  {
+   "word": "shot",
+   "sound": "ɑ"
+  },
+  {
+   "word": "spot",
+   "sound": "ɑ"
+  },
+  {
+   "word": "knot",
+   "sound": "ɑ"
+  },
+  {
+   "word": "plot",
+   "sound": "ɑ"
+  },
+  {
+   "word": "slot",
+   "sound": "ɑ"
+  },
+  {
+   "word": "cop",
+   "sound": "ɑ"
+  },
+  {
+   "word": "top",
+   "sound": "ɑ"
+  },
+  {
+   "word": "mop",
+   "sound": "ɑ"
+  },
+  {
+   "word": "hop",
+   "sound": "ɑ"
+  },
+  {
+   "word": "shop",
+   "sound": "ɑ"
+  },
+  {
+   "word": "stop",
+   "sound": "ɑ"
+  },
+  {
+   "word": "drop",
+   "sound": "ɑ"
+  },
+  {
+   "word": "crop",
+   "sound": "ɑ"
+  },
+  {
+   "word": "chop",
+   "sound": "ɑ"
+  },
+  {
+   "word": "box",
+   "sound": "ɑ"
+  },
+  {
+   "word": "fox",
+   "sound": "ɑ"
+  },
+  {
+   "word": "ox",
+   "sound": "ɑ"
+  },
+  {
+   "word": "rock",
+   "sound": "ɑ"
+  },
+  {
+   "word": "sock",
+   "sound": "ɑ"
+  },
+  {
+   "word": "lock",
+   "sound": "ɑ"
+  },
+  {
+   "word": "dock",
+   "sound": "ɑ"
+  },
+  {
+   "word": "clock",
+   "sound": "ɑ"
+  },
+  {
+   "word": "block",
+   "sound": "ɑ"
+  },
+  {
+   "word": "knock",
+   "sound": "ɑ"
+  },
+  {
+   "word": "stock",
+   "sound": "ɑ"
+  },
+  {
+   "word": "shock",
+   "sound": "ɑ"
+  },
+  {
+   "word": "flock",
+   "sound": "ɑ"
+  },
+  {
+   "word": "job",
+   "sound": "ɑ"
+  },
+  {
+   "word": "rob",
+   "sound": "ɑ"
+  },
+  {
+   "word": "sob",
+   "sound": "ɑ"
+  },
+  {
+   "word": "mob",
+   "sound": "ɑ"
+  },
+  {
+   "word": "knob",
+   "sound": "ɑ"
+  },
+  {
+   "word": "blob",
+   "sound": "ɑ"
+  },
+  {
+   "word": "odd",
+   "sound": "ɑ"
+  },
+  {
+   "word": "nod",
+   "sound": "ɑ"
+  },
+  {
+   "word": "rod",
+   "sound": "ɑ"
+  },
+  {
+   "word": "god",
+   "sound": "ɑ"
+  },
+  {
+   "word": "pod",
+   "sound": "ɑ"
+  },
+  {
+   "word": "bomb",
+   "sound": "ɑ"
+  },
+  {
+   "word": "calm",
+   "sound": "ɑ"
+  },
+  {
+   "word": "palm",
+   "sound": "ɑ"
+  },
+  {
+   "word": "father",
+   "sound": "ɑ"
+  },
+  {
+   "word": "bother",
+   "sound": "ɑ"
+  },
+  {
+   "word": "body",
+   "sound": "ɑ"
+  },
+  {
+   "word": "copy",
+   "sound": "ɑ"
+  },
+  {
+   "word": "college",
+   "sound": "ɑ"
+  },
+  {
+   "word": "doctor",
+   "sound": "ɑ"
+  },
+  {
+   "word": "model",
+   "sound": "ɑ"
+  },
+  {
+   "word": "modern",
+   "sound": "ɑ"
+  },
+  {
+   "word": "novel",
+   "sound": "ɑ"
+  },
+  {
+   "word": "object",
+   "sound": "ɑ"
+  },
+  {
+   "word": "problem",
+   "sound": "ɑ"
+  },
+  {
+   "word": "promise",
+   "sound": "ɑ"
+  },
+  {
+   "word": "possible",
+   "sound": "ɑ"
+  },
+  {
+   "word": "popular",
+   "sound": "ɑ"
+  },
+  {
+   "word": "solid",
+   "sound": "ɑ"
+  },
+  {
+   "word": "topic",
+   "sound": "ɑ"
+  },
+  {
+   "word": "tropic",
+   "sound": "ɑ"
+  },
+  {
+   "word": "profit",
+   "sound": "ɑ"
+  },
+  {
+   "word": "proper",
+   "sound": "ɑ"
+  },
+  {
+   "word": "common",
+   "sound": "ɑ"
+  },
+  {
+   "word": "comment",
+   "sound": "ɑ"
+  },
+  {
+   "word": "constant",
+   "sound": "ɑ"
+  },
+  {
+   "word": "contact",
+   "sound": "ɑ"
+  },
+  {
+   "word": "honest",
+   "sound": "ɑ"
+  },
+  {
+   "word": "hobby",
+   "sound": "ɑ"
+  },
+  {
+   "word": "hockey",
+   "sound": "ɑ"
+  },
+  {
+   "word": "jockey",
+   "sound": "ɑ"
+  },
+  {
+   "word": "lobby",
+   "sound": "ɑ"
+  },
+  {
+   "word": "option",
+   "sound": "ɑ"
+  },
+  {
+   "word": "operate",
+   "sound": "ɑ"
+  },
+  {
+   "word": "obvious",
+   "sound": "ɑ"
+  },
+  {
+   "word": "opera",
+   "sound": "ɑ"
+  },
+  {
+   "word": "olive",
+   "sound": "ɑ"
+  },
+  {
+   "word": "column",
+   "sound": "ɑ"
+  },
+  {
+   "word": "colony",
+   "sound": "ɑ"
+  },
+  {
+   "word": "comedy",
+   "sound": "ɑ"
+  },
+  {
+   "word": "conflict",
+   "sound": "ɑ"
+  },
+  {
+   "word": "contract",
+   "sound": "ɑ"
+  },
+  {
+   "word": "cotton",
+   "sound": "ɑ"
+  },
+  {
+   "word": "follow",
+   "sound": "ɑ"
+  },
+  {
+   "word": "swallow",
+   "sound": "ɑ"
+  },
+  {
+   "word": "wander",
+   "sound": "ɑ"
+  },
+  {
+   "word": "watch",
+   "sound": "ɑ"
+  },
+  {
+   "word": "swan",
+   "sound": "ɑ"
+  },
+  {
+   "word": "yacht",
+   "sound": "ɑ"
+  },
+  {
+   "word": "squad",
+   "sound": "ɑ"
+  },
+  {
+   "word": "squat",
+   "sound": "ɑ"
+  },
+  {
+   "word": "wad",
+   "sound": "ɑ"
+  },
+  {
+   "word": "wash",
+   "sound": "ɑ"
+  },
+  {
+   "word": "want",
+   "sound": "ɑ"
+  },
+  {
+   "word": "wallet",
+   "sound": "ɑ"
+  },
+  {
+   "word": "wallow",
+   "sound": "ɑ"
+  },
+  {
+   "word": "quality",
+   "sound": "ɑ"
+  },
+  {
+   "word": "quantity",
+   "sound": "ɑ"
+  },
+  {
+   "word": "qualify",
+   "sound": "ɑ"
+  },
+  {
+   "word": "hat",
+   "sound": "æ"
+  },
+  {
+   "word": "cat",
+   "sound": "æ"
+  },
+  {
+   "word": "bat",
+   "sound": "æ"
+  },
+  {
+   "word": "rat",
+   "sound": "æ"
+  },
+  {
+   "word": "mat",
+   "sound": "æ"
+  },
+  {
+   "word": "sat",
+   "sound": "æ"
+  },
+  {
+   "word": "fat",
+   "sound": "æ"
+  },
+  {
+   "word": "pat",
+   "sound": "æ"
+  },
+  {
+   "word": "flat",
+   "sound": "æ"
+  },
+  {
+   "word": "chat",
+   "sound": "æ"
+  },
+  {
+   "word": "that",
+   "sound": "æ"
+  },
+  {
+   "word": "cap",
+   "sound": "æ"
+  },
+  {
+   "word": "map",
+   "sound": "æ"
+  },
+  {
+   "word": "tap",
+   "sound": "æ"
+  },
+  {
+   "word": "nap",
+   "sound": "æ"
+  },
+  {
+   "word": "lap",
+   "sound": "æ"
+  },
+  {
+   "word": "gap",
+   "sound": "æ"
+  },
+  {
+   "word": "sap",
+   "sound": "æ"
+  },
+  {
+   "word": "trap",
+   "sound": "æ"
+  },
+  {
+   "word": "clap",
+   "sound": "æ"
+  },
+  {
+   "word": "snap",
+   "sound": "æ"
+  },
+  {
+   "word": "wrap",
+   "sound": "æ"
+  },
+  {
+   "word": "back",
+   "sound": "æ"
+  },
+  {
+   "word": "pack",
+   "sound": "æ"
+  },
+  {
+   "word": "sack",
+   "sound": "æ"
+  },
+  {
+   "word": "lack",
+   "sound": "æ"
+  },
+  {
+   "word": "rack",
+   "sound": "æ"
+  },
+  {
+   "word": "tack",
+   "sound": "æ"
+  },
+  {
+   "word": "track",
+   "sound": "æ"
+  },
+  {
+   "word": "black",
+   "sound": "æ"
+  },
+  {
+   "word": "crack",
+   "sound": "æ"
+  },
+  {
+   "word": "stack",
+   "sound": "æ"
+  },
+  {
+   "word": "snack",
+   "sound": "æ"
+  },
+  {
+   "word": "jack",
+   "sound": "æ"
+  },
+  {
+   "word": "bad",
+   "sound": "æ"
+  },
+  {
+   "word": "sad",
+   "sound": "æ"
+  },
+  {
+   "word": "mad",
+   "sound": "æ"
+  },
+  {
+   "word": "dad",
+   "sound": "æ"
+  },
+  {
+   "word": "glad",
+   "sound": "æ"
+  },
+  {
+   "word": "pad",
+   "sound": "æ"
+  },
+  {
+   "word": "bag",
+   "sound": "æ"
+  },
+  {
+   "word": "rag",
+   "sound": "æ"
+  },
+  {
+   "word": "tag",
+   "sound": "æ"
+  },
+  {
+   "word": "wag",
+   "sound": "æ"
+  },
+  {
+   "word": "flag",
+   "sound": "æ"
+  },
+  {
+   "word": "drag",
+   "sound": "æ"
+  },
+  {
+   "word": "brag",
+   "sound": "æ"
+  },
+  {
+   "word": "man",
+   "sound": "æ"
+  },
+  {
+   "word": "can",
+   "sound": "æ"
+  },
+  {
+   "word": "pan",
+   "sound": "æ"
+  },
+  {
+   "word": "fan",
+   "sound": "æ"
+  },
+  {
+   "word": "ran",
+   "sound": "æ"
+  },
+  {
+   "word": "tan",
+   "sound": "æ"
+  },
+  {
+   "word": "van",
+   "sound": "æ"
+  },
+  {
+   "word": "plan",
+   "sound": "æ"
+  },
+  {
+   "word": "than",
+   "sound": "æ"
+  },
+  {
+   "word": "hand",
+   "sound": "æ"
+  },
+  {
+   "word": "band",
+   "sound": "æ"
+  },
+  {
+   "word": "land",
+   "sound": "æ"
+  },
+  {
+   "word": "sand",
+   "sound": "æ"
+  },
+  {
+   "word": "stand",
+   "sound": "æ"
+  },
+  {
+   "word": "grand",
+   "sound": "æ"
+  },
+  {
+   "word": "ham",
+   "sound": "æ"
+  },
+  {
+   "word": "jam",
+   "sound": "æ"
+  },
+  {
+   "word": "ram",
+   "sound": "æ"
+  },
+  {
+   "word": "dam",
+   "sound": "æ"
+  },
+  {
+   "word": "slam",
+   "sound": "æ"
+  },
+  {
+   "word": "cram",
+   "sound": "æ"
+  },
+  {
+   "word": "ant",
+   "sound": "æ"
+  },
+  {
+   "word": "pant",
+   "sound": "æ"
+  },
+  {
+   "word": "plant",
+   "sound": "æ"
+  },
+  {
+   "word": "chant",
+   "sound": "æ"
+  },
+  {
+   "word": "grant",
+   "sound": "æ"
+  },
+  {
+   "word": "fact",
+   "sound": "æ"
+  },
+  {
+   "word": "act",
+   "sound": "æ"
+  },
+  {
+   "word": "pact",
+   "sound": "æ"
+  },
+  {
+   "word": "tact",
+   "sound": "æ"
+  },
+  {
+   "word": "tract",
+   "sound": "æ"
+  },
+  {
+   "word": "cash",
+   "sound": "æ"
+  },
+  {
+   "word": "dash",
+   "sound": "æ"
+  },
+  {
+   "word": "rash",
+   "sound": "æ"
+  },
+  {
+   "word": "crash",
+   "sound": "æ"
+  },
+  {
+   "word": "flash",
+   "sound": "æ"
+  },
+  {
+   "word": "trash",
+   "sound": "æ"
+  },
+  {
+   "word": "class",
+   "sound": "æ"
+  },
+  {
+   "word": "glass",
+   "sound": "æ"
+  },
+  {
+   "word": "grass",
+   "sound": "æ"
+  },
+  {
+   "word": "pass",
+   "sound": "æ"
+  },
+  {
+   "word": "mass",
+   "sound": "æ"
+  },
+  {
+   "word": "brass",
+   "sound": "æ"
+  },
+  {
+   "word": "path",
+   "sound": "æ"
+  },
+  {
+   "word": "bath",
+   "sound": "æ"
+  },
+  {
+   "word": "math",
+   "sound": "æ"
+  },
+  {
+   "word": "ask",
+   "sound": "æ"
+  },
+  {
+   "word": "task",
+   "sound": "æ"
+  },
+  {
+   "word": "mask",
+   "sound": "æ"
+  },
+  {
+   "word": "flask",
+   "sound": "æ"
+  },
+  {
+   "word": "bask",
+   "sound": "æ"
+  },
+  {
+   "word": "apple",
+   "sound": "æ"
+  },
+  {
+   "word": "happy",
+   "sound": "æ"
+  },
+  {
+   "word": "habit",
+   "sound": "æ"
+  },
+  {
+   "word": "hammer",
+   "sound": "æ"
+  },
+  {
+   "word": "handle",
+   "sound": "æ"
+  },
+  {
+   "word": "candle",
+   "sound": "æ"
+  },
+  {
+   "word": "cattle",
+   "sound": "æ"
+  },
+  {
+   "word": "battle",
+   "sound": "æ"
+  },
+  {
+   "word": "rattle",
+   "sound": "æ"
+  },
+  {
+   "word": "family",
+   "sound": "æ"
+  },
+  {
+   "word": "camera",
+   "sound": "æ"
+  },
+  {
+   "word": "animal",
+   "sound": "æ"
+  },
+  {
+   "word": "capital",
+   "sound": "æ"
+  },
+  {
+   "word": "national",
+   "sound": "æ"
+  },
+  {
+   "word": "natural",
+   "sound": "æ"
+  },
+  {
+   "word": "actual",
+   "sound": "æ"
+  },
+  {
+   "word": "accident",
+   "sound": "æ"
+  },
+  {
+   "word": "action",
+   "sound": "æ"
+  },
+  {
+   "word": "active",
+   "sound": "æ"
+  },
+  {
+   "word": "adapt",
+   "sound": "æ"
+  },
+  {
+   "word": "attack",
+   "sound": "æ"
+  },
+  {
+   "word": "balance",
+   "sound": "æ"
+  },
+  {
+   "word": "fantasy",
+   "sound": "æ"
+  },
+  {
+   "word": "manage",
+   "sound": "æ"
+  },
+  {
+   "word": "magic",
+   "sound": "æ"
+  },
+  {
+   "word": "matter",
+   "sound": "æ"
+  },
+  {
+   "word": "pattern",
+   "sound": "æ"
+  },
+  {
+   "word": "rapid",
+   "sound": "æ"
+  },
+  {
+   "word": "salad",
+   "sound": "æ"
+  },
+  {
+   "word": "talent",
+   "sound": "æ"
+  },
+  {
+   "word": "traffic",
+   "sound": "æ"
+  },
+  {
+   "word": "travel",
+   "sound": "æ"
+  },
+  {
+   "word": "value",
+   "sound": "æ"
+  },
+  {
+   "word": "laugh",
+   "sound": "æ"
+  },
+  {
+   "word": "half",
+   "sound": "æ"
+  },
+  {
+   "word": "calf",
+   "sound": "æ"
+  },
+  {
+   "word": "staff",
+   "sound": "æ"
+  },
+  {
+   "word": "draft",
+   "sound": "æ"
+  },
+  {
+   "word": "craft",
+   "sound": "æ"
+  },
+  {
+   "word": "plastic",
+   "sound": "æ"
+  },
+  {
+   "word": "dance",
+   "sound": "æ"
+  },
+  {
+   "word": "chance",
+   "sound": "æ"
+  },
+  {
+   "word": "answer",
+   "sound": "æ"
+  },
+  {
+   "word": "branch",
+   "sound": "æ"
+  },
+  {
+   "word": "aunt",
+   "sound": "æ",
+   "note": "米語では /ænt/、地域や話者により /ɑnt/"
+  },
+  {
+   "word": "hut",
+   "sound": "ʌ"
+  },
+  {
+   "word": "cut",
+   "sound": "ʌ"
+  },
+  {
+   "word": "but",
+   "sound": "ʌ"
+  },
+  {
+   "word": "nut",
+   "sound": "ʌ"
+  },
+  {
+   "word": "shut",
+   "sound": "ʌ"
+  },
+  {
+   "word": "gut",
+   "sound": "ʌ"
+  },
+  {
+   "word": "rut",
+   "sound": "ʌ"
+  },
+  {
+   "word": "strut",
+   "sound": "ʌ"
+  },
+  {
+   "word": "cup",
+   "sound": "ʌ"
+  },
+  {
+   "word": "up",
+   "sound": "ʌ"
+  },
+  {
+   "word": "pup",
+   "sound": "ʌ"
+  },
+  {
+   "word": "sup",
+   "sound": "ʌ"
+  },
+  {
+   "word": "luck",
+   "sound": "ʌ"
+  },
+  {
+   "word": "duck",
+   "sound": "ʌ"
+  },
+  {
+   "word": "buck",
+   "sound": "ʌ"
+  },
+  {
+   "word": "suck",
+   "sound": "ʌ"
+  },
+  {
+   "word": "tuck",
+   "sound": "ʌ"
+  },
+  {
+   "word": "truck",
+   "sound": "ʌ"
+  },
+  {
+   "word": "stuck",
+   "sound": "ʌ"
+  },
+  {
+   "word": "struck",
+   "sound": "ʌ"
+  },
+  {
+   "word": "pluck",
+   "sound": "ʌ"
+  },
+  {
+   "word": "bus",
+   "sound": "ʌ"
+  },
+  {
+   "word": "us",
+   "sound": "ʌ"
+  },
+  {
+   "word": "plus",
+   "sound": "ʌ"
+  },
+  {
+   "word": "thus",
+   "sound": "ʌ"
+  },
+  {
+   "word": "fuss",
+   "sound": "ʌ"
+  },
+  {
+   "word": "gun",
+   "sound": "ʌ"
+  },
+  {
+   "word": "sun",
+   "sound": "ʌ"
+  },
+  {
+   "word": "run",
+   "sound": "ʌ"
+  },
+  {
+   "word": "fun",
+   "sound": "ʌ"
+  },
+  {
+   "word": "bun",
+   "sound": "ʌ"
+  },
+  {
+   "word": "nun",
+   "sound": "ʌ"
+  },
+  {
+   "word": "pun",
+   "sound": "ʌ"
+  },
+  {
+   "word": "spun",
+   "sound": "ʌ"
+  },
+  {
+   "word": "stun",
+   "sound": "ʌ"
+  },
+  {
+   "word": "bug",
+   "sound": "ʌ"
+  },
+  {
+   "word": "hug",
+   "sound": "ʌ"
+  },
+  {
+   "word": "mug",
+   "sound": "ʌ"
+  },
+  {
+   "word": "rug",
+   "sound": "ʌ"
+  },
+  {
+   "word": "tug",
+   "sound": "ʌ"
+  },
+  {
+   "word": "dug",
+   "sound": "ʌ"
+  },
+  {
+   "word": "jug",
+   "sound": "ʌ"
+  },
+  {
+   "word": "plug",
+   "sound": "ʌ"
+  },
+  {
+   "word": "drug",
+   "sound": "ʌ"
+  },
+  {
+   "word": "shrug",
+   "sound": "ʌ"
+  },
+  {
+   "word": "snug",
+   "sound": "ʌ"
+  },
+  {
+   "word": "hum",
+   "sound": "ʌ"
+  },
+  {
+   "word": "gum",
+   "sound": "ʌ"
+  },
+  {
+   "word": "sum",
+   "sound": "ʌ"
+  },
+  {
+   "word": "drum",
+   "sound": "ʌ"
+  },
+  {
+   "word": "thumb",
+   "sound": "ʌ"
+  },
+  {
+   "word": "numb",
+   "sound": "ʌ"
+  },
+  {
+   "word": "dumb",
+   "sound": "ʌ"
+  },
+  {
+   "word": "crumb",
+   "sound": "ʌ"
+  },
+  {
+   "word": "plumb",
+   "sound": "ʌ"
+  },
+  {
+   "word": "rub",
+   "sound": "ʌ"
+  },
+  {
+   "word": "tub",
+   "sound": "ʌ"
+  },
+  {
+   "word": "sub",
+   "sound": "ʌ"
+  },
+  {
+   "word": "cub",
+   "sound": "ʌ"
+  },
+  {
+   "word": "hub",
+   "sound": "ʌ"
+  },
+  {
+   "word": "club",
+   "sound": "ʌ"
+  },
+  {
+   "word": "scrub",
+   "sound": "ʌ"
+  },
+  {
+   "word": "stub",
+   "sound": "ʌ"
+  },
+  {
+   "word": "bud",
+   "sound": "ʌ"
+  },
+  {
+   "word": "mud",
+   "sound": "ʌ"
+  },
+  {
+   "word": "stud",
+   "sound": "ʌ"
+  },
+  {
+   "word": "thud",
+   "sound": "ʌ"
+  },
+  {
+   "word": "dull",
+   "sound": "ʌ"
+  },
+  {
+   "word": "gull",
+   "sound": "ʌ"
+  },
+  {
+   "word": "hull",
+   "sound": "ʌ"
+  },
+  {
+   "word": "skull",
+   "sound": "ʌ"
+  },
+  {
+   "word": "null",
+   "sound": "ʌ"
+  },
+  {
+   "word": "bulb",
+   "sound": "ʌ"
+  },
+  {
+   "word": "bulk",
+   "sound": "ʌ"
+  },
+  {
+   "word": "hulk",
+   "sound": "ʌ"
+  },
+  {
+   "word": "sulk",
+   "sound": "ʌ"
+  },
+  {
+   "word": "lump",
+   "sound": "ʌ"
+  },
+  {
+   "word": "bump",
+   "sound": "ʌ"
+  },
+  {
+   "word": "dump",
+   "sound": "ʌ"
+  },
+  {
+   "word": "jump",
+   "sound": "ʌ"
+  },
+  {
+   "word": "pump",
+   "sound": "ʌ"
+  },
+  {
+   "word": "thump",
+   "sound": "ʌ"
+  },
+  {
+   "word": "plump",
+   "sound": "ʌ"
+  },
+  {
+   "word": "hunt",
+   "sound": "ʌ"
+  },
+  {
+   "word": "punt",
+   "sound": "ʌ"
+  },
+  {
+   "word": "bunt",
+   "sound": "ʌ"
+  },
+  {
+   "word": "blunt",
+   "sound": "ʌ"
+  },
+  {
+   "word": "stunt",
+   "sound": "ʌ"
+  },
+  {
+   "word": "lunch",
+   "sound": "ʌ"
+  },
+  {
+   "word": "bunch",
+   "sound": "ʌ"
+  },
+  {
+   "word": "punch",
+   "sound": "ʌ"
+  },
+  {
+   "word": "crunch",
+   "sound": "ʌ"
+  },
+  {
+   "word": "munch",
+   "sound": "ʌ"
+  },
+  {
+   "word": "hunch",
+   "sound": "ʌ"
+  },
+  {
+   "word": "dust",
+   "sound": "ʌ"
+  },
+  {
+   "word": "must",
+   "sound": "ʌ"
+  },
+  {
+   "word": "rust",
+   "sound": "ʌ"
+  },
+  {
+   "word": "trust",
+   "sound": "ʌ"
+  },
+  {
+   "word": "crust",
+   "sound": "ʌ"
+  },
+  {
+   "word": "gust",
+   "sound": "ʌ"
+  },
+  {
+   "word": "bust",
+   "sound": "ʌ"
+  },
+  {
+   "word": "just",
+   "sound": "ʌ"
+  },
+  {
+   "word": "under",
+   "sound": "ʌ"
+  },
+  {
+   "word": "thunder",
+   "sound": "ʌ"
+  },
+  {
+   "word": "hundred",
+   "sound": "ʌ"
+  },
+  {
+   "word": "hungry",
+   "sound": "ʌ"
+  },
+  {
+   "word": "husband",
+   "sound": "ʌ"
+  },
+  {
+   "word": "number",
+   "sound": "ʌ"
+  },
+  {
+   "word": "summer",
+   "sound": "ʌ"
+  },
+  {
+   "word": "sudden",
+   "sound": "ʌ"
+  },
+  {
+   "word": "supper",
+   "sound": "ʌ"
+  },
+  {
+   "word": "butter",
+   "sound": "ʌ"
+  },
+  {
+   "word": "button",
+   "sound": "ʌ"
+  },
+  {
+   "word": "funny",
+   "sound": "ʌ"
+  },
+  {
+   "word": "lucky",
+   "sound": "ʌ"
+  },
+  {
+   "word": "love",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "come",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "some",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "done",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "none",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "money",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "mother",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "brother",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "other",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "another",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "nothing",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "Monday",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "month",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "front",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "son",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "ton",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "won",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "wonder",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "cover",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "color",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "honey",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "onion",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "oven",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "glove",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "shove",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "above",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "dove",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "dozen",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "govern",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "sponge",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "stomach",
+   "sound": "ʌ",
+   "note": "綴り o だが /ʌ/"
+  },
+  {
+   "word": "young",
+   "sound": "ʌ",
+   "note": "綴り ou だが /ʌ/"
+  },
+  {
+   "word": "country",
+   "sound": "ʌ",
+   "note": "綴り ou だが /ʌ/"
+  },
+  {
+   "word": "cousin",
+   "sound": "ʌ",
+   "note": "綴り ou だが /ʌ/"
+  },
+  {
+   "word": "enough",
+   "sound": "ʌ",
+   "note": "綴り ou だが /ʌ/"
+  },
+  {
+   "word": "tough",
+   "sound": "ʌ",
+   "note": "綴り ou だが /ʌ/"
+  },
+  {
+   "word": "rough",
+   "sound": "ʌ",
+   "note": "綴り ou だが /ʌ/"
+  },
+  {
+   "word": "touch",
+   "sound": "ʌ",
+   "note": "綴り ou だが /ʌ/"
+  },
+  {
+   "word": "double",
+   "sound": "ʌ",
+   "note": "綴り ou だが /ʌ/"
+  },
+  {
+   "word": "trouble",
+   "sound": "ʌ",
+   "note": "綴り ou だが /ʌ/"
+  },
+  {
+   "word": "couple",
+   "sound": "ʌ",
+   "note": "綴り ou だが /ʌ/"
+  },
+  {
+   "word": "southern",
+   "sound": "ʌ",
+   "note": "綴り ou だが /ʌ/"
+  },
+  {
+   "word": "blood",
+   "sound": "ʌ",
+   "note": "綴り oo だが /ʌ/"
+  },
+  {
+   "word": "flood",
+   "sound": "ʌ",
+   "note": "綴り oo だが /ʌ/"
+  },
+  {
+   "word": "does",
+   "sound": "ʌ",
+   "note": "綴り oe だが /ʌ/"
+  },
+  {
+   "word": "seat",
+   "sound": "iː"
+  },
+  {
+   "word": "beat",
+   "sound": "iː"
+  },
+  {
+   "word": "heat",
+   "sound": "iː"
+  },
+  {
+   "word": "meat",
+   "sound": "iː"
+  },
+  {
+   "word": "neat",
+   "sound": "iː"
+  },
+  {
+   "word": "feat",
+   "sound": "iː"
+  },
+  {
+   "word": "eat",
+   "sound": "iː"
+  },
+  {
+   "word": "treat",
+   "sound": "iː"
+  },
+  {
+   "word": "wheat",
+   "sound": "iː"
+  },
+  {
+   "word": "cheat",
+   "sound": "iː"
+  },
+  {
+   "word": "peak",
+   "sound": "iː"
+  },
+  {
+   "word": "leak",
+   "sound": "iː"
+  },
+  {
+   "word": "weak",
+   "sound": "iː"
+  },
+  {
+   "word": "speak",
+   "sound": "iː"
+  },
+  {
+   "word": "sneak",
+   "sound": "iː"
+  },
+  {
+   "word": "beak",
+   "sound": "iː"
+  },
+  {
+   "word": "see",
+   "sound": "iː"
+  },
+  {
+   "word": "bee",
+   "sound": "iː"
+  },
+  {
+   "word": "tee",
+   "sound": "iː"
+  },
+  {
+   "word": "fee",
+   "sound": "iː"
+  },
+  {
+   "word": "free",
+   "sound": "iː"
+  },
+  {
+   "word": "tree",
+   "sound": "iː"
+  },
+  {
+   "word": "three",
+   "sound": "iː"
+  },
+  {
+   "word": "knee",
+   "sound": "iː"
+  },
+  {
+   "word": "flee",
+   "sound": "iː"
+  },
+  {
+   "word": "glee",
+   "sound": "iː"
+  },
+  {
+   "word": "agree",
+   "sound": "iː"
+  },
+  {
+   "word": "seed",
+   "sound": "iː"
+  },
+  {
+   "word": "need",
+   "sound": "iː"
+  },
+  {
+   "word": "feed",
+   "sound": "iː"
+  },
+  {
+   "word": "weed",
+   "sound": "iː"
+  },
+  {
+   "word": "deed",
+   "sound": "iː"
+  },
+  {
+   "word": "bleed",
+   "sound": "iː"
+  },
+  {
+   "word": "speed",
+   "sound": "iː"
+  },
+  {
+   "word": "greed",
+   "sound": "iː"
+  },
+  {
+   "word": "feel",
+   "sound": "iː"
+  },
+  {
+   "word": "heel",
+   "sound": "iː"
+  },
+  {
+   "word": "peel",
+   "sound": "iː"
+  },
+  {
+   "word": "steel",
+   "sound": "iː"
+  },
+  {
+   "word": "wheel",
+   "sound": "iː"
+  },
+  {
+   "word": "kneel",
+   "sound": "iː"
+  },
+  {
+   "word": "keen",
+   "sound": "iː"
+  },
+  {
+   "word": "seen",
+   "sound": "iː"
+  },
+  {
+   "word": "teen",
+   "sound": "iː"
+  },
+  {
+   "word": "green",
+   "sound": "iː"
+  },
+  {
+   "word": "queen",
+   "sound": "iː"
+  },
+  {
+   "word": "screen",
+   "sound": "iː"
+  },
+  {
+   "word": "keep",
+   "sound": "iː"
+  },
+  {
+   "word": "deep",
+   "sound": "iː"
+  },
+  {
+   "word": "sleep",
+   "sound": "iː"
+  },
+  {
+   "word": "sheep",
+   "sound": "iː"
+  },
+  {
+   "word": "steep",
+   "sound": "iː"
+  },
+  {
+   "word": "sweep",
+   "sound": "iː"
+  },
+  {
+   "word": "creep",
+   "sound": "iː"
+  },
+  {
+   "word": "feet",
+   "sound": "iː"
+  },
+  {
+   "word": "meet",
+   "sound": "iː"
+  },
+  {
+   "word": "sweet",
+   "sound": "iː"
+  },
+  {
+   "word": "street",
+   "sound": "iː"
+  },
+  {
+   "word": "fleet",
+   "sound": "iː"
+  },
+  {
+   "word": "greet",
+   "sound": "iː"
+  },
+  {
+   "word": "sheet",
+   "sound": "iː"
+  },
+  {
+   "word": "beef",
+   "sound": "iː"
+  },
+  {
+   "word": "reef",
+   "sound": "iː"
+  },
+  {
+   "word": "leaf",
+   "sound": "iː"
+  },
+  {
+   "word": "sheaf",
+   "sound": "iː"
+  },
+  {
+   "word": "teeth",
+   "sound": "iː"
+  },
+  {
+   "word": "these",
+   "sound": "iː"
+  },
+  {
+   "word": "theme",
+   "sound": "iː"
+  },
+  {
+   "word": "scheme",
+   "sound": "iː"
+  },
+  {
+   "word": "leave",
+   "sound": "iː"
+  },
+  {
+   "word": "weave",
+   "sound": "iː"
+  },
+  {
+   "word": "sleeve",
+   "sound": "iː"
+  },
+  {
+   "word": "grieve",
+   "sound": "iː"
+  },
+  {
+   "word": "believe",
+   "sound": "iː"
+  },
+  {
+   "word": "receive",
+   "sound": "iː"
+  },
+  {
+   "word": "achieve",
+   "sound": "iː"
+  },
+  {
+   "word": "piece",
+   "sound": "iː"
+  },
+  {
+   "word": "niece",
+   "sound": "iː"
+  },
+  {
+   "word": "field",
+   "sound": "iː"
+  },
+  {
+   "word": "yield",
+   "sound": "iː"
+  },
+  {
+   "word": "shield",
+   "sound": "iː"
+  },
+  {
+   "word": "chief",
+   "sound": "iː"
+  },
+  {
+   "word": "thief",
+   "sound": "iː"
+  },
+  {
+   "word": "grief",
+   "sound": "iː"
+  },
+  {
+   "word": "brief",
+   "sound": "iː"
+  },
+  {
+   "word": "key",
+   "sound": "iː"
+  },
+  {
+   "word": "sea",
+   "sound": "iː"
+  },
+  {
+   "word": "tea",
+   "sound": "iː"
+  },
+  {
+   "word": "pea",
+   "sound": "iː"
+  },
+  {
+   "word": "flea",
+   "sound": "iː"
+  },
+  {
+   "word": "plea",
+   "sound": "iː"
+  },
+  {
+   "word": "please",
+   "sound": "iː"
+  },
+  {
+   "word": "tease",
+   "sound": "iː"
+  },
+  {
+   "word": "cease",
+   "sound": "iː"
+  },
+  {
+   "word": "lease",
+   "sound": "iː"
+  },
+  {
+   "word": "peace",
+   "sound": "iː"
+  },
+  {
+   "word": "reach",
+   "sound": "iː"
+  },
+  {
+   "word": "teach",
+   "sound": "iː"
+  },
+  {
+   "word": "beach",
+   "sound": "iː"
+  },
+  {
+   "word": "each",
+   "sound": "iː"
+  },
+  {
+   "word": "peach",
+   "sound": "iː"
+  },
+  {
+   "word": "bleach",
+   "sound": "iː"
+  },
+  {
+   "word": "cheap",
+   "sound": "iː"
+  },
+  {
+   "word": "heap",
+   "sound": "iː"
+  },
+  {
+   "word": "leap",
+   "sound": "iː"
+  },
+  {
+   "word": "reap",
+   "sound": "iː"
+  },
+  {
+   "word": "deal",
+   "sound": "iː"
+  },
+  {
+   "word": "heal",
+   "sound": "iː"
+  },
+  {
+   "word": "meal",
+   "sound": "iː"
+  },
+  {
+   "word": "seal",
+   "sound": "iː"
+  },
+  {
+   "word": "steal",
+   "sound": "iː"
+  },
+  {
+   "word": "real",
+   "sound": "iː"
+  },
+  {
+   "word": "evening",
+   "sound": "iː"
+  },
+  {
+   "word": "even",
+   "sound": "iː"
+  },
+  {
+   "word": "female",
+   "sound": "iː"
+  },
+  {
+   "word": "fever",
+   "sound": "iː"
+  },
+  {
+   "word": "legal",
+   "sound": "iː"
+  },
+  {
+   "word": "recent",
+   "sound": "iː"
+  },
+  {
+   "word": "secret",
+   "sound": "iː"
+  },
+  {
+   "word": "sit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "bit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "hit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "fit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "kit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "lit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "pit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "wit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "quit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "spit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "split",
+   "sound": "ɪ"
+  },
+  {
+   "word": "knit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "grit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "pick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "sick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "kick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "lick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "tick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "thick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "quick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "trick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "stick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "brick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "chick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "click",
+   "sound": "ɪ"
+  },
+  {
+   "word": "slick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "flick",
+   "sound": "ɪ"
+  },
+  {
+   "word": "big",
+   "sound": "ɪ"
+  },
+  {
+   "word": "dig",
+   "sound": "ɪ"
+  },
+  {
+   "word": "fig",
+   "sound": "ɪ"
+  },
+  {
+   "word": "pig",
+   "sound": "ɪ"
+  },
+  {
+   "word": "wig",
+   "sound": "ɪ"
+  },
+  {
+   "word": "rig",
+   "sound": "ɪ"
+  },
+  {
+   "word": "twig",
+   "sound": "ɪ"
+  },
+  {
+   "word": "fill",
+   "sound": "ɪ"
+  },
+  {
+   "word": "hill",
+   "sound": "ɪ"
+  },
+  {
+   "word": "kill",
+   "sound": "ɪ"
+  },
+  {
+   "word": "pill",
+   "sound": "ɪ"
+  },
+  {
+   "word": "will",
+   "sound": "ɪ"
+  },
+  {
+   "word": "still",
+   "sound": "ɪ"
+  },
+  {
+   "word": "spill",
+   "sound": "ɪ"
+  },
+  {
+   "word": "drill",
+   "sound": "ɪ"
+  },
+  {
+   "word": "grill",
+   "sound": "ɪ"
+  },
+  {
+   "word": "chill",
+   "sound": "ɪ"
+  },
+  {
+   "word": "skill",
+   "sound": "ɪ"
+  },
+  {
+   "word": "thrill",
+   "sound": "ɪ"
+  },
+  {
+   "word": "in",
+   "sound": "ɪ"
+  },
+  {
+   "word": "pin",
+   "sound": "ɪ"
+  },
+  {
+   "word": "tin",
+   "sound": "ɪ"
+  },
+  {
+   "word": "win",
+   "sound": "ɪ"
+  },
+  {
+   "word": "bin",
+   "sound": "ɪ"
+  },
+  {
+   "word": "thin",
+   "sound": "ɪ"
+  },
+  {
+   "word": "skin",
+   "sound": "ɪ"
+  },
+  {
+   "word": "spin",
+   "sound": "ɪ"
+  },
+  {
+   "word": "twin",
+   "sound": "ɪ"
+  },
+  {
+   "word": "grin",
+   "sound": "ɪ"
+  },
+  {
+   "word": "chin",
+   "sound": "ɪ"
+  },
+  {
+   "word": "ship",
+   "sound": "ɪ"
+  },
+  {
+   "word": "hip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "lip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "sip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "tip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "dip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "chip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "whip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "skip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "trip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "drip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "strip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "grip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "flip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "slip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "clip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "snip",
+   "sound": "ɪ"
+  },
+  {
+   "word": "ditch",
+   "sound": "ɪ"
+  },
+  {
+   "word": "pitch",
+   "sound": "ɪ"
+  },
+  {
+   "word": "witch",
+   "sound": "ɪ"
+  },
+  {
+   "word": "switch",
+   "sound": "ɪ"
+  },
+  {
+   "word": "rich",
+   "sound": "ɪ"
+  },
+  {
+   "word": "which",
+   "sound": "ɪ"
+  },
+  {
+   "word": "fish",
+   "sound": "ɪ"
+  },
+  {
+   "word": "dish",
+   "sound": "ɪ"
+  },
+  {
+   "word": "wish",
+   "sound": "ɪ"
+  },
+  {
+   "word": "milk",
+   "sound": "ɪ"
+  },
+  {
+   "word": "silk",
+   "sound": "ɪ"
+  },
+  {
+   "word": "film",
+   "sound": "ɪ"
+  },
+  {
+   "word": "build",
+   "sound": "ɪ"
+  },
+  {
+   "word": "built",
+   "sound": "ɪ"
+  },
+  {
+   "word": "guilt",
+   "sound": "ɪ"
+  },
+  {
+   "word": "busy",
+   "sound": "ɪ"
+  },
+  {
+   "word": "women",
+   "sound": "ɪ"
+  },
+  {
+   "word": "pretty",
+   "sound": "ɪ"
+  },
+  {
+   "word": "gym",
+   "sound": "ɪ"
+  },
+  {
+   "word": "hymn",
+   "sound": "ɪ"
+  },
+  {
+   "word": "myth",
+   "sound": "ɪ"
+  },
+  {
+   "word": "system",
+   "sound": "ɪ"
+  },
+  {
+   "word": "symbol",
+   "sound": "ɪ"
+  },
+  {
+   "word": "rhythm",
+   "sound": "ɪ"
+  },
+  {
+   "word": "give",
+   "sound": "ɪ"
+  },
+  {
+   "word": "live",
+   "sound": "ɪ"
+  },
+  {
+   "word": "river",
+   "sound": "ɪ"
+  },
+  {
+   "word": "liver",
+   "sound": "ɪ"
+  },
+  {
+   "word": "visit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "limit",
+   "sound": "ɪ"
+  },
+  {
+   "word": "minute",
+   "sound": "ɪ"
+  },
+  {
+   "word": "finish",
+   "sound": "ɪ"
+  },
+  {
+   "word": "vivid",
+   "sound": "ɪ"
+  },
+  {
+   "word": "dinner",
+   "sound": "ɪ"
+  },
+  {
+   "word": "winner",
+   "sound": "ɪ"
+  },
+  {
+   "word": "set",
+   "sound": "e"
+  },
+  {
+   "word": "bet",
+   "sound": "e"
+  },
+  {
+   "word": "get",
+   "sound": "e"
+  },
+  {
+   "word": "let",
+   "sound": "e"
+  },
+  {
+   "word": "met",
+   "sound": "e"
+  },
+  {
+   "word": "net",
+   "sound": "e"
+  },
+  {
+   "word": "pet",
+   "sound": "e"
+  },
+  {
+   "word": "wet",
+   "sound": "e"
+  },
+  {
+   "word": "yet",
+   "sound": "e"
+  },
+  {
+   "word": "jet",
+   "sound": "e"
+  },
+  {
+   "word": "vet",
+   "sound": "e"
+  },
+  {
+   "word": "debt",
+   "sound": "e"
+  },
+  {
+   "word": "sweat",
+   "sound": "e"
+  },
+  {
+   "word": "threat",
+   "sound": "e"
+  },
+  {
+   "word": "bed",
+   "sound": "e"
+  },
+  {
+   "word": "fed",
+   "sound": "e"
+  },
+  {
+   "word": "led",
+   "sound": "e"
+  },
+  {
+   "word": "red",
+   "sound": "e"
+  },
+  {
+   "word": "wed",
+   "sound": "e"
+  },
+  {
+   "word": "shed",
+   "sound": "e"
+  },
+  {
+   "word": "sled",
+   "sound": "e"
+  },
+  {
+   "word": "bread",
+   "sound": "e"
+  },
+  {
+   "word": "dead",
+   "sound": "e"
+  },
+  {
+   "word": "head",
+   "sound": "e"
+  },
+  {
+   "word": "said",
+   "sound": "e"
+  },
+  {
+   "word": "thread",
+   "sound": "e"
+  },
+  {
+   "word": "spread",
+   "sound": "e"
+  },
+  {
+   "word": "pen",
+   "sound": "e"
+  },
+  {
+   "word": "ten",
+   "sound": "e"
+  },
+  {
+   "word": "hen",
+   "sound": "e"
+  },
+  {
+   "word": "men",
+   "sound": "e"
+  },
+  {
+   "word": "den",
+   "sound": "e"
+  },
+  {
+   "word": "then",
+   "sound": "e"
+  },
+  {
+   "word": "when",
+   "sound": "e"
+  },
+  {
+   "word": "yen",
+   "sound": "e"
+  },
+  {
+   "word": "bench",
+   "sound": "e"
+  },
+  {
+   "word": "wrench",
+   "sound": "e"
+  },
+  {
+   "word": "trench",
+   "sound": "e"
+  },
+  {
+   "word": "bell",
+   "sound": "e"
+  },
+  {
+   "word": "tell",
+   "sound": "e"
+  },
+  {
+   "word": "sell",
+   "sound": "e"
+  },
+  {
+   "word": "well",
+   "sound": "e"
+  },
+  {
+   "word": "fell",
+   "sound": "e"
+  },
+  {
+   "word": "yell",
+   "sound": "e"
+  },
+  {
+   "word": "shell",
+   "sound": "e"
+  },
+  {
+   "word": "smell",
+   "sound": "e"
+  },
+  {
+   "word": "spell",
+   "sound": "e"
+  },
+  {
+   "word": "swell",
+   "sound": "e"
+  },
+  {
+   "word": "dwell",
+   "sound": "e"
+  },
+  {
+   "word": "cell",
+   "sound": "e"
+  },
+  {
+   "word": "egg",
+   "sound": "e"
+  },
+  {
+   "word": "leg",
+   "sound": "e"
+  },
+  {
+   "word": "beg",
+   "sound": "e"
+  },
+  {
+   "word": "peg",
+   "sound": "e"
+  },
+  {
+   "word": "neck",
+   "sound": "e"
+  },
+  {
+   "word": "check",
+   "sound": "e"
+  },
+  {
+   "word": "deck",
+   "sound": "e"
+  },
+  {
+   "word": "peck",
+   "sound": "e"
+  },
+  {
+   "word": "wreck",
+   "sound": "e"
+  },
+  {
+   "word": "speck",
+   "sound": "e"
+  },
+  {
+   "word": "desk",
+   "sound": "e"
+  },
+  {
+   "word": "chest",
+   "sound": "e"
+  },
+  {
+   "word": "rest",
+   "sound": "e"
+  },
+  {
+   "word": "test",
+   "sound": "e"
+  },
+  {
+   "word": "nest",
+   "sound": "e"
+  },
+  {
+   "word": "best",
+   "sound": "e"
+  },
+  {
+   "word": "west",
+   "sound": "e"
+  },
+  {
+   "word": "vest",
+   "sound": "e"
+  },
+  {
+   "word": "guest",
+   "sound": "e"
+  },
+  {
+   "word": "quest",
+   "sound": "e"
+  },
+  {
+   "word": "pest",
+   "sound": "e"
+  },
+  {
+   "word": "bend",
+   "sound": "e"
+  },
+  {
+   "word": "send",
+   "sound": "e"
+  },
+  {
+   "word": "lend",
+   "sound": "e"
+  },
+  {
+   "word": "mend",
+   "sound": "e"
+  },
+  {
+   "word": "tend",
+   "sound": "e"
+  },
+  {
+   "word": "spend",
+   "sound": "e"
+  },
+  {
+   "word": "blend",
+   "sound": "e"
+  },
+  {
+   "word": "trend",
+   "sound": "e"
+  },
+  {
+   "word": "friend",
+   "sound": "e"
+  },
+  {
+   "word": "end",
+   "sound": "e"
+  },
+  {
+   "word": "left",
+   "sound": "e"
+  },
+  {
+   "word": "kept",
+   "sound": "e"
+  },
+  {
+   "word": "slept",
+   "sound": "e"
+  },
+  {
+   "word": "wept",
+   "sound": "e"
+  },
+  {
+   "word": "swept",
+   "sound": "e"
+  },
+  {
+   "word": "step",
+   "sound": "e"
+  },
+  {
+   "word": "next",
+   "sound": "e"
+  },
+  {
+   "word": "text",
+   "sound": "e"
+  },
+  {
+   "word": "breath",
+   "sound": "e"
+  },
+  {
+   "word": "death",
+   "sound": "e"
+  },
+  {
+   "word": "health",
+   "sound": "e"
+  },
+  {
+   "word": "wealth",
+   "sound": "e"
+  },
+  {
+   "word": "stealth",
+   "sound": "e"
+  },
+  {
+   "word": "heavy",
+   "sound": "e"
+  },
+  {
+   "word": "ready",
+   "sound": "e"
+  },
+  {
+   "word": "steady",
+   "sound": "e"
+  },
+  {
+   "word": "many",
+   "sound": "e"
+  },
+  {
+   "word": "any",
+   "sound": "e"
+  },
+  {
+   "word": "better",
+   "sound": "e"
+  },
+  {
+   "word": "letter",
+   "sound": "e"
+  },
+  {
+   "word": "never",
+   "sound": "e"
+  },
+  {
+   "word": "ever",
+   "sound": "e"
+  },
+  {
+   "word": "every",
+   "sound": "e"
+  },
+  {
+   "word": "seven",
+   "sound": "e"
+  },
+  {
+   "word": "eleven",
+   "sound": "e"
+  },
+  {
+   "word": "twenty",
+   "sound": "e"
+  },
+  {
+   "word": "plenty",
+   "sound": "e"
+  },
+  {
+   "word": "empty",
+   "sound": "e"
+  },
+  {
+   "word": "pool",
+   "sound": "uː"
+  },
+  {
+   "word": "fool",
+   "sound": "uː"
+  },
+  {
+   "word": "cool",
+   "sound": "uː"
+  },
+  {
+   "word": "tool",
+   "sound": "uː"
+  },
+  {
+   "word": "stool",
+   "sound": "uː"
+  },
+  {
+   "word": "school",
+   "sound": "uː"
+  },
+  {
+   "word": "spool",
+   "sound": "uː"
+  },
+  {
+   "word": "moon",
+   "sound": "uː"
+  },
+  {
+   "word": "soon",
+   "sound": "uː"
+  },
+  {
+   "word": "noon",
+   "sound": "uː"
+  },
+  {
+   "word": "spoon",
+   "sound": "uː"
+  },
+  {
+   "word": "boom",
+   "sound": "uː"
+  },
+  {
+   "word": "room",
+   "sound": "uː"
+  },
+  {
+   "word": "broom",
+   "sound": "uː"
+  },
+  {
+   "word": "bloom",
+   "sound": "uː"
+  },
+  {
+   "word": "gloom",
+   "sound": "uː"
+  },
+  {
+   "word": "food",
+   "sound": "uː"
+  },
+  {
+   "word": "mood",
+   "sound": "uː"
+  },
+  {
+   "word": "proof",
+   "sound": "uː"
+  },
+  {
+   "word": "boot",
+   "sound": "uː"
+  },
+  {
+   "word": "hoot",
+   "sound": "uː"
+  },
+  {
+   "word": "shoot",
+   "sound": "uː"
+  },
+  {
+   "word": "loot",
+   "sound": "uː"
+  },
+  {
+   "word": "tooth",
+   "sound": "uː"
+  },
+  {
+   "word": "booth",
+   "sound": "uː"
+  },
+  {
+   "word": "smooth",
+   "sound": "uː"
+  },
+  {
+   "word": "loose",
+   "sound": "uː"
+  },
+  {
+   "word": "goose",
+   "sound": "uː"
+  },
+  {
+   "word": "moose",
+   "sound": "uː"
+  },
+  {
+   "word": "choose",
+   "sound": "uː"
+  },
+  {
+   "word": "blue",
+   "sound": "uː"
+  },
+  {
+   "word": "true",
+   "sound": "uː"
+  },
+  {
+   "word": "glue",
+   "sound": "uː"
+  },
+  {
+   "word": "clue",
+   "sound": "uː"
+  },
+  {
+   "word": "due",
+   "sound": "uː"
+  },
+  {
+   "word": "sue",
+   "sound": "uː"
+  },
+  {
+   "word": "cue",
+   "sound": "uː"
+  },
+  {
+   "word": "flu",
+   "sound": "uː"
+  },
+  {
+   "word": "zoo",
+   "sound": "uː"
+  },
+  {
+   "word": "too",
+   "sound": "uː"
+  },
+  {
+   "word": "boo",
+   "sound": "uː"
+  },
+  {
+   "word": "two",
+   "sound": "uː"
+  },
+  {
+   "word": "who",
+   "sound": "uː"
+  },
+  {
+   "word": "shoe",
+   "sound": "uː"
+  },
+  {
+   "word": "canoe",
+   "sound": "uː"
+  },
+  {
+   "word": "soup",
+   "sound": "uː"
+  },
+  {
+   "word": "group",
+   "sound": "uː"
+  },
+  {
+   "word": "troupe",
+   "sound": "uː"
+  },
+  {
+   "word": "youth",
+   "sound": "uː"
+  },
+  {
+   "word": "through",
+   "sound": "uː"
+  },
+  {
+   "word": "crew",
+   "sound": "uː"
+  },
+  {
+   "word": "drew",
+   "sound": "uː"
+  },
+  {
+   "word": "grew",
+   "sound": "uː"
+  },
+  {
+   "word": "threw",
+   "sound": "uː"
+  },
+  {
+   "word": "brew",
+   "sound": "uː"
+  },
+  {
+   "word": "stew",
+   "sound": "uː"
+  },
+  {
+   "word": "chew",
+   "sound": "uː"
+  },
+  {
+   "word": "few",
+   "sound": "uː"
+  },
+  {
+   "word": "new",
+   "sound": "uː"
+  },
+  {
+   "word": "dew",
+   "sound": "uː"
+  },
+  {
+   "word": "suit",
+   "sound": "uː"
+  },
+  {
+   "word": "fruit",
+   "sound": "uː"
+  },
+  {
+   "word": "juice",
+   "sound": "uː"
+  },
+  {
+   "word": "cruise",
+   "sound": "uː"
+  },
+  {
+   "word": "bruise",
+   "sound": "uː"
+  },
+  {
+   "word": "rule",
+   "sound": "uː"
+  },
+  {
+   "word": "mule",
+   "sound": "uː"
+  },
+  {
+   "word": "tune",
+   "sound": "uː"
+  },
+  {
+   "word": "dune",
+   "sound": "uː"
+  },
+  {
+   "word": "June",
+   "sound": "uː"
+  },
+  {
+   "word": "prune",
+   "sound": "uː"
+  },
+  {
+   "word": "rude",
+   "sound": "uː"
+  },
+  {
+   "word": "nude",
+   "sound": "uː"
+  },
+  {
+   "word": "crude",
+   "sound": "uː"
+  },
+  {
+   "word": "include",
+   "sound": "uː"
+  },
+  {
+   "word": "move",
+   "sound": "uː"
+  },
+  {
+   "word": "prove",
+   "sound": "uː"
+  },
+  {
+   "word": "lose",
+   "sound": "uː"
+  },
+  {
+   "word": "whose",
+   "sound": "uː"
+  },
+  {
+   "word": "tomb",
+   "sound": "uː"
+  },
+  {
+   "word": "womb",
+   "sound": "uː"
+  },
+  {
+   "word": "do",
+   "sound": "uː"
+  },
+  {
+   "word": "you",
+   "sound": "uː"
+  },
+  {
+   "word": "flute",
+   "sound": "uː"
+  },
+  {
+   "word": "lute",
+   "sound": "uː"
+  },
+  {
+   "word": "duty",
+   "sound": "uː"
+  },
+  {
+   "word": "ruby",
+   "sound": "uː"
+  },
+  {
+   "word": "truly",
+   "sound": "uː"
+  },
+  {
+   "word": "roof",
+   "sound": "uː",
+   "note": "中西部などでは /ʊ/ とも"
+  },
+  {
+   "word": "root",
+   "sound": "uː",
+   "note": "中西部などでは /ʊ/ とも"
+  },
+  {
+   "word": "hoof",
+   "sound": "uː",
+   "note": "中西部などでは /ʊ/ とも"
+  },
+  {
+   "word": "pull",
+   "sound": "ʊ"
+  },
+  {
+   "word": "full",
+   "sound": "ʊ"
+  },
+  {
+   "word": "bull",
+   "sound": "ʊ"
+  },
+  {
+   "word": "wool",
+   "sound": "ʊ"
+  },
+  {
+   "word": "wolf",
+   "sound": "ʊ"
+  },
+  {
+   "word": "put",
+   "sound": "ʊ"
+  },
+  {
+   "word": "push",
+   "sound": "ʊ"
+  },
+  {
+   "word": "bush",
+   "sound": "ʊ"
+  },
+  {
+   "word": "cushion",
+   "sound": "ʊ"
+  },
+  {
+   "word": "pudding",
+   "sound": "ʊ"
+  },
+  {
+   "word": "butcher",
+   "sound": "ʊ"
+  },
+  {
+   "word": "sugar",
+   "sound": "ʊ"
+  },
+  {
+   "word": "book",
+   "sound": "ʊ"
+  },
+  {
+   "word": "look",
+   "sound": "ʊ"
+  },
+  {
+   "word": "took",
+   "sound": "ʊ"
+  },
+  {
+   "word": "cook",
+   "sound": "ʊ"
+  },
+  {
+   "word": "hook",
+   "sound": "ʊ"
+  },
+  {
+   "word": "nook",
+   "sound": "ʊ"
+  },
+  {
+   "word": "brook",
+   "sound": "ʊ"
+  },
+  {
+   "word": "crook",
+   "sound": "ʊ"
+  },
+  {
+   "word": "shook",
+   "sound": "ʊ"
+  },
+  {
+   "word": "good",
+   "sound": "ʊ"
+  },
+  {
+   "word": "hood",
+   "sound": "ʊ"
+  },
+  {
+   "word": "wood",
+   "sound": "ʊ"
+  },
+  {
+   "word": "stood",
+   "sound": "ʊ"
+  },
+  {
+   "word": "foot",
+   "sound": "ʊ"
+  },
+  {
+   "word": "soot",
+   "sound": "ʊ"
+  },
+  {
+   "word": "should",
+   "sound": "ʊ"
+  },
+  {
+   "word": "could",
+   "sound": "ʊ"
+  },
+  {
+   "word": "would",
+   "sound": "ʊ"
+  },
+  {
+   "word": "woman",
+   "sound": "ʊ"
+  },
+  {
+   "word": "bosom",
+   "sound": "ʊ"
+  },
+  {
+   "word": "bullet",
+   "sound": "ʊ"
+  },
+  {
+   "word": "bulletin",
+   "sound": "ʊ"
+  },
+  {
+   "word": "buy",
+   "sound": "aɪ"
+  },
+  {
+   "word": "tie",
+   "sound": "aɪ"
+  },
+  {
+   "word": "lie",
+   "sound": "aɪ"
+  },
+  {
+   "word": "die",
+   "sound": "aɪ"
+  },
+  {
+   "word": "pie",
+   "sound": "aɪ"
+  },
+  {
+   "word": "my",
+   "sound": "aɪ"
+  },
+  {
+   "word": "by",
+   "sound": "aɪ"
+  },
+  {
+   "word": "why",
+   "sound": "aɪ"
+  },
+  {
+   "word": "fly",
+   "sound": "aɪ"
+  },
+  {
+   "word": "sky",
+   "sound": "aɪ"
+  },
+  {
+   "word": "shy",
+   "sound": "aɪ"
+  },
+  {
+   "word": "dry",
+   "sound": "aɪ"
+  },
+  {
+   "word": "try",
+   "sound": "aɪ"
+  },
+  {
+   "word": "cry",
+   "sound": "aɪ"
+  },
+  {
+   "word": "fry",
+   "sound": "aɪ"
+  },
+  {
+   "word": "spy",
+   "sound": "aɪ"
+  },
+  {
+   "word": "sly",
+   "sound": "aɪ"
+  },
+  {
+   "word": "ride",
+   "sound": "aɪ"
+  },
+  {
+   "word": "side",
+   "sound": "aɪ"
+  },
+  {
+   "word": "hide",
+   "sound": "aɪ"
+  },
+  {
+   "word": "wide",
+   "sound": "aɪ"
+  },
+  {
+   "word": "tide",
+   "sound": "aɪ"
+  },
+  {
+   "word": "bride",
+   "sound": "aɪ"
+  },
+  {
+   "word": "pride",
+   "sound": "aɪ"
+  },
+  {
+   "word": "slide",
+   "sound": "aɪ"
+  },
+  {
+   "word": "glide",
+   "sound": "aɪ"
+  },
+  {
+   "word": "guide",
+   "sound": "aɪ"
+  },
+  {
+   "word": "bike",
+   "sound": "aɪ"
+  },
+  {
+   "word": "hike",
+   "sound": "aɪ"
+  },
+  {
+   "word": "like",
+   "sound": "aɪ"
+  },
+  {
+   "word": "mike",
+   "sound": "aɪ"
+  },
+  {
+   "word": "pike",
+   "sound": "aɪ"
+  },
+  {
+   "word": "spike",
+   "sound": "aɪ"
+  },
+  {
+   "word": "strike",
+   "sound": "aɪ"
+  },
+  {
+   "word": "time",
+   "sound": "aɪ"
+  },
+  {
+   "word": "lime",
+   "sound": "aɪ"
+  },
+  {
+   "word": "dime",
+   "sound": "aɪ"
+  },
+  {
+   "word": "mime",
+   "sound": "aɪ"
+  },
+  {
+   "word": "chime",
+   "sound": "aɪ"
+  },
+  {
+   "word": "crime",
+   "sound": "aɪ"
+  },
+  {
+   "word": "prime",
+   "sound": "aɪ"
+  },
+  {
+   "word": "climb",
+   "sound": "aɪ"
+  },
+  {
+   "word": "line",
+   "sound": "aɪ"
+  },
+  {
+   "word": "fine",
+   "sound": "aɪ"
+  },
+  {
+   "word": "mine",
+   "sound": "aɪ"
+  },
+  {
+   "word": "nine",
+   "sound": "aɪ"
+  },
+  {
+   "word": "pine",
+   "sound": "aɪ"
+  },
+  {
+   "word": "wine",
+   "sound": "aɪ"
+  },
+  {
+   "word": "shine",
+   "sound": "aɪ"
+  },
+  {
+   "word": "spine",
+   "sound": "aɪ"
+  },
+  {
+   "word": "five",
+   "sound": "aɪ"
+  },
+  {
+   "word": "dive",
+   "sound": "aɪ"
+  },
+  {
+   "word": "hive",
+   "sound": "aɪ"
+  },
+  {
+   "word": "drive",
+   "sound": "aɪ"
+  },
+  {
+   "word": "strive",
+   "sound": "aɪ"
+  },
+  {
+   "word": "thrive",
+   "sound": "aɪ"
+  },
+  {
+   "word": "life",
+   "sound": "aɪ"
+  },
+  {
+   "word": "wife",
+   "sound": "aɪ"
+  },
+  {
+   "word": "knife",
+   "sound": "aɪ"
+  },
+  {
+   "word": "strife",
+   "sound": "aɪ"
+  },
+  {
+   "word": "light",
+   "sound": "aɪ"
+  },
+  {
+   "word": "night",
+   "sound": "aɪ"
+  },
+  {
+   "word": "right",
+   "sound": "aɪ"
+  },
+  {
+   "word": "sight",
+   "sound": "aɪ"
+  },
+  {
+   "word": "tight",
+   "sound": "aɪ"
+  },
+  {
+   "word": "fight",
+   "sound": "aɪ"
+  },
+  {
+   "word": "might",
+   "sound": "aɪ"
+  },
+  {
+   "word": "bright",
+   "sound": "aɪ"
+  },
+  {
+   "word": "flight",
+   "sound": "aɪ"
+  },
+  {
+   "word": "slight",
+   "sound": "aɪ"
+  },
+  {
+   "word": "height",
+   "sound": "aɪ"
+  },
+  {
+   "word": "high",
+   "sound": "aɪ"
+  },
+  {
+   "word": "sigh",
+   "sound": "aɪ"
+  },
+  {
+   "word": "thigh",
+   "sound": "aɪ"
+  },
+  {
+   "word": "nigh",
+   "sound": "aɪ"
+  },
+  {
+   "word": "mind",
+   "sound": "aɪ"
+  },
+  {
+   "word": "kind",
+   "sound": "aɪ"
+  },
+  {
+   "word": "find",
+   "sound": "aɪ"
+  },
+  {
+   "word": "bind",
+   "sound": "aɪ"
+  },
+  {
+   "word": "blind",
+   "sound": "aɪ"
+  },
+  {
+   "word": "grind",
+   "sound": "aɪ"
+  },
+  {
+   "word": "child",
+   "sound": "aɪ"
+  },
+  {
+   "word": "mild",
+   "sound": "aɪ"
+  },
+  {
+   "word": "wild",
+   "sound": "aɪ"
+  },
+  {
+   "word": "eye",
+   "sound": "aɪ"
+  },
+  {
+   "word": "ice",
+   "sound": "aɪ"
+  },
+  {
+   "word": "rice",
+   "sound": "aɪ"
+  },
+  {
+   "word": "nice",
+   "sound": "aɪ"
+  },
+  {
+   "word": "mice",
+   "sound": "aɪ"
+  },
+  {
+   "word": "dice",
+   "sound": "aɪ"
+  },
+  {
+   "word": "price",
+   "sound": "aɪ"
+  },
+  {
+   "word": "slice",
+   "sound": "aɪ"
+  },
+  {
+   "word": "spice",
+   "sound": "aɪ"
+  },
+  {
+   "word": "twice",
+   "sound": "aɪ"
+  },
+  {
+   "word": "white",
+   "sound": "aɪ"
+  },
+  {
+   "word": "bite",
+   "sound": "aɪ"
+  },
+  {
+   "word": "kite",
+   "sound": "aɪ"
+  },
+  {
+   "word": "site",
+   "sound": "aɪ"
+  },
+  {
+   "word": "write",
+   "sound": "aɪ"
+  },
+  {
+   "word": "quite",
+   "sound": "aɪ"
+  },
+  {
+   "word": "island",
+   "sound": "aɪ"
+  },
+  {
+   "word": "aisle",
+   "sound": "aɪ"
+  },
+  {
+   "word": "style",
+   "sound": "aɪ"
+  },
+  {
+   "word": "type",
+   "sound": "aɪ"
+  },
+  {
+   "word": "tire",
+   "sound": "aɪ"
+  },
+  {
+   "word": "cycle",
+   "sound": "aɪ"
+  },
+  {
+   "word": "idea",
+   "sound": "aɪ"
+  },
+  {
+   "word": "item",
+   "sound": "aɪ"
+  },
+  {
+   "word": "icon",
+   "sound": "aɪ"
+  },
+  {
+   "word": "iron",
+   "sound": "aɪ"
+  },
+  {
+   "word": "final",
+   "sound": "aɪ"
+  },
+  {
+   "word": "silent",
+   "sound": "aɪ"
+  },
+  {
+   "word": "private",
+   "sound": "aɪ"
+  },
+  {
+   "word": "rival",
+   "sound": "aɪ"
+  },
+  {
+   "word": "pilot",
+   "sound": "aɪ"
+  },
+  {
+   "word": "bay",
+   "sound": "eɪ"
+  },
+  {
+   "word": "day",
+   "sound": "eɪ"
+  },
+  {
+   "word": "may",
+   "sound": "eɪ"
+  },
+  {
+   "word": "pay",
+   "sound": "eɪ"
+  },
+  {
+   "word": "say",
+   "sound": "eɪ"
+  },
+  {
+   "word": "way",
+   "sound": "eɪ"
+  },
+  {
+   "word": "lay",
+   "sound": "eɪ"
+  },
+  {
+   "word": "ray",
+   "sound": "eɪ"
+  },
+  {
+   "word": "play",
+   "sound": "eɪ"
+  },
+  {
+   "word": "pray",
+   "sound": "eɪ"
+  },
+  {
+   "word": "stay",
+   "sound": "eɪ"
+  },
+  {
+   "word": "gray",
+   "sound": "eɪ"
+  },
+  {
+   "word": "tray",
+   "sound": "eɪ"
+  },
+  {
+   "word": "spray",
+   "sound": "eɪ"
+  },
+  {
+   "word": "made",
+   "sound": "eɪ"
+  },
+  {
+   "word": "fade",
+   "sound": "eɪ"
+  },
+  {
+   "word": "wade",
+   "sound": "eɪ"
+  },
+  {
+   "word": "shade",
+   "sound": "eɪ"
+  },
+  {
+   "word": "grade",
+   "sound": "eɪ"
+  },
+  {
+   "word": "trade",
+   "sound": "eɪ"
+  },
+  {
+   "word": "blade",
+   "sound": "eɪ"
+  },
+  {
+   "word": "spade",
+   "sound": "eɪ"
+  },
+  {
+   "word": "make",
+   "sound": "eɪ"
+  },
+  {
+   "word": "take",
+   "sound": "eɪ"
+  },
+  {
+   "word": "lake",
+   "sound": "eɪ"
+  },
+  {
+   "word": "bake",
+   "sound": "eɪ"
+  },
+  {
+   "word": "cake",
+   "sound": "eɪ"
+  },
+  {
+   "word": "wake",
+   "sound": "eɪ"
+  },
+  {
+   "word": "shake",
+   "sound": "eɪ"
+  },
+  {
+   "word": "snake",
+   "sound": "eɪ"
+  },
+  {
+   "word": "brake",
+   "sound": "eɪ"
+  },
+  {
+   "word": "name",
+   "sound": "eɪ"
+  },
+  {
+   "word": "game",
+   "sound": "eɪ"
+  },
+  {
+   "word": "came",
+   "sound": "eɪ"
+  },
+  {
+   "word": "same",
+   "sound": "eɪ"
+  },
+  {
+   "word": "fame",
+   "sound": "eɪ"
+  },
+  {
+   "word": "tame",
+   "sound": "eɪ"
+  },
+  {
+   "word": "flame",
+   "sound": "eɪ"
+  },
+  {
+   "word": "frame",
+   "sound": "eɪ"
+  },
+  {
+   "word": "shame",
+   "sound": "eɪ"
+  },
+  {
+   "word": "blame",
+   "sound": "eɪ"
+  },
+  {
+   "word": "lane",
+   "sound": "eɪ"
+  },
+  {
+   "word": "cane",
+   "sound": "eɪ"
+  },
+  {
+   "word": "mane",
+   "sound": "eɪ"
+  },
+  {
+   "word": "plane",
+   "sound": "eɪ"
+  },
+  {
+   "word": "crane",
+   "sound": "eɪ"
+  },
+  {
+   "word": "late",
+   "sound": "eɪ"
+  },
+  {
+   "word": "gate",
+   "sound": "eɪ"
+  },
+  {
+   "word": "date",
+   "sound": "eɪ"
+  },
+  {
+   "word": "hate",
+   "sound": "eɪ"
+  },
+  {
+   "word": "fate",
+   "sound": "eɪ"
+  },
+  {
+   "word": "mate",
+   "sound": "eɪ"
+  },
+  {
+   "word": "rate",
+   "sound": "eɪ"
+  },
+  {
+   "word": "plate",
+   "sound": "eɪ"
+  },
+  {
+   "word": "state",
+   "sound": "eɪ"
+  },
+  {
+   "word": "skate",
+   "sound": "eɪ"
+  },
+  {
+   "word": "crate",
+   "sound": "eɪ"
+  },
+  {
+   "word": "face",
+   "sound": "eɪ"
+  },
+  {
+   "word": "race",
+   "sound": "eɪ"
+  },
+  {
+   "word": "lace",
+   "sound": "eɪ"
+  },
+  {
+   "word": "pace",
+   "sound": "eɪ"
+  },
+  {
+   "word": "place",
+   "sound": "eɪ"
+  },
+  {
+   "word": "space",
+   "sound": "eɪ"
+  },
+  {
+   "word": "trace",
+   "sound": "eɪ"
+  },
+  {
+   "word": "grace",
+   "sound": "eɪ"
+  },
+  {
+   "word": "brace",
+   "sound": "eɪ"
+  },
+  {
+   "word": "rain",
+   "sound": "eɪ"
+  },
+  {
+   "word": "main",
+   "sound": "eɪ"
+  },
+  {
+   "word": "gain",
+   "sound": "eɪ"
+  },
+  {
+   "word": "pain",
+   "sound": "eɪ"
+  },
+  {
+   "word": "train",
+   "sound": "eɪ"
+  },
+  {
+   "word": "brain",
+   "sound": "eɪ"
+  },
+  {
+   "word": "chain",
+   "sound": "eɪ"
+  },
+  {
+   "word": "stain",
+   "sound": "eɪ"
+  },
+  {
+   "word": "plain",
+   "sound": "eɪ"
+  },
+  {
+   "word": "grain",
+   "sound": "eɪ"
+  },
+  {
+   "word": "drain",
+   "sound": "eɪ"
+  },
+  {
+   "word": "wait",
+   "sound": "eɪ"
+  },
+  {
+   "word": "bait",
+   "sound": "eɪ"
+  },
+  {
+   "word": "paint",
+   "sound": "eɪ"
+  },
+  {
+   "word": "faint",
+   "sound": "eɪ"
+  },
+  {
+   "word": "saint",
+   "sound": "eɪ"
+  },
+  {
+   "word": "aim",
+   "sound": "eɪ"
+  },
+  {
+   "word": "claim",
+   "sound": "eɪ"
+  },
+  {
+   "word": "maid",
+   "sound": "eɪ"
+  },
+  {
+   "word": "paid",
+   "sound": "eɪ"
+  },
+  {
+   "word": "raid",
+   "sound": "eɪ"
+  },
+  {
+   "word": "braid",
+   "sound": "eɪ"
+  },
+  {
+   "word": "eight",
+   "sound": "eɪ"
+  },
+  {
+   "word": "weight",
+   "sound": "eɪ"
+  },
+  {
+   "word": "freight",
+   "sound": "eɪ"
+  },
+  {
+   "word": "neighbor",
+   "sound": "eɪ"
+  },
+  {
+   "word": "they",
+   "sound": "eɪ"
+  },
+  {
+   "word": "grey",
+   "sound": "eɪ"
+  },
+  {
+   "word": "prey",
+   "sound": "eɪ"
+  },
+  {
+   "word": "obey",
+   "sound": "eɪ"
+  },
+  {
+   "word": "vein",
+   "sound": "eɪ"
+  },
+  {
+   "word": "veil",
+   "sound": "eɪ"
+  },
+  {
+   "word": "able",
+   "sound": "eɪ"
+  },
+  {
+   "word": "table",
+   "sound": "eɪ"
+  },
+  {
+   "word": "cable",
+   "sound": "eɪ"
+  },
+  {
+   "word": "label",
+   "sound": "eɪ"
+  },
+  {
+   "word": "paper",
+   "sound": "eɪ"
+  },
+  {
+   "word": "baby",
+   "sound": "eɪ"
+  },
+  {
+   "word": "lady",
+   "sound": "eɪ"
+  },
+  {
+   "word": "crazy",
+   "sound": "eɪ"
+  },
+  {
+   "word": "lazy",
+   "sound": "eɪ"
+  },
+  {
+   "word": "basic",
+   "sound": "eɪ"
+  },
+  {
+   "word": "nation",
+   "sound": "eɪ"
+  },
+  {
+   "word": "station",
+   "sound": "eɪ"
+  },
+  {
+   "word": "famous",
+   "sound": "eɪ"
+  },
+  {
+   "word": "danger",
+   "sound": "eɪ"
+  },
+  {
+   "word": "great",
+   "sound": "eɪ",
+   "note": "綴り ea だが /eɪ/"
+  },
+  {
+   "word": "break",
+   "sound": "eɪ",
+   "note": "綴り ea だが /eɪ/"
+  },
+  {
+   "word": "steak",
+   "sound": "eɪ",
+   "note": "綴り ea だが /eɪ/"
+  },
+  {
+   "word": "boy",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "toy",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "joy",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "coy",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "soy",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "ploy",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "Roy",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "annoy",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "enjoy",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "employ",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "destroy",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "oil",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "boil",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "coil",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "foil",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "soil",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "toil",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "spoil",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "coin",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "join",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "loin",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "groin",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "point",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "joint",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "noise",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "poise",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "voice",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "choice",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "moist",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "hoist",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "joist",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "royal",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "loyal",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "oyster",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "voyage",
+   "sound": "ɔɪ"
+  },
+  {
+   "word": "now",
+   "sound": "aʊ"
+  },
+  {
+   "word": "how",
+   "sound": "aʊ"
+  },
+  {
+   "word": "cow",
+   "sound": "aʊ"
+  },
+  {
+   "word": "vow",
+   "sound": "aʊ"
+  },
+  {
+   "word": "wow",
+   "sound": "aʊ"
+  },
+  {
+   "word": "brow",
+   "sound": "aʊ"
+  },
+  {
+   "word": "plow",
+   "sound": "aʊ"
+  },
+  {
+   "word": "allow",
+   "sound": "aʊ"
+  },
+  {
+   "word": "out",
+   "sound": "aʊ"
+  },
+  {
+   "word": "shout",
+   "sound": "aʊ"
+  },
+  {
+   "word": "about",
+   "sound": "aʊ"
+  },
+  {
+   "word": "loud",
+   "sound": "aʊ"
+  },
+  {
+   "word": "cloud",
+   "sound": "aʊ"
+  },
+  {
+   "word": "proud",
+   "sound": "aʊ"
+  },
+  {
+   "word": "sound",
+   "sound": "aʊ"
+  },
+  {
+   "word": "round",
+   "sound": "aʊ"
+  },
+  {
+   "word": "ground",
+   "sound": "aʊ"
+  },
+  {
+   "word": "pound",
+   "sound": "aʊ"
+  },
+  {
+   "word": "found",
+   "sound": "aʊ"
+  },
+  {
+   "word": "mound",
+   "sound": "aʊ"
+  },
+  {
+   "word": "hound",
+   "sound": "aʊ"
+  },
+  {
+   "word": "bound",
+   "sound": "aʊ"
+  },
+  {
+   "word": "house",
+   "sound": "aʊ"
+  },
+  {
+   "word": "mouse",
+   "sound": "aʊ"
+  },
+  {
+   "word": "louse",
+   "sound": "aʊ"
+  },
+  {
+   "word": "blouse",
+   "sound": "aʊ"
+  },
+  {
+   "word": "mouth",
+   "sound": "aʊ"
+  },
+  {
+   "word": "south",
+   "sound": "aʊ"
+  },
+  {
+   "word": "town",
+   "sound": "aʊ"
+  },
+  {
+   "word": "down",
+   "sound": "aʊ"
+  },
+  {
+   "word": "gown",
+   "sound": "aʊ"
+  },
+  {
+   "word": "brown",
+   "sound": "aʊ"
+  },
+  {
+   "word": "crown",
+   "sound": "aʊ"
+  },
+  {
+   "word": "frown",
+   "sound": "aʊ"
+  },
+  {
+   "word": "drown",
+   "sound": "aʊ"
+  },
+  {
+   "word": "clown",
+   "sound": "aʊ"
+  },
+  {
+   "word": "owl",
+   "sound": "aʊ"
+  },
+  {
+   "word": "fowl",
+   "sound": "aʊ"
+  },
+  {
+   "word": "howl",
+   "sound": "aʊ"
+  },
+  {
+   "word": "growl",
+   "sound": "aʊ"
+  },
+  {
+   "word": "scowl",
+   "sound": "aʊ"
+  },
+  {
+   "word": "count",
+   "sound": "aʊ"
+  },
+  {
+   "word": "mount",
+   "sound": "aʊ"
+  },
+  {
+   "word": "fountain",
+   "sound": "aʊ"
+  },
+  {
+   "word": "mountain",
+   "sound": "aʊ"
+  },
+  {
+   "word": "announce",
+   "sound": "aʊ"
+  },
+  {
+   "word": "bounce",
+   "sound": "aʊ"
+  },
+  {
+   "word": "ounce",
+   "sound": "aʊ"
+  },
+  {
+   "word": "pounce",
+   "sound": "aʊ"
+  },
+  {
+   "word": "doubt",
+   "sound": "aʊ"
+  },
+  {
+   "word": "scout",
+   "sound": "aʊ"
+  },
+  {
+   "word": "trout",
+   "sound": "aʊ"
+  },
+  {
+   "word": "sprout",
+   "sound": "aʊ"
+  },
+  {
+   "word": "sour",
+   "sound": "aʊ"
+  },
+  {
+   "word": "flour",
+   "sound": "aʊ"
+  },
+  {
+   "word": "hour",
+   "sound": "aʊ"
+  },
+  {
+   "word": "our",
+   "sound": "aʊ"
+  },
+  {
+   "word": "power",
+   "sound": "aʊ"
+  },
+  {
+   "word": "tower",
+   "sound": "aʊ"
+  },
+  {
+   "word": "shower",
+   "sound": "aʊ"
+  },
+  {
+   "word": "flower",
+   "sound": "aʊ"
+  },
+  {
+   "word": "no",
+   "sound": "oʊ"
+  },
+  {
+   "word": "go",
+   "sound": "oʊ"
+  },
+  {
+   "word": "so",
+   "sound": "oʊ"
+  },
+  {
+   "word": "hoe",
+   "sound": "oʊ"
+  },
+  {
+   "word": "toe",
+   "sound": "oʊ"
+  },
+  {
+   "word": "foe",
+   "sound": "oʊ"
+  },
+  {
+   "word": "woe",
+   "sound": "oʊ"
+  },
+  {
+   "word": "doe",
+   "sound": "oʊ"
+  },
+  {
+   "word": "boat",
+   "sound": "oʊ"
+  },
+  {
+   "word": "coat",
+   "sound": "oʊ"
+  },
+  {
+   "word": "goat",
+   "sound": "oʊ"
+  },
+  {
+   "word": "moat",
+   "sound": "oʊ"
+  },
+  {
+   "word": "float",
+   "sound": "oʊ"
+  },
+  {
+   "word": "road",
+   "sound": "oʊ"
+  },
+  {
+   "word": "load",
+   "sound": "oʊ"
+  },
+  {
+   "word": "toad",
+   "sound": "oʊ"
+  },
+  {
+   "word": "bone",
+   "sound": "oʊ"
+  },
+  {
+   "word": "cone",
+   "sound": "oʊ"
+  },
+  {
+   "word": "tone",
+   "sound": "oʊ"
+  },
+  {
+   "word": "zone",
+   "sound": "oʊ"
+  },
+  {
+   "word": "phone",
+   "sound": "oʊ"
+  },
+  {
+   "word": "stone",
+   "sound": "oʊ"
+  },
+  {
+   "word": "throne",
+   "sound": "oʊ"
+  },
+  {
+   "word": "alone",
+   "sound": "oʊ"
+  },
+  {
+   "word": "home",
+   "sound": "oʊ"
+  },
+  {
+   "word": "dome",
+   "sound": "oʊ"
+  },
+  {
+   "word": "comb",
+   "sound": "oʊ"
+  },
+  {
+   "word": "foam",
+   "sound": "oʊ"
+  },
+  {
+   "word": "roam",
+   "sound": "oʊ"
+  },
+  {
+   "word": "hope",
+   "sound": "oʊ"
+  },
+  {
+   "word": "rope",
+   "sound": "oʊ"
+  },
+  {
+   "word": "cope",
+   "sound": "oʊ"
+  },
+  {
+   "word": "slope",
+   "sound": "oʊ"
+  },
+  {
+   "word": "scope",
+   "sound": "oʊ"
+  },
+  {
+   "word": "soap",
+   "sound": "oʊ"
+  },
+  {
+   "word": "note",
+   "sound": "oʊ"
+  },
+  {
+   "word": "vote",
+   "sound": "oʊ"
+  },
+  {
+   "word": "wrote",
+   "sound": "oʊ"
+  },
+  {
+   "word": "quote",
+   "sound": "oʊ"
+  },
+  {
+   "word": "rose",
+   "sound": "oʊ"
+  },
+  {
+   "word": "nose",
+   "sound": "oʊ"
+  },
+  {
+   "word": "those",
+   "sound": "oʊ"
+  },
+  {
+   "word": "close",
+   "sound": "oʊ"
+  },
+  {
+   "word": "chose",
+   "sound": "oʊ"
+  },
+  {
+   "word": "pose",
+   "sound": "oʊ"
+  },
+  {
+   "word": "hose",
+   "sound": "oʊ"
+  },
+  {
+   "word": "froze",
+   "sound": "oʊ"
+  },
+  {
+   "word": "know",
+   "sound": "oʊ"
+  },
+  {
+   "word": "show",
+   "sound": "oʊ"
+  },
+  {
+   "word": "grow",
+   "sound": "oʊ"
+  },
+  {
+   "word": "throw",
+   "sound": "oʊ"
+  },
+  {
+   "word": "slow",
+   "sound": "oʊ"
+  },
+  {
+   "word": "snow",
+   "sound": "oʊ"
+  },
+  {
+   "word": "flow",
+   "sound": "oʊ"
+  },
+  {
+   "word": "glow",
+   "sound": "oʊ"
+  },
+  {
+   "word": "blow",
+   "sound": "oʊ"
+  },
+  {
+   "word": "crow",
+   "sound": "oʊ"
+  },
+  {
+   "word": "low",
+   "sound": "oʊ"
+  },
+  {
+   "word": "owe",
+   "sound": "oʊ"
+  },
+  {
+   "word": "own",
+   "sound": "oʊ"
+  },
+  {
+   "word": "old",
+   "sound": "oʊ"
+  },
+  {
+   "word": "cold",
+   "sound": "oʊ"
+  },
+  {
+   "word": "bold",
+   "sound": "oʊ"
+  },
+  {
+   "word": "fold",
+   "sound": "oʊ"
+  },
+  {
+   "word": "gold",
+   "sound": "oʊ"
+  },
+  {
+   "word": "hold",
+   "sound": "oʊ"
+  },
+  {
+   "word": "sold",
+   "sound": "oʊ"
+  },
+  {
+   "word": "told",
+   "sound": "oʊ"
+  },
+  {
+   "word": "scold",
+   "sound": "oʊ"
+  },
+  {
+   "word": "most",
+   "sound": "oʊ"
+  },
+  {
+   "word": "post",
+   "sound": "oʊ"
+  },
+  {
+   "word": "host",
+   "sound": "oʊ"
+  },
+  {
+   "word": "ghost",
+   "sound": "oʊ"
+  },
+  {
+   "word": "coast",
+   "sound": "oʊ"
+  },
+  {
+   "word": "toast",
+   "sound": "oʊ"
+  },
+  {
+   "word": "roast",
+   "sound": "oʊ"
+  },
+  {
+   "word": "boast",
+   "sound": "oʊ"
+  },
+  {
+   "word": "open",
+   "sound": "oʊ"
+  },
+  {
+   "word": "over",
+   "sound": "oʊ"
+  },
+  {
+   "word": "only",
+   "sound": "oʊ"
+  },
+  {
+   "word": "motor",
+   "sound": "oʊ"
+  },
+  {
+   "word": "total",
+   "sound": "oʊ"
+  },
+  {
+   "word": "local",
+   "sound": "oʊ"
+  },
+  {
+   "word": "vocal",
+   "sound": "oʊ"
+  },
+  {
+   "word": "hotel",
+   "sound": "oʊ"
+  },
+  {
+   "word": "program",
+   "sound": "oʊ"
+  },
+  {
+   "word": "notice",
+   "sound": "oʊ"
+  },
+  {
+   "word": "ocean",
+   "sound": "oʊ"
+  },
+  {
+   "word": "moment",
+   "sound": "oʊ"
+  },
+  {
+   "word": "soul",
+   "sound": "oʊ"
+  },
+  {
+   "word": "goal",
+   "sound": "oʊ"
+  },
+  {
+   "word": "coal",
+   "sound": "oʊ"
+  },
+  {
+   "word": "roll",
+   "sound": "oʊ"
+  },
+  {
+   "word": "toll",
+   "sound": "oʊ"
+  },
+  {
+   "word": "stroll",
+   "sound": "oʊ"
+  },
+  {
+   "word": "poll",
+   "sound": "oʊ"
+  },
+  {
+   "word": "don't",
+   "sound": "oʊ"
+  },
+  {
+   "word": "won't",
+   "sound": "oʊ"
+  },
+  {
+   "word": "both",
+   "sound": "oʊ"
+  },
+  {
+   "word": "law",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "saw",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "jaw",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "raw",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "draw",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "claw",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "flaw",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "straw",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "paw",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "talk",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "walk",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "chalk",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "stalk",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "ball",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "call",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "fall",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "hall",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "mall",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "tall",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "wall",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "small",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "stall",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "thought",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "bought",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "caught",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "taught",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "fought",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "brought",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "ought",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "sought",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "dawn",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "lawn",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "fawn",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "pawn",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "yawn",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "drawn",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "cause",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "pause",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "clause",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "applause",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "salt",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "halt",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "malt",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "false",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "author",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "autumn",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "august",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "auction",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "audience",
+   "sound": "ɔː",
+   "note": "cot–caught merger 地域では /ɑ/ と同音"
+  },
+  {
+   "word": "boss",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "loss",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "toss",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "cross",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "moss",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "floss",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "cost",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "frost",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "lost",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "soft",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "off",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "often",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "coffee",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "cloth",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "broth",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "dog",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "log",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "fog",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "hog",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "frog",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "smog",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "blog",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "jog",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "long",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "song",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "strong",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "wrong",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "belong",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "gone",
+   "sound": "ɔː",
+   "note": "CLOTH 語。非 merger の米語では /ɔː/、merger 地域では /ɑ/"
+  },
+  {
+   "word": "bird",
+   "sound": "ɝː"
+  },
+  {
+   "word": "word",
+   "sound": "ɝː"
+  },
+  {
+   "word": "girl",
+   "sound": "ɝː"
+  },
+  {
+   "word": "nurse",
+   "sound": "ɝː"
+  },
+  {
+   "word": "hurt",
+   "sound": "ɝː"
+  },
+  {
+   "word": "turn",
+   "sound": "ɝː"
+  },
+  {
+   "word": "burn",
+   "sound": "ɝː"
+  },
+  {
+   "word": "learn",
+   "sound": "ɝː"
+  },
+  {
+   "word": "earn",
+   "sound": "ɝː"
+  },
+  {
+   "word": "earth",
+   "sound": "ɝː"
+  },
+  {
+   "word": "first",
+   "sound": "ɝː"
+  },
+  {
+   "word": "third",
+   "sound": "ɝː"
+  },
+  {
+   "word": "shirt",
+   "sound": "ɝː"
+  },
+  {
+   "word": "skirt",
+   "sound": "ɝː"
+  },
+  {
+   "word": "dirt",
+   "sound": "ɝː"
+  },
+  {
+   "word": "her",
+   "sound": "ɝː"
+  },
+  {
+   "word": "fur",
+   "sound": "ɝː"
+  },
+  {
+   "word": "sir",
+   "sound": "ɝː"
+  },
+  {
+   "word": "stir",
+   "sound": "ɝː"
+  },
+  {
+   "word": "blur",
+   "sound": "ɝː"
+  },
+  {
+   "word": "slur",
+   "sound": "ɝː"
+  },
+  {
+   "word": "purr",
+   "sound": "ɝː"
+  },
+  {
+   "word": "work",
+   "sound": "ɝː"
+  },
+  {
+   "word": "worm",
+   "sound": "ɝː"
+  },
+  {
+   "word": "world",
+   "sound": "ɝː"
+  },
+  {
+   "word": "worth",
+   "sound": "ɝː"
+  },
+  {
+   "word": "worse",
+   "sound": "ɝː"
+  },
+  {
+   "word": "worst",
+   "sound": "ɝː"
+  },
+  {
+   "word": "serve",
+   "sound": "ɝː"
+  },
+  {
+   "word": "nerve",
+   "sound": "ɝː"
+  },
+  {
+   "word": "verb",
+   "sound": "ɝː"
+  },
+  {
+   "word": "herb",
+   "sound": "ɝː"
+  },
+  {
+   "word": "term",
+   "sound": "ɝː"
+  },
+  {
+   "word": "germ",
+   "sound": "ɝː"
+  },
+  {
+   "word": "perm",
+   "sound": "ɝː"
+  },
+  {
+   "word": "church",
+   "sound": "ɝː"
+  },
+  {
+   "word": "search",
+   "sound": "ɝː"
+  },
+  {
+   "word": "purse",
+   "sound": "ɝː"
+  },
+  {
+   "word": "curse",
+   "sound": "ɝː"
+  },
+  {
+   "word": "verse",
+   "sound": "ɝː"
+  },
+  {
+   "word": "early",
+   "sound": "ɝː"
+  },
+  {
+   "word": "pearl",
+   "sound": "ɝː"
+  },
+  {
+   "word": "heard",
+   "sound": "ɝː"
+  },
+  {
+   "word": "hurdle",
+   "sound": "ɝː"
+  },
+  {
+   "word": "turtle",
+   "sound": "ɝː"
+  },
+  {
+   "word": "purple",
+   "sound": "ɝː"
+  },
+  {
+   "word": "further",
+   "sound": "ɝː"
+  },
+  {
+   "word": "murder",
+   "sound": "ɝː"
+  },
+  {
+   "word": "car",
+   "sound": "ɑr"
+  },
+  {
+   "word": "far",
+   "sound": "ɑr"
+  },
+  {
+   "word": "bar",
+   "sound": "ɑr"
+  },
+  {
+   "word": "jar",
+   "sound": "ɑr"
+  },
+  {
+   "word": "star",
+   "sound": "ɑr"
+  },
+  {
+   "word": "scar",
+   "sound": "ɑr"
+  },
+  {
+   "word": "card",
+   "sound": "ɑr"
+  },
+  {
+   "word": "hard",
+   "sound": "ɑr"
+  },
+  {
+   "word": "yard",
+   "sound": "ɑr"
+  },
+  {
+   "word": "guard",
+   "sound": "ɑr"
+  },
+  {
+   "word": "lard",
+   "sound": "ɑr"
+  },
+  {
+   "word": "park",
+   "sound": "ɑr"
+  },
+  {
+   "word": "dark",
+   "sound": "ɑr"
+  },
+  {
+   "word": "mark",
+   "sound": "ɑr"
+  },
+  {
+   "word": "bark",
+   "sound": "ɑr"
+  },
+  {
+   "word": "shark",
+   "sound": "ɑr"
+  },
+  {
+   "word": "spark",
+   "sound": "ɑr"
+  },
+  {
+   "word": "part",
+   "sound": "ɑr"
+  },
+  {
+   "word": "cart",
+   "sound": "ɑr"
+  },
+  {
+   "word": "art",
+   "sound": "ɑr"
+  },
+  {
+   "word": "heart",
+   "sound": "ɑr"
+  },
+  {
+   "word": "smart",
+   "sound": "ɑr"
+  },
+  {
+   "word": "start",
+   "sound": "ɑr"
+  },
+  {
+   "word": "chart",
+   "sound": "ɑr"
+  },
+  {
+   "word": "arm",
+   "sound": "ɑr"
+  },
+  {
+   "word": "farm",
+   "sound": "ɑr"
+  },
+  {
+   "word": "harm",
+   "sound": "ɑr"
+  },
+  {
+   "word": "charm",
+   "sound": "ɑr"
+  },
+  {
+   "word": "alarm",
+   "sound": "ɑr"
+  },
+  {
+   "word": "large",
+   "sound": "ɑr"
+  },
+  {
+   "word": "charge",
+   "sound": "ɑr"
+  },
+  {
+   "word": "barge",
+   "sound": "ɑr"
+  },
+  {
+   "word": "barn",
+   "sound": "ɑr"
+  },
+  {
+   "word": "yarn",
+   "sound": "ɑr"
+  },
+  {
+   "word": "darn",
+   "sound": "ɑr"
+  },
+  {
+   "word": "garden",
+   "sound": "ɑr"
+  },
+  {
+   "word": "market",
+   "sound": "ɑr"
+  },
+  {
+   "word": "party",
+   "sound": "ɑr"
+  },
+  {
+   "word": "partner",
+   "sound": "ɑr"
+  },
+  {
+   "word": "for",
+   "sound": "ɔr"
+  },
+  {
+   "word": "or",
+   "sound": "ɔr"
+  },
+  {
+   "word": "nor",
+   "sound": "ɔr"
+  },
+  {
+   "word": "door",
+   "sound": "ɔr"
+  },
+  {
+   "word": "floor",
+   "sound": "ɔr"
+  },
+  {
+   "word": "more",
+   "sound": "ɔr"
+  },
+  {
+   "word": "core",
+   "sound": "ɔr"
+  },
+  {
+   "word": "sore",
+   "sound": "ɔr"
+  },
+  {
+   "word": "tore",
+   "sound": "ɔr"
+  },
+  {
+   "word": "bore",
+   "sound": "ɔr"
+  },
+  {
+   "word": "shore",
+   "sound": "ɔr"
+  },
+  {
+   "word": "store",
+   "sound": "ɔr"
+  },
+  {
+   "word": "score",
+   "sound": "ɔr"
+  },
+  {
+   "word": "snore",
+   "sound": "ɔr"
+  },
+  {
+   "word": "born",
+   "sound": "ɔr"
+  },
+  {
+   "word": "corn",
+   "sound": "ɔr"
+  },
+  {
+   "word": "horn",
+   "sound": "ɔr"
+  },
+  {
+   "word": "torn",
+   "sound": "ɔr"
+  },
+  {
+   "word": "worn",
+   "sound": "ɔr"
+  },
+  {
+   "word": "thorn",
+   "sound": "ɔr"
+  },
+  {
+   "word": "morn",
+   "sound": "ɔr"
+  },
+  {
+   "word": "short",
+   "sound": "ɔr"
+  },
+  {
+   "word": "sport",
+   "sound": "ɔr"
+  },
+  {
+   "word": "port",
+   "sound": "ɔr"
+  },
+  {
+   "word": "fort",
+   "sound": "ɔr"
+  },
+  {
+   "word": "sort",
+   "sound": "ɔr"
+  },
+  {
+   "word": "form",
+   "sound": "ɔr"
+  },
+  {
+   "word": "storm",
+   "sound": "ɔr"
+  },
+  {
+   "word": "norm",
+   "sound": "ɔr"
+  },
+  {
+   "word": "dorm",
+   "sound": "ɔr"
+  },
+  {
+   "word": "north",
+   "sound": "ɔr"
+  },
+  {
+   "word": "force",
+   "sound": "ɔr"
+  },
+  {
+   "word": "horse",
+   "sound": "ɔr"
+  },
+  {
+   "word": "course",
+   "sound": "ɔr"
+  },
+  {
+   "word": "source",
+   "sound": "ɔr"
+  },
+  {
+   "word": "order",
+   "sound": "ɔr"
+  },
+  {
+   "word": "border",
+   "sound": "ɔr"
+  },
+  {
+   "word": "corner",
+   "sound": "ɔr"
+  },
+  {
+   "word": "forest",
+   "sound": "ɔr"
+  },
+  {
+   "word": "normal",
+   "sound": "ɔr"
+  },
+  {
+   "word": "war",
+   "sound": "ɔr"
+  },
+  {
+   "word": "warm",
+   "sound": "ɔr"
+  },
+  {
+   "word": "warn",
+   "sound": "ɔr"
+  },
+  {
+   "word": "ward",
+   "sound": "ɔr"
+  },
+  {
+   "word": "toward",
+   "sound": "ɔr"
+  },
+  {
+   "word": "ear",
+   "sound": "ɪr"
+  },
+  {
+   "word": "near",
+   "sound": "ɪr"
+  },
+  {
+   "word": "dear",
+   "sound": "ɪr"
+  },
+  {
+   "word": "fear",
+   "sound": "ɪr"
+  },
+  {
+   "word": "gear",
+   "sound": "ɪr"
+  },
+  {
+   "word": "hear",
+   "sound": "ɪr"
+  },
+  {
+   "word": "clear",
+   "sound": "ɪr"
+  },
+  {
+   "word": "year",
+   "sound": "ɪr"
+  },
+  {
+   "word": "rear",
+   "sound": "ɪr"
+  },
+  {
+   "word": "spear",
+   "sound": "ɪr"
+  },
+  {
+   "word": "beer",
+   "sound": "ɪr"
+  },
+  {
+   "word": "deer",
+   "sound": "ɪr"
+  },
+  {
+   "word": "cheer",
+   "sound": "ɪr"
+  },
+  {
+   "word": "steer",
+   "sound": "ɪr"
+  },
+  {
+   "word": "peer",
+   "sound": "ɪr"
+  },
+  {
+   "word": "sheer",
+   "sound": "ɪr"
+  },
+  {
+   "word": "here",
+   "sound": "ɪr"
+  },
+  {
+   "word": "mere",
+   "sound": "ɪr"
+  },
+  {
+   "word": "sphere",
+   "sound": "ɪr"
+  },
+  {
+   "word": "severe",
+   "sound": "ɪr"
+  },
+  {
+   "word": "weird",
+   "sound": "ɪr"
+  },
+  {
+   "word": "pierce",
+   "sound": "ɪr"
+  },
+  {
+   "word": "fierce",
+   "sound": "ɪr"
+  },
+  {
+   "word": "period",
+   "sound": "ɪr"
+  },
+  {
+   "word": "serious",
+   "sound": "ɪr"
+  },
+  {
+   "word": "series",
+   "sound": "ɪr"
+  },
+  {
+   "word": "air",
+   "sound": "er"
+  },
+  {
+   "word": "hair",
+   "sound": "er"
+  },
+  {
+   "word": "fair",
+   "sound": "er"
+  },
+  {
+   "word": "pair",
+   "sound": "er"
+  },
+  {
+   "word": "chair",
+   "sound": "er"
+  },
+  {
+   "word": "stair",
+   "sound": "er"
+  },
+  {
+   "word": "care",
+   "sound": "er"
+  },
+  {
+   "word": "dare",
+   "sound": "er"
+  },
+  {
+   "word": "fare",
+   "sound": "er"
+  },
+  {
+   "word": "rare",
+   "sound": "er"
+  },
+  {
+   "word": "scare",
+   "sound": "er"
+  },
+  {
+   "word": "share",
+   "sound": "er"
+  },
+  {
+   "word": "spare",
+   "sound": "er"
+  },
+  {
+   "word": "stare",
+   "sound": "er"
+  },
+  {
+   "word": "square",
+   "sound": "er"
+  },
+  {
+   "word": "bear",
+   "sound": "er"
+  },
+  {
+   "word": "pear",
+   "sound": "er"
+  },
+  {
+   "word": "wear",
+   "sound": "er"
+  },
+  {
+   "word": "swear",
+   "sound": "er"
+  },
+  {
+   "word": "there",
+   "sound": "er"
+  },
+  {
+   "word": "where",
+   "sound": "er"
+  },
+  {
+   "word": "their",
+   "sound": "er"
+  },
+  {
+   "word": "very",
+   "sound": "er"
+  },
+  {
+   "word": "berry",
+   "sound": "er"
+  },
+  {
+   "word": "cherry",
+   "sound": "er"
+  },
+  {
+   "word": "merry",
+   "sound": "er"
+  }
+ ]
+}

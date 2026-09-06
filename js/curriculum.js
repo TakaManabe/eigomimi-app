@@ -1,7 +1,7 @@
 // 課程一覧
 import { h, fmtDate, ipa } from './util.js';
 import * as store from './store.js';
-import { items } from './app.js';
+import { items, drillSets } from './app.js';
 
 const STATUS = { new: '未着手', learning: '学習中', review: '復習中' };
 
@@ -20,6 +20,7 @@ export async function renderCurriculum(main) {
       h('div', { class: 'row gap wrap' },
         ...it.days.map(d => h('a', { class: 'btn small' + (d.day === day ? ' primary' : ''), href: `#/practice/${it.id}/${d.day}/${kind}` }, `${d.day}日目を練習`)),
         it.hasSortGame ? h('a', { class: 'btn small ghost', href: `#/sort/${it.id}` }, '単語分類') : null,
-        h('a', { class: 'btn small ghost', href: `#/quiz/${it.id}` }, '聞き分け'))));
+        h('a', { class: 'btn small ghost', href: `#/quiz/${it.id}` }, '聞き分け'),
+        ...drillSets().filter(s => s.itemId === it.id).map(s => h('a', { class: 'btn small ghost', href: `#/drill/${s.id}` }, `⚡ ${s.title}`)))));
   }
 }

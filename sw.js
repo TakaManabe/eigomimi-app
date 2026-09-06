@@ -1,13 +1,13 @@
 /* Service Worker: アプリ本体はプリキャッシュ、音声は再生時にキャッシュ（オフライン対応） */
-const VERSION = 'v1.0.0';
+const VERSION = 'v1.1.0';
 const CORE = `eigomimi-core-${VERSION}`;
 const AUDIO = 'eigomimi-audio';
 const CORE_FILES = [
   './', './index.html', './manifest.webmanifest',
   './css/style.css',
   './js/app.js', './js/db.js', './js/srs.js', './js/audio.js', './js/store.js', './js/util.js', './js/components.js',
-  './js/dashboard.js', './js/practice.js', './js/sortgame.js', './js/quiz.js', './js/records.js', './js/settings.js', './js/curriculum.js',
-  './data/curriculum.json', './data/words.json', './data/sample-data.json',
+  './js/dashboard.js', './js/practice.js', './js/sortgame.js', './js/quiz.js', './js/records.js', './js/settings.js', './js/curriculum.js', './js/drill.js',
+  './data/curriculum.json', './data/words.json', './data/drill-words.json', './data/sample-data.json',
   './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-180.png',
 ];
 

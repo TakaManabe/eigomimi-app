@@ -8,6 +8,7 @@
   :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8; --line: #334155; --primary: #3b82f6; --primary-2: #2563eb; }
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
 html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.5; }
 body { padding-bottom: calc(var(--nav-h) + var(--safe-b)); }
 body.has-bar { padding-bottom: calc(var(--bar-h) + var(--safe-b)); }
@@ -148,3 +149,16 @@ textarea.input { width: 100%; min-height: 80px; }
 body.has-bar #toast { bottom: calc(var(--bar-h) + var(--safe-b) + 14px); }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 #toast.ok { background: var(--ok); } #toast.warn { background: var(--warn); } #toast.error { background: var(--err); }
+
+/* drill */
+.warn-text { color: var(--warn); }
+.drill-word { font-size: 2.6rem; font-weight: 800; text-align: center; padding: 1.1rem 0 .3rem; letter-spacing: .01em; transition: color .15s; }
+.drill-word.ok { color: var(--ok); } .drill-word.ng { color: var(--err); }
+.drill-note { min-height: 1.2rem; }
+.drill-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: .8rem 0 .4rem; }
+.drill-choices.two { grid-template-columns: repeat(2, 1fr); }
+.drill-choice { flex-direction: column; min-height: 72px; gap: 0; font-size: 1.4rem; }
+.drill-choice .small { font-size: .7rem; font-weight: 400; }
+.drill-fb { min-height: 1.8rem; text-align: center; font-size: 1.05rem; }
+.drill .progress { max-width: none; margin: .3rem 0; }
+@media (min-width: 720px) { .drill-word { font-size: 3.2rem; } }

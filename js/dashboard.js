@@ -3,6 +3,7 @@ import { h, toast, fmtDate, ipa } from './util.js';
 import * as store from './store.js';
 import { state, items, navigate } from './app.js';
 import { addDays } from './srs.js';
+import * as db from './db.js';
 
 const RATING_CLASS = { '×': 'r-x', '△': 'r-tri', '○': 'r-o', '◎': 'r-oo', '未': 'r-none' };
 
@@ -89,7 +90,19 @@ export async function renderHome(main) {
           h('td', {}, p?.nextDate ? fmtDate(p.nextDate) : h('span', { class: 'muted' }, p ? '—' : '未着手')));
       }))));
 
-  main.append(todayCard, numCard, weekCard, soundCard, quizCard, progCard,
+  // ---- 大量ドリル ----
+  const dlogs = await db.getAll('drillLog').catch(() => []);
+  const dToday = dlogs.filter(l => l.date === plan.today);
+  const dN = dToday.reduce((s, l) => s + l.total, 0), dC = dToday.reduce((s, l) => s + l.correct, 0);
+  const dAll = dlogs.reduce((s, l) => s + l.total, 0), dAllC = dlogs.reduce((s, l) => s + l.correct, 0);
+  const dConf = {};
+  for (const l of dlogs) for (const [k, n] of Object.entries(l.confusions || {})) dConf[k] = (dConf[k] || 0) + n;
+  const dConfTop = Object.entries(dConf).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const drillCard = h('section', { class: 'card' }, h('div', { class: 'row between' }, h('h3', {}, '大量ドリル（綴り → 音）'), h('a', { class: 'btn small primary', href: '#/drill' }, '始める')),
+    h('p', {}, dAll ? `今日 ${dN} 語${dN ? `（正答率 ${Math.round(dC / dN * 100)}%）` : ''} ／ 累計 ${dAll} 語（${Math.round(dAllC / dAll * 100)}%）` : '未実施。単語を見て母音を即答する練習です。'),
+    dConfTop.length ? h('div', { class: 'chips' }, ...dConfTop.map(([k, n]) => { const [f, t] = k.split('→'); return h('span', { class: 'chip warn' }, `${ipa(f)} → ${ipa(t)} ×${n}`); })) : null);
+
+  main.append(todayCard, numCard, drillCard, weekCard, soundCard, quizCard, progCard,
     h('p', { class: 'small muted center' }, `1語の目標 ${target}回。設定で変更できます。`));
 }
 

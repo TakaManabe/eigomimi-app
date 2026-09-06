@@ -1,6 +1,6 @@
 // IndexedDB ラッパー。localStorage へのフォールバック付き（録音Blobは保存不可）。
 const DB_NAME = 'eigomimi';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export const STORES = {
   progress: { keyPath: 'itemId' },
@@ -13,6 +13,8 @@ export const STORES = {
   wordAudio: { keyPath: 'key' },           // key = `${word}|${speaker}`
   trackAudio: { keyPath: 'key' },          // key = `${speaker}-${track}`
   settings: { keyPath: 'key' },
+  drillLog: { keyPath: 'id', autoIncrement: true, indexes: [['date', 'date'], ['setId', 'setId']] },   // v2: 大量ドリルの結果
+  drillWords: { keyPath: 'word' },       // v2: 単語ごとの正誤履歴
 };
 
 let dbPromise = null;
@@ -158,7 +160,7 @@ export async function requestPersistence() {
 export function isFallback() { return fallback; }
 
 // ---- export / import ----
-const EXPORT_STORES = ['progress', 'sessions', 'repCounts', 'wordReps', 'quizLog', 'weakWords', 'settings'];
+const EXPORT_STORES = ['progress', 'sessions', 'repCounts', 'wordReps', 'quizLog', 'weakWords', 'settings', 'drillLog', 'drillWords'];
 
 function blobToBase64(blob) {
   return new Promise((resolve, reject) => {
