@@ -6,7 +6,8 @@ const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
 const INTERVALS = [1, 3, 7, 14, 30];  // 誤答語を復習する間隔（日）
 const PASS_RATE = 0.9, PASS_RUNS = 2, PASS_MIN = 20;  // 合格: 20問以上を正答率90%で2回連続
 const MIX_RATE = 0.3;                // 合格後、既習語を混ぜる割合（累積復習）
-const STAGES = ['P1', 'P2', 'P3', 'P4', 'P5'];
+const STAGES = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
+const wkey = w => w.k || w.word;   // 記録キー。同じ語でも赤字の位置が違えば別扱い
 
 // ---------- 小道具 ----------
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -52,7 +53,7 @@ const persistProg = () => save('prog', S.prog);
 let DATA = null;
 const wordsFor = set => DATA.words.filter(w => set.sounds.includes(w.sound));
 const setById = id => DATA.sets.find(s => s.id === id);
-const isWeak = w => { const d = S.words[w.word]; return d && d.w > 0 && d.w >= d.c; };
+const isWeak = w => { const d = S.words[wkey(w)]; return d && d.w > 0 && d.w >= d.c; };
 
 // ---------- フォニックス・コース ----------
 // sel の解釈は tests/build-drill-words.py の select() と同じにすること
@@ -66,11 +67,12 @@ function selectWords(sel) {
   return out;
 }
 const allSteps = () => DATA.course.flatMap(st => st.steps);
+const mainSteps = () => DATA.course.filter(st => !st.extra).flatMap(st => st.steps);
 const stepById = id => allSteps().find(t => t.id === id);
 const isPassed = id => !!S.prog[id]?.passed;
-const nextStep = () => allSteps().find(t => !isPassed(t.id));
+const nextStep = () => mainSteps().find(t => !isPassed(t.id));
 const stepRate = id => { const r = (S.prog[id]?.runs || []).slice(-1)[0]; return r && r.n ? Math.round(r.c / r.n * 100) : null; };
-const dueWords = () => { const t = today(); return DATA.words.filter(w => { const d = S.words[w.word]; return d && d.due && d.due <= t; }); };
+const dueWords = () => { const t = today(); return DATA.words.filter(w => { const d = S.words[wkey(w)]; return d && d.due && d.due <= t; }); };
 
 // 合格判定: 直近 PASS_RUNS 回が いずれも PASS_MIN 問以上・正答率 PASS_RATE 以上
 function recordRun(id, n, c) {
@@ -133,21 +135,27 @@ function renderHome(main) {
 
   // フォニックス・コース
   const nx = nextStep();
-  const donePass = allSteps().filter(t => isPassed(t.id)).length;
+  const main0 = mainSteps(), donePass = main0.filter(t => isPassed(t.id)).length;
   main.append(h('section', { class: 'card' },
-    h('div', { class: 'row between' }, h('h2', {}, 'フォニックス・コース'), h('span', { class: 'small muted' }, `${donePass} / ${allSteps().length} 合格`)),
-    h('p', { class: 'small muted' }, `綴りの型ごとに、音節タイプの順（閉音節 → マジック e → 母音チーム → r 音 → 二重母音）で進みます。${PASS_MIN}問以上を正答率${Math.round(PASS_RATE * 100)}%で${PASS_RUNS}回連続すると合格。合格後はそのステップに既習語が${Math.round(MIX_RATE * 100)}%混ざります。`),
-    h('div', { class: 'progress' }, h('div', { style: `width:${Math.round(donePass / allSteps().length * 100)}%` }))));
-  for (const stg of DATA.course) {
-    const rows = stg.steps.map(t => {
-      const p = isPassed(t.id), isNext = nx && nx.id === t.id, rate = stepRate(t.id);
-      return h('div', { class: 'field' },
-        h('span', { class: 'small' + (p ? ' ok' : '') }, p ? '✓ ' : (isNext ? '▶ ' : '　'), t.title,
-          h('span', { class: 'small muted' }, `　${t.n}語`, rate == null ? '' : `　直近 ${rate}%`)),
-        h('a', { class: 'btn small' + (isNext ? ' primary' : ''), href: `#/s/${t.id}` }, p ? '復習' : '始める'));
-    });
+    h('div', { class: 'row between' }, h('h2', {}, 'フォニックス・コース'), h('span', { class: 'small muted' }, `${donePass} / ${main0.length} 合格`)),
+    h('p', { class: 'small muted' }, `6 つの音節タイプの順（閉音節 → 開音節・マジック e → 母音チーム → r 性母音 → 二重母音 → 弱音節）に、${DATA.words.length} 語のすべての綴りをちょうど 1 回ずつ通ります。${PASS_MIN}問以上を正答率${Math.round(PASS_RATE * 100)}%で${PASS_RUNS}回連続すると合格。合格後はそのステップに既習語が${Math.round(MIX_RATE * 100)}%混ざります。`),
+    h('div', { class: 'progress' }, h('div', { style: `width:${Math.round(donePass / main0.length * 100)}%` }))));
+  const stepRow = t => {
+    const p = isPassed(t.id), isNext = nx && nx.id === t.id, rate = stepRate(t.id);
+    return h('div', { class: 'field' },
+      h('span', { class: 'small' + (p ? ' ok' : '') }, p ? '✓ ' : (isNext ? '▶ ' : '　'), t.title,
+        h('span', { class: 'small muted' }, `　${t.n}語`, rate == null ? '' : `　直近 ${rate}%`),
+        t.hint ? h('div', { class: 'small muted' }, t.hint) : null),
+      h('a', { class: 'btn small' + (isNext ? ' primary' : ''), href: `#/s/${t.id}` }, p ? '復習' : '始める'));
+  };
+  for (const stg of DATA.course.filter(c => !c.extra)) {
     main.append(h('section', { class: 'card' },
-      h('h3', {}, stg.title), h('p', { class: 'small muted' }, stg.hint || ''), ...rows));
+      h('h3', {}, stg.title), h('p', { class: 'small muted' }, stg.hint || ''), ...stg.steps.map(stepRow)));
+  }
+  for (const stg of DATA.course.filter(c => c.extra)) {
+    main.append(h('section', { class: 'card' }, h('details', {},
+      h('summary', {}, h('b', {}, stg.title)),
+      h('p', { class: 'small muted' }, stg.hint || ''), ...stg.steps.map(stepRow))));
   }
   // 従来の音コントラスト別セット
   const legacy = h('div');
@@ -156,7 +164,7 @@ function renderHome(main) {
     const ws = wordsFor(set);
     const sl = S.log.filter(l => l.set === set.id);
     const tot = sl.reduce((a, l) => a + l.n, 0), cor = sl.reduce((a, l) => a + l.c, 0);
-    const seen = ws.filter(w => S.words[w.word]?.s).length;
+    const seen = ws.filter(w => S.words[wkey(w)]?.s).length;
     const weak = ws.filter(isWeak).length;
     legacy.append(h('div', { class: 'card', style: 'margin-top:.6rem' },
       h('div', { class: 'row between' }, h('h3', {}, set.title), h('span', { class: 'small muted' }, `${ws.length} 語`)),
@@ -228,8 +236,8 @@ function renderDrill(main, spec, weakOnly) {
   let count = S.settings.count;
   const passed = spec.isStep && isPassed(spec.id);
   // 合格前は blocked（そのステップの語だけ）、合格後は mixed（既習語を混ぜる）
-  const stepSet = new Set(all.map(w => w.word));
-  const reviewPool = passed ? DATA.words.filter(w => S.words[w.word]?.s && !stepSet.has(w.word)) : [];
+  const stepSet = new Set(all.map(wkey));
+  const reviewPool = passed ? DATA.words.filter(w => S.words[wkey(w)]?.s && !stepSet.has(wkey(w))) : [];
   const exMap = {};
   for (const snd of new Set(DATA.words.map(w => w.sound)))
     exMap[snd] = spec.examples?.[snd] || (all.filter(w => w.sound === snd && !w.note).slice(0, 2).map(w => w.word).join(' / ')
@@ -257,7 +265,7 @@ function renderDrill(main, spec, weakOnly) {
     const per = Math.ceil(n / groups.length), out = [];
     for (const g of groups) {
       out.push(...g.map(w => {
-        const d = S.words[w.word]; let wt = 1;
+        const d = S.words[wkey(w)]; let wt = 1;
         if (!d || !d.s) wt += 1.5; else { wt += 3 * d.w / d.s; if (d.lw === today()) wt += 1; if (d.due && d.due <= today()) wt += 2; if (d.s >= 3 && d.w === 0) wt *= 0.4; }
         return { w, key: Math.pow(Math.random(), 1 / wt) };
       }).sort((a, b) => b.key - a.key).slice(0, per).map(x => x.w));
@@ -348,16 +356,16 @@ function renderDrill(main, spec, weakOnly) {
     } else {
       streak = 0;
       if (timedOut) timeouts++; else { const k = `${cur.sound}→${s}`; conf[k] = (conf[k] || 0) + 1; }
-      wrong.set(cur.word, cur);
+      wrong.set(wkey(cur), cur);
       fb.replaceChildren(...[h('span', { class: 'err' }, timedOut ? `⏱ 時間切れ — ${ipa(cur.sound)}` : `✗ 正解は ${ipa(cur.sound)}`), timedOut ? null : h('span', { class: 'small muted' }, `（${ipa(s)} と答えた）`), note].filter(Boolean));
       queue.splice(Math.min(queue.length, idx + RETRY_GAP[0] + Math.floor(Math.random() * (RETRY_GAP[1] - RETRY_GAP[0] + 1))), 0, cur);
     }
     // 復習キュー: 間違えた語は翌日から 1→3→7→14→30 日
-    const d = S.words[cur.word] || { s: 0, c: 0, w: 0, lw: null };
+    const d = S.words[wkey(cur)] || { s: 0, c: 0, w: 0, lw: null };
     d.s++;
     if (ok) { d.c++; if (d.due) { d.iv = Math.min((d.iv ?? 0) + 1, INTERVALS.length - 1); d.due = addDays(today(), INTERVALS[d.iv]); } }
     else { d.w++; d.lw = today(); d.iv = 0; d.due = addDays(today(), INTERVALS[0]); }
-    S.words[cur.word] = d; persistWords();
+    S.words[wkey(cur)] = d; persistWords();
     speak(cur.word);
     idx++;
     if (ok) timer = setTimeout(show, 550);

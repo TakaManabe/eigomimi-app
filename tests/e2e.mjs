@@ -16,7 +16,7 @@ async function run(name, viewport, fn) {
 const flow = async (page, tag) => {
   await page.goto(BASE); await page.waitForSelector('text=始める');
   await page.screenshot({ path: `/tmp/shots/d-${tag}-home.png`, fullPage: true });
-  await page.click('a[href="#/s/P1a"]'); await page.waitForSelector('text=スタート');
+  await page.click('a[href="#/s/P1-1"]'); await page.waitForSelector('text=スタート');
   if (!(await page.locator('.seg button.on:has-text("1.5秒")').count())) errors.push(`[${tag}] autoNext default not on`);
   if (!(await page.locator('.seg button.on:text-is("3秒")').count())) errors.push(`[${tag}] limit default not 3s`);
   await page.click('.seg button:has-text("20")'); await page.click('text=スタート'); await page.waitForSelector('.word');
@@ -36,7 +36,7 @@ const flow = async (page, tag) => {
   const home = await page.textContent('main'); if (!/今日/.test(home) || !/20/.test(home)) errors.push(`[${tag}] home stats missing`);
   if (!/直近 \d+%/.test(home)) errors.push(`[${tag}] step rate not shown on home`);
   // 苦手だけ
-  await page.goto(BASE + '#/s/P1a?weak=1'); await page.waitForSelector('text=苦手な語だけ');
+  await page.goto(BASE + '#/s/P1-1?weak=1'); await page.waitForSelector('text=苦手な語だけ');
   // バックアップ形式エラー
   await page.goto(BASE + '#/'); await page.waitForSelector('text=復元');
   await page.setInputFiles('input[type=file]', { name: 'x.json', mimeType: 'application/json', buffer: Buffer.from('{"app":"other"}') });
@@ -49,12 +49,16 @@ const flow = async (page, tag) => {
   // 従来のセットは details の中に残っている
   await page.click('summary:has-text("音のコントラスト別セット")');
   await page.waitForSelector('a[href="#/d/d01"]');
+  // 弱音節ステージと追加コースがある
+  if (!/弱音節/.test(await page.textContent('main'))) errors.push(`[${tag}] 弱音節ステージが無い`);
+  await page.click('summary:has-text("一綴り多音の罠")');
+  await page.waitForSelector('a[href="#/s/T-o"]');
 };
 await run('mobile', { width: 390, height: 844 }, flow);
 await run('desktop', { width: 1280, height: 800 }, flow);
 await run('mixed', { width: 390, height: 844 }, async page => {
   // 総合ステップ（音が 6 つ以上）は毎問 3 択を作る
-  await page.goto(BASE + '#/s/P5d'); await page.waitForSelector('text=スタート');
+  await page.goto(BASE + '#/s/X-all'); await page.waitForSelector('text=スタート');
   if (!/毎問 3 択/.test(await page.textContent('main'))) errors.push('[mixed] 3択の説明が出ていない');
   await page.click('.seg button:text-is("なし")');
   await page.click('.seg button:has-text("20")'); await page.click('text=スタート'); await page.waitForSelector('.word');
@@ -78,8 +82,17 @@ await run('review', { width: 390, height: 844 }, async page => {
   if ((await page.textContent('.word')) !== 'hot') errors.push('[review] 復習語が出題されない');
   await page.screenshot({ path: '/tmp/shots/d-review.png' });
 });
+await run('schwa', { width: 390, height: 844 }, async page => {
+  // 弱音節: 同じ語でも赤字の位置で答えが変わる
+  await page.goto(BASE + '#/s/P6-1'); await page.waitForSelector('text=スタート');
+  await page.click('.seg button:text-is("なし")'); await page.click('.seg button:has-text("20")');
+  await page.click('text=スタート'); await page.waitForSelector('.word');
+  if (!(await page.locator('.choice:has-text("/ə/")').count())) errors.push('[schwa] /ə/ の選択肢が無い');
+  if (!(await page.locator('.word .hl').count())) errors.push('[schwa] 赤字が出ていない');
+  await page.screenshot({ path: '/tmp/shots/d-schwa.png' });
+});
 await run('timeout', { width: 390, height: 844 }, async page => {
-  await page.goto(BASE + '#/s/P5a'); await page.waitForSelector('text=スタート');
+  await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');
   await page.click('.seg button:text-is("2秒")'); await page.click('.seg button:has-text("20")'); await page.click('text=スタート'); await page.waitForSelector('.word');
   await page.waitForSelector('text=時間切れ', { timeout: 5000 });
   await page.screenshot({ path: '/tmp/shots/d-timeout.png' });
@@ -90,7 +103,7 @@ await run('offline', { width: 390, height: 844 }, async page => {
   await page.goto(BASE); await page.waitForSelector('text=始める');
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => new Promise(r => setTimeout(r, 1500))));
   await page.context().setOffline(true); await page.reload(); await page.waitForSelector('text=始める', { timeout: 10000 });
-  await page.click('a[href="#/s/P1a"]'); await page.waitForSelector('text=スタート');
+  await page.click('a[href="#/s/P1-1"]'); await page.waitForSelector('text=スタート');
   await page.context().setOffline(false);
 });
 await browser.close();

@@ -1,55 +1,122 @@
 {
- "version": 2,
+ "version": 3,
  "course": [
   {
    "id": "P1",
-   "title": "1. 閉音節の短母音",
+   "title": "1. 閉音節 — 短母音",
    "hint": "一字の母音は 86〜97% この音。ここが土台",
    "steps": [
     {
-     "id": "P1a",
-     "title": "a / i / o",
-     "hint": "bat / hit / hot",
+     "id": "P1-1",
+     "title": "a",
+     "hint": "father swallow wander",
      "sel": {
       "st": [
        "P1"
       ],
-      "sounds": [
-       "æ",
-       "ɪ",
-       "ɑ"
+      "g": [
+       "a"
       ]
      },
-     "n": 350,
+     "n": 157,
      "sounds": [
+      "e",
       "æ",
-      "ɑ",
-      "ɪ"
+      "ɑ"
      ]
     },
     {
-     "id": "P1b",
-     "title": "u / e",
-     "hint": "but / bed。綴り o・ou の /ʌ/ も混ざる",
+     "id": "P1-2",
+     "title": "i / o",
+     "hint": "sit bit hit",
      "sel": {
       "st": [
        "P1"
       ],
-      "sounds": [
-       "ʌ",
-       "e"
+      "g": [
+       "i",
+       "o"
       ]
      },
-     "n": 268,
+     "n": 198,
      "sounds": [
-      "e",
+      "ɑ",
+      "ɪ",
       "ʌ"
      ]
     },
     {
-     "id": "P1c",
-     "title": "短母音 5 つ（混合）",
-     "hint": "body / bat / but を目印に",
+     "id": "P1-3",
+     "title": "u",
+     "hint": "hut cut but",
+     "sel": {
+      "st": [
+       "P1"
+      ],
+      "g": [
+       "u"
+      ]
+     },
+     "n": 127,
+     "sounds": [
+      "ɪ",
+      "ʌ"
+     ]
+    },
+    {
+     "id": "P1-4",
+     "title": "e",
+     "hint": "pretty set bet",
+     "sel": {
+      "st": [
+       "P1"
+      ],
+      "g": [
+       "e"
+      ]
+     },
+     "n": 91,
+     "sounds": [
+      "e",
+      "ɪ"
+     ]
+    },
+    {
+     "id": "P1-5",
+     "title": "ea / o_e / y / ui / al / au …",
+     "hint": "sweat threat bread",
+     "sel": {
+      "st": [
+       "P1"
+      ],
+      "g": [
+       "ai",
+       "al",
+       "au",
+       "ea",
+       "i_e",
+       "ie",
+       "o_e",
+       "oe",
+       "oo",
+       "ui",
+       "y",
+       "ya"
+      ]
+     },
+     "n": 45,
+     "sounds": [
+      "e",
+      "æ",
+      "ɑ",
+      "ɪ",
+      "ʌ"
+     ]
+    },
+    {
+     "id": "P1-all",
+     "title": "ステージ総合",
+     "hint": "このステージの綴りをまとめて",
      "sel": {
       "st": [
        "P1"
@@ -68,40 +135,51 @@
   },
   {
    "id": "P2",
-   "title": "2. マジック e と開音節",
-   "hint": "母音字の名前どおりに読む長母音",
+   "title": "2. 開音節とマジック e — 長母音",
+   "hint": "母音字の名前どおりに読む",
    "steps": [
     {
-     "id": "P2a",
-     "title": "マジック e",
-     "hint": "a_e / i_e / o_e / u_e。最後の e は読まない",
+     "id": "P2-1",
+     "title": "a_e / i_e",
+     "hint": "made fade wade",
      "sel": {
       "st": [
        "P2"
       ],
       "g": [
        "a_e",
-       "i_e",
-       "o_e",
-       "u_e",
-       "ea_e",
-       "ie_e",
-       "oo_e"
+       "i_e"
       ]
      },
-     "n": 169,
+     "n": 110,
      "sounds": [
       "aɪ",
-      "eɪ",
-      "iː",
+      "eɪ"
+     ]
+    },
+    {
+     "id": "P2-2",
+     "title": "o_e / u_e",
+     "hint": "move prove lose",
+     "sel": {
+      "st": [
+       "P2"
+      ],
+      "g": [
+       "o_e",
+       "u_e"
+      ]
+     },
+     "n": 43,
+     "sounds": [
       "oʊ",
       "uː"
      ]
     },
     {
-     "id": "P2b",
-     "title": "開音節",
-     "hint": "母音で終わる音節は長く読む",
+     "id": "P2-3",
+     "title": "a / i / o",
+     "hint": "able table cable",
      "sel": {
       "st": [
        "P2"
@@ -109,13 +187,56 @@
       "g": [
        "a",
        "i",
-       "o",
-       "e",
-       "u",
-       "y"
+       "o"
       ]
      },
-     "n": 92,
+     "n": 68,
+     "sounds": [
+      "aɪ",
+      "eɪ",
+      "oʊ"
+     ]
+    },
+    {
+     "id": "P2-4",
+     "title": "e / y / ea_e / ie_e / oo_e / u …",
+     "hint": "evening even female",
+     "sel": {
+      "st": [
+       "P2"
+      ],
+      "g": [
+       "e",
+       "e_e",
+       "ea_e",
+       "ee_e",
+       "ei_e",
+       "ie_e",
+       "oo_e",
+       "ou_e",
+       "u",
+       "ui_e",
+       "y",
+       "y_e"
+      ]
+     },
+     "n": 51,
+     "sounds": [
+      "aɪ",
+      "iː",
+      "uː"
+     ]
+    },
+    {
+     "id": "P2-all",
+     "title": "ステージ総合",
+     "hint": "このステージの綴りをまとめて",
+     "sel": {
+      "st": [
+       "P2"
+      ]
+     },
+     "n": 272,
      "sounds": [
       "aɪ",
       "eɪ",
@@ -123,97 +244,124 @@
       "oʊ",
       "uː"
      ]
-    },
-    {
-     "id": "P2c",
-     "title": "短 vs 長（総合）",
-     "hint": "hat↔hate, hop↔hope。ここが最重要",
-     "sel": {
-      "upto": "P2"
-     },
-     "n": 890,
-     "sounds": [
-      "aɪ",
-      "e",
-      "eɪ",
-      "iː",
-      "oʊ",
-      "uː",
-      "æ",
-      "ɑ",
-      "ɪ",
-      "ʌ"
-     ],
-     "mix": true
     }
    ]
   },
   {
    "id": "P3",
    "title": "3. 母音チーム",
-   "hint": "2 字で 1 つの長母音",
+   "hint": "2 字以上で 1 つの母音",
    "steps": [
     {
-     "id": "P3a",
-     "title": "ee / ea / ai / ay",
-     "hint": "/iː/ と /eɪ/",
+     "id": "P3-1",
+     "title": "ee / ea",
+     "hint": "see bee tee",
      "sel": {
       "st": [
        "P3"
       ],
-      "sounds": [
-       "iː",
-       "eɪ"
+      "g": [
+       "ea",
+       "ee"
       ]
      },
-     "n": 144,
+     "n": 90,
      "sounds": [
       "eɪ",
       "iː"
      ]
     },
     {
-     "id": "P3b",
-     "title": "oa / ow / igh / ew",
-     "hint": "/oʊ/ /aɪ/ /uː/",
+     "id": "P3-2",
+     "title": "ai / ay / igh",
+     "hint": "aisle rain main",
      "sel": {
       "st": [
        "P3"
       ],
-      "sounds": [
-       "oʊ",
-       "aɪ",
-       "uː"
+      "g": [
+       "ai",
+       "ay",
+       "igh"
       ]
      },
-     "n": 121,
+     "n": 52,
      "sounds": [
       "aɪ",
+      "eɪ"
+     ]
+    },
+    {
+     "id": "P3-3",
+     "title": "ie / oa / ow",
+     "hint": "field yield shield",
+     "sel": {
+      "st": [
+       "P3"
+      ],
+      "g": [
+       "ie",
+       "oa",
+       "ow"
+      ]
+     },
+     "n": 41,
+     "sounds": [
+      "aɪ",
+      "iː",
+      "oʊ"
+     ]
+    },
+    {
+     "id": "P3-4",
+     "title": "ew / ue / oo / oe / ou / ey …",
+     "hint": "crew drew grew",
+     "sel": {
+      "st": [
+       "P3"
+      ],
+      "g": [
+       "ei",
+       "eigh",
+       "ew",
+       "ey",
+       "eye",
+       "o",
+       "oe",
+       "oo",
+       "ou",
+       "ue",
+       "ui",
+       "uy",
+       "wo"
+      ]
+     },
+     "n": 82,
+     "sounds": [
+      "aɪ",
+      "eɪ",
+      "iː",
       "oʊ",
       "uː"
      ]
     },
     {
-     "id": "P3c",
-     "title": "母音チーム（総合）",
-     "hint": "既習の短母音・マジック e も混ぜる",
+     "id": "P3-all",
+     "title": "ステージ総合",
+     "hint": "このステージの綴りをまとめて",
      "sel": {
-      "upto": "P3"
+      "st": [
+       "P3"
+      ]
      },
-     "n": 1155,
+     "n": 265,
      "sounds": [
       "aɪ",
-      "e",
       "eɪ",
       "iː",
       "oʊ",
-      "uː",
-      "æ",
-      "ɑ",
-      "ɪ",
-      "ʌ"
-     ],
-     "mix": true
+      "uː"
+     ]
     }
    ]
   },
@@ -223,51 +371,104 @@
    "hint": "日本語話者に最難。ここは時間をかける",
    "steps": [
     {
-     "id": "P4a",
-     "title": "ar / or / er·ir·ur",
-     "hint": "/ɑr/ /ɔr/ /ɝː/",
+     "id": "P4-1",
+     "title": "ar",
+     "hint": "car far bar",
      "sel": {
       "st": [
        "P4"
       ],
-      "sounds": [
-       "ɑr",
-       "ɔr",
-       "ɝː"
+      "g": [
+       "ar"
       ]
      },
-     "n": 132,
+     "n": 40,
      "sounds": [
       "ɑr",
-      "ɔr",
-      "ɝː"
+      "ɔr"
      ]
     },
     {
-     "id": "P4b",
-     "title": "air·are / ear·eer",
-     "hint": "/er/ /ɪr/ と /ɝː/ の区別",
+     "id": "P4-2",
+     "title": "or / er",
+     "hint": "word work worm",
      "sel": {
       "st": [
        "P4"
       ],
-      "sounds": [
+      "g": [
        "er",
-       "ɪr",
-       "ɝː"
+       "or"
       ]
      },
-     "n": 100,
+     "n": 41,
      "sounds": [
       "er",
+      "ɔr",
       "ɝː",
       "ɪr"
      ]
     },
     {
-     "id": "P4c",
-     "title": "r 性母音 5 つ（総合）",
-     "hint": "ar / or / er / air / ear",
+     "id": "P4-3",
+     "title": "ir / ur / ear",
+     "hint": "bird girl first",
+     "sel": {
+      "st": [
+       "P4"
+      ],
+      "g": [
+       "ear",
+       "ir",
+       "ur"
+      ]
+     },
+     "n": 44,
+     "sounds": [
+      "er",
+      "ɑr",
+      "ɝː",
+      "ɪr"
+     ]
+    },
+    {
+     "id": "P4-4",
+     "title": "air / are / eer / ere / ore / ur_e …",
+     "hint": "air hair fair",
+     "sel": {
+      "st": [
+       "P4"
+      ],
+      "g": [
+       "air",
+       "ar_e",
+       "are",
+       "eer",
+       "eir",
+       "er_e",
+       "ere",
+       "err",
+       "ier_e",
+       "oor",
+       "or_e",
+       "ore",
+       "our_e",
+       "ur_e"
+      ]
+     },
+     "n": 59,
+     "sounds": [
+      "er",
+      "ɑr",
+      "ɔr",
+      "ɝː",
+      "ɪr"
+     ]
+    },
+    {
+     "id": "P4-all",
+     "title": "ステージ総合",
+     "hint": "このステージの綴りをまとめて",
      "sel": {
       "st": [
        "P4"
@@ -287,73 +488,293 @@
   {
    "id": "P5",
    "title": "5. 二重母音とその他",
-   "hint": "残りの母音",
+   "hint": "ou / ow, oi / oy, oo, au / aw",
    "steps": [
     {
-     "id": "P5a",
-     "title": "ou / ow / oi / oy",
-     "hint": "/aʊ/ と /ɔɪ/",
+     "id": "P5-1",
+     "title": "ou / ow",
+     "hint": "should could would",
      "sel": {
       "st": [
        "P5"
       ],
-      "sounds": [
-       "aʊ",
-       "ɔɪ"
+      "g": [
+       "ou",
+       "ow"
       ]
      },
-     "n": 95,
+     "n": 59,
      "sounds": [
       "aʊ",
-      "ɔɪ"
-     ]
-    },
-    {
-     "id": "P5b",
-     "title": "/uː/ と /ʊ/",
-     "hint": "唇の緊張。oo は両方ある",
-     "sel": {
-      "sounds": [
-       "uː",
-       "ʊ"
-      ]
-     },
-     "n": 125,
-     "sounds": [
-      "uː",
       "ʊ"
      ]
     },
     {
-     "id": "P5c",
-     "title": "/ɔː/ と /ɑ/",
-     "hint": "唇の丸め。merger 地域では同音",
+     "id": "P5-2",
+     "title": "oi / oy / oo",
+     "hint": "oil boil coil",
      "sel": {
-      "sounds": [
-       "ɔː",
-       "ɑ"
+      "st": [
+       "P5"
+      ],
+      "g": [
+       "oi",
+       "oo",
+       "oy"
       ]
      },
-     "n": 178,
+     "n": 47,
      "sounds": [
-      "ɑ",
-      "ɔː"
+      "ɔɪ",
+      "ʊ"
      ]
     },
     {
-     "id": "P5d",
-     "title": "全母音（総合）",
-     "hint": "1,546 語すべてから出題",
+     "id": "P5-3",
+     "title": "aw / au / ough / o",
+     "hint": "law saw jaw",
      "sel": {
-      "upto": "P5"
+      "st": [
+       "P5"
+      ],
+      "g": [
+       "au",
+       "aw",
+       "o",
+       "ough"
+      ]
      },
-     "n": 1546,
+     "n": 57,
+     "sounds": [
+      "ɔː",
+      "ʊ"
+     ]
+    },
+    {
+     "id": "P5-4",
+     "title": "a / u / oi_e / ou_e / au_e / augh …",
+     "hint": "talk walk chalk",
+     "sel": {
+      "st": [
+       "P5"
+      ],
+      "g": [
+       "a",
+       "au_e",
+       "augh",
+       "o_e",
+       "oi_e",
+       "ou_e",
+       "u"
+      ]
+     },
+     "n": 44,
+     "sounds": [
+      "aʊ",
+      "ɔɪ",
+      "ɔː",
+      "ʊ"
+     ]
+    },
+    {
+     "id": "P5-all",
+     "title": "ステージ総合",
+     "hint": "このステージの綴りをまとめて",
+     "sel": {
+      "st": [
+       "P5"
+      ]
+     },
+     "n": 207,
+     "sounds": [
+      "aʊ",
+      "ɔɪ",
+      "ɔː",
+      "ʊ"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "P6",
+   "title": "6. 弱音節 — schwa と consonant-le",
+   "hint": "強勢の無い音節。英語でいちばん多い母音",
+   "steps": [
+    {
+     "id": "P6-1",
+     "title": "le / er",
+     "hint": "table little apple",
+     "sel": {
+      "st": [
+       "P6"
+      ],
+      "g": [
+       "er",
+       "le"
+      ]
+     },
+     "n": 49,
+     "sounds": [
+      "ə",
+      "ɚ"
+     ]
+    },
+    {
+     "id": "P6-2",
+     "title": "or / a",
+     "hint": "doctor actor color",
+     "sel": {
+      "st": [
+       "P6"
+      ],
+      "g": [
+       "a",
+       "or"
+      ]
+     },
+     "n": 72,
+     "sounds": [
+      "ə",
+      "ɚ"
+     ]
+    },
+    {
+     "id": "P6-3",
+     "title": "o / e / y / ey / ai / ou …",
+     "hint": "lemon wagon bacon",
+     "sel": {
+      "st": [
+       "P6"
+      ],
+      "g": [
+       "ai",
+       "ar",
+       "e",
+       "ey",
+       "i",
+       "o",
+       "ou",
+       "y"
+      ]
+     },
+     "n": 100,
+     "sounds": [
+      "i",
+      "ə",
+      "ɚ"
+     ]
+    },
+    {
+     "id": "P6-all",
+     "title": "ステージ総合",
+     "hint": "このステージの綴りをまとめて",
+     "sel": {
+      "st": [
+       "P6"
+      ]
+     },
+     "n": 221,
+     "sounds": [
+      "i",
+      "ə",
+      "ɚ"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "X",
+   "title": "追加ドリル（進捗には数えません）",
+   "hint": "本コースの語を別の切り口で回す",
+   "extra": true,
+   "steps": [
+    {
+     "id": "X-shortlong",
+     "title": "短母音 vs 長母音",
+     "hint": "hat↔hate, hop↔hope",
+     "sel": {
+      "st": [
+       "P1",
+       "P2"
+      ]
+     },
+     "n": 890,
+     "sounds": [
+      "aɪ",
+      "e",
+      "eɪ",
+      "iː",
+      "oʊ",
+      "uː",
+      "æ",
+      "ɑ",
+      "ɪ",
+      "ʌ"
+     ],
+     "mix": true
+    },
+    {
+     "id": "X-weak",
+     "title": "強い音節 vs 弱い音節",
+     "hint": "同じ語でも赤字の位置で音が変わる",
+     "sel": {
+      "st": [
+       "P1",
+       "P2",
+       "P6"
+      ]
+     },
+     "n": 1111,
+     "sounds": [
+      "aɪ",
+      "e",
+      "eɪ",
+      "i",
+      "iː",
+      "oʊ",
+      "uː",
+      "æ",
+      "ɑ",
+      "ə",
+      "ɚ",
+      "ɪ",
+      "ʌ"
+     ],
+     "mix": true
+    },
+    {
+     "id": "X-note",
+     "title": "方言差と綴り例外",
+     "hint": "cot–caught merger、CLOTH 語ほか",
+     "sel": {
+      "note": true
+     },
+     "n": 154,
+     "sounds": [
+      "eɪ",
+      "uː",
+      "æ",
+      "ɔː",
+      "ə",
+      "ʌ"
+     ],
+     "mix": true
+    },
+    {
+     "id": "X-all",
+     "title": "全母音（総合）",
+     "hint": "収録語すべてから出題",
+     "sel": {
+      "upto": "P6"
+     },
+     "n": 1767,
      "sounds": [
       "aɪ",
       "aʊ",
       "e",
       "er",
       "eɪ",
+      "i",
       "iː",
       "oʊ",
       "uː",
@@ -363,6 +784,8 @@
       "ɔr",
       "ɔɪ",
       "ɔː",
+      "ə",
+      "ɚ",
       "ɝː",
       "ɪ",
       "ɪr",
@@ -374,38 +797,71 @@
    ]
   },
   {
-   "id": "P6",
-   "title": "6. 一綴り多音の罠",
+   "id": "T",
+   "title": "一綴り多音の罠（進捗には数えません）",
    "hint": "同じ綴りで音が割れる語だけを集めた識別ドリル",
+   "extra": true,
    "steps": [
     {
-     "id": "P6a",
-     "title": "ea",
-     "hint": "/iː/ seat か /e/ bread か",
+     "id": "T-a",
+     "title": "a",
+     "hint": "同じ綴りで音が割れる",
      "sel": {
       "g": [
-       "ea",
-       "ea_e"
+       "a"
       ],
       "sounds": [
-       "iː",
-       "e"
+       "eɪ",
+       "æ",
+       "ɑ",
+       "ɔː",
+       "ə"
       ]
      },
-     "n": 61,
+     "n": 248,
      "sounds": [
-      "e",
-      "iː"
+      "eɪ",
+      "æ",
+      "ɑ",
+      "ɔː",
+      "ə"
      ]
     },
     {
-     "id": "P6b",
-     "title": "oo",
-     "hint": "/uː/ moon か /ʊ/ book か",
+     "id": "T-o",
+     "title": "o",
+     "hint": "同じ綴りで音が割れる",
      "sel": {
       "g": [
-       "oo",
-       "oo_e"
+       "o"
+      ],
+      "sounds": [
+       "oʊ",
+       "uː",
+       "ɑ",
+       "ɔː",
+       "ə",
+       "ʌ"
+      ]
+     },
+     "n": 191,
+     "sounds": [
+      "oʊ",
+      "uː",
+      "ɑ",
+      "ɔː",
+      "ə",
+      "ʌ"
+     ],
+     "mix": true
+    },
+    {
+     "id": "T-u",
+     "title": "u",
+     "hint": "同じ綴りで音が割れる",
+     "sel": {
+      "g": [
+       "u"
       ],
       "sounds": [
        "uː",
@@ -413,7 +869,7 @@
        "ʌ"
       ]
      },
-     "n": 54,
+     "n": 142,
      "sounds": [
       "uː",
       "ʊ",
@@ -421,178 +877,144 @@
      ]
     },
     {
-     "id": "P6c",
-     "title": "ow / ou",
-     "hint": "/aʊ/ how か /oʊ/ show か",
-     "sel": {
-      "g": [
-       "ow",
-       "ou",
-       "ou_e"
-      ],
-      "sounds": [
-       "aʊ",
-       "oʊ",
-       "uː",
-       "ʊ"
-      ]
-     },
-     "n": 83,
-     "sounds": [
-      "aʊ",
-      "oʊ",
-      "uː",
-      "ʊ"
-     ]
-    },
-    {
-     "id": "P6d",
-     "title": "ar / or / ear",
-     "hint": "r の前の綴りは当てにならない",
-     "sel": {
-      "g": [
-       "ar",
-       "or",
-       "ear"
-      ]
-     },
-     "n": 93,
-     "sounds": [
-      "er",
-      "ɑr",
-      "ɔr",
-      "ɝː",
-      "ɪr"
-     ]
-    },
-    {
-     "id": "P6e",
-     "title": "o",
-     "hint": "最難。/ɑ/ /oʊ/ /ɔː/ /ʌ/ に割れる",
-     "sel": {
-      "g": [
-       "o"
-      ],
-      "sounds": [
-       "ɑ",
-       "oʊ",
-       "ɔː",
-       "ʌ"
-      ]
-     },
-     "n": 168,
-     "sounds": [
-      "oʊ",
-      "ɑ",
-      "ɔː",
-      "ʌ"
-     ]
-    },
-    {
-     "id": "P6f",
-     "title": "a",
-     "hint": "/æ/ /eɪ/ /ɑ/ /ɔː/ に割れる",
-     "sel": {
-      "g": [
-       "a"
-      ],
-      "sounds": [
-       "æ",
-       "eɪ",
-       "ɑ",
-       "ɔː"
-      ]
-     },
-     "n": 186,
-     "sounds": [
-      "eɪ",
-      "æ",
-      "ɑ",
-      "ɔː"
-     ]
-    },
-    {
-     "id": "P6g",
-     "title": "i / y",
-     "hint": "/ɪ/ hit か /aɪ/ by か",
-     "sel": {
-      "g": [
-       "i",
-       "y"
-      ],
-      "sounds": [
-       "ɪ",
-       "aɪ"
-      ]
-     },
-     "n": 132,
-     "sounds": [
-      "aɪ",
-      "ɪ"
-     ]
-    },
-    {
-     "id": "P6h",
+     "id": "T-e",
      "title": "e",
-     "hint": "/e/ bed か /iː/ even か",
+     "hint": "同じ綴りで音が割れる",
      "sel": {
       "g": [
        "e"
       ],
       "sounds": [
        "e",
+       "iː",
+       "ə"
+      ]
+     },
+     "n": 123,
+     "sounds": [
+      "e",
+      "iː",
+      "ə"
+     ]
+    },
+    {
+     "id": "T-i",
+     "title": "i",
+     "hint": "同じ綴りで音が割れる",
+     "sel": {
+      "g": [
+       "i"
+      ],
+      "sounds": [
+       "aɪ",
+       "ɪ"
+      ]
+     },
+     "n": 111,
+     "sounds": [
+      "aɪ",
+      "ɪ"
+     ]
+    },
+    {
+     "id": "T-ea",
+     "title": "ea",
+     "hint": "同じ綴りで音が割れる",
+     "sel": {
+      "g": [
+       "ea"
+      ],
+      "sounds": [
+       "e",
        "iː"
       ]
      },
-     "n": 97,
+     "n": 54,
      "sounds": [
       "e",
       "iː"
      ]
     },
     {
-     "id": "P6i",
-     "title": "u",
-     "hint": "/ʌ/ bus か /ʊ/ push か /uː/ か",
+     "id": "T-oo",
+     "title": "oo",
+     "hint": "同じ綴りで音が割れる",
      "sel": {
       "g": [
-       "u",
-       "u_e"
+       "oo"
       ],
       "sounds": [
-       "ʌ",
-       "ʊ",
-       "uː"
+       "uː",
+       "ʊ"
       ]
      },
-     "n": 154,
+     "n": 48,
      "sounds": [
       "uː",
-      "ʊ",
-      "ʌ"
+      "ʊ"
      ]
-    }
-   ]
-  },
-  {
-   "id": "P7",
-   "title": "7. 方言差と綴り例外",
-   "hint": "cot–caught merger、CLOTH 語、綴り例外",
-   "steps": [
+    },
     {
-     "id": "P7a",
-     "title": "注記のある語",
-     "hint": "地域差があるので参考程度に",
+     "id": "T-ou",
+     "title": "ou",
+     "hint": "同じ綴りで音が割れる",
      "sel": {
-      "note": true
+      "g": [
+       "ou"
+      ],
+      "sounds": [
+       "aʊ",
+       "uː",
+       "ə"
+      ]
      },
-     "n": 129,
+     "n": 45,
      "sounds": [
-      "eɪ",
+      "aʊ",
       "uː",
-      "æ",
-      "ɔː",
-      "ʌ"
+      "ə"
+     ]
+    },
+    {
+     "id": "T-y",
+     "title": "y",
+     "hint": "同じ綴りで音が割れる",
+     "sel": {
+      "g": [
+       "y"
+      ],
+      "sounds": [
+       "aɪ",
+       "i",
+       "ɪ"
+      ]
+     },
+     "n": 44,
+     "sounds": [
+      "aɪ",
+      "i",
+      "ɪ"
+     ]
+    },
+    {
+     "id": "T-ar",
+     "title": "ar",
+     "hint": "同じ綴りで音が割れる",
+     "sel": {
+      "g": [
+       "ar"
+      ],
+      "sounds": [
+       "ɑr",
+       "ɔr",
+       "ɚ"
+      ]
+     },
+     "n": 44,
+     "sounds": [
+      "ɑr",
+      "ɔr",
+      "ɚ"
      ]
     }
    ]
@@ -603,7 +1025,8 @@
    "æ",
    "ʌ",
    "ɔː",
-   "oʊ"
+   "oʊ",
+   "ə"
   ],
   "æ": [
    "ɑ",
@@ -614,23 +1037,28 @@
    "æ",
    "ɑ",
    "ʊ",
-   "ɔː"
+   "ɔː",
+   "ə"
   ],
   "e": [
    "æ",
    "ɪ",
    "eɪ",
-   "iː"
+   "iː",
+   "ə"
   ],
   "ɪ": [
    "iː",
    "e",
-   "ɪr"
+   "ɪr",
+   "ə",
+   "i"
   ],
   "iː": [
    "ɪ",
    "e",
-   "eɪ"
+   "eɪ",
+   "i"
   ],
   "uː": [
    "ʊ",
@@ -678,7 +1106,8 @@
    "ɑr",
    "ɔr",
    "er",
-   "ɪr"
+   "ɪr",
+   "ɚ"
   ],
   "ɑr": [
    "ɔr",
@@ -688,7 +1117,8 @@
   "ɔr": [
    "ɑr",
    "ɝː",
-   "oʊ"
+   "oʊ",
+   "ɚ"
   ],
   "ɪr": [
    "ɝː",
@@ -699,6 +1129,23 @@
    "ɪr",
    "ɝː",
    "e"
+  ],
+  "ə": [
+   "ʌ",
+   "ɪ",
+   "e",
+   "ɑ"
+  ],
+  "ɚ": [
+   "ɝː",
+   "ə",
+   "ʌ",
+   "ɔr"
+  ],
+  "i": [
+   "iː",
+   "ɪ",
+   "eɪ"
   ]
  },
  "note": "大量ドリル用の単語バンク。sound は強勢母音。note は方言差・綴り例外。sets はドリルの組み合わせ。tests/build-drill-words.py で生成。",
@@ -6968,10 +7415,10 @@
    "word": "busy",
    "sound": "ɪ",
    "hl": [
-    3,
-    4
+    1,
+    2
    ],
-   "g": "y",
+   "g": "u",
    "st": "P1"
   },
   {
@@ -6988,10 +7435,10 @@
    "word": "pretty",
    "sound": "ɪ",
    "hl": [
-    5,
-    6
+    2,
+    3
    ],
-   "g": "y",
+   "g": "e",
    "st": "P1"
   },
   {
@@ -16407,6 +16854,2323 @@
    ],
    "g": "err",
    "st": "P4"
+  },
+  {
+   "word": "sofa",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "comma",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "extra",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "drama",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "zebra",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "panda",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "pizza",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "villa",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "quota",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "china",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "tuna",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "cinema",
+   "sound": "ə",
+   "hl": [
+    5,
+    6
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "camera",
+   "sound": "ə",
+   "hl": [
+    5,
+    6
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "camera#5"
+  },
+  {
+   "word": "banana",
+   "sound": "ə",
+   "hl": [
+    5,
+    6
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "arena",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "agenda",
+   "sound": "ə",
+   "hl": [
+    5,
+    6
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "formula",
+   "sound": "ə",
+   "hl": [
+    6,
+    7
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "umbrella",
+   "sound": "ə",
+   "hl": [
+    7,
+    8
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "America",
+   "sound": "ə",
+   "hl": [
+    6,
+    7
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "Canada",
+   "sound": "ə",
+   "hl": [
+    5,
+    6
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "soda",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "cobra",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "plaza",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "data",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "delta",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "media",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "about",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "about#0"
+  },
+  {
+   "word": "above",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "above#0"
+  },
+  {
+   "word": "along",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "ago",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "alone",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "alone#0"
+  },
+  {
+   "word": "awake",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "asleep",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "away",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "again",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "against",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "ahead",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "across",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "allow",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "allow#0"
+  },
+  {
+   "word": "amaze",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "appear",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "apart",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "attend",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "attack",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "attack#0"
+  },
+  {
+   "word": "alarm",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "alarm#0"
+  },
+  {
+   "word": "account",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "achieve",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "achieve#0"
+  },
+  {
+   "word": "adopt",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "afraid",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "agree",
+   "sound": "ə",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "agree#0"
+  },
+  {
+   "word": "around",
+   "sound": "ɚ",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "arrive",
+   "sound": "ɚ",
+   "hl": [
+    0,
+    1
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "lemon",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "wagon",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "bacon",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "ribbon",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "cotton",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o",
+   "k": "cotton#4"
+  },
+  {
+   "word": "button",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o",
+   "k": "button#4"
+  },
+  {
+   "word": "carbon",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "dragon",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "reason",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "season",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "prison",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "poison",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "common",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o",
+   "k": "common#4"
+  },
+  {
+   "word": "lesson",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "cannon",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "salmon",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "melon",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "kitten",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "listen",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "happen",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "sudden",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e",
+   "k": "sudden#4"
+  },
+  {
+   "word": "garden",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e",
+   "k": "garden#4"
+  },
+  {
+   "word": "golden",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "often",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "e",
+   "k": "often#3"
+  },
+  {
+   "word": "oven",
+   "sound": "ə",
+   "hl": [
+    2,
+    3
+   ],
+   "st": "P6",
+   "g": "e",
+   "k": "oven#2"
+  },
+  {
+   "word": "chicken",
+   "sound": "ə",
+   "hl": [
+    5,
+    6
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "broken",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "taken",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "given",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "seven",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "e",
+   "k": "seven#3"
+  },
+  {
+   "word": "eleven",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e",
+   "k": "eleven#4"
+  },
+  {
+   "word": "heaven",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "frozen",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "wooden",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "written",
+   "sound": "ə",
+   "hl": [
+    5,
+    6
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "hidden",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "even",
+   "sound": "ə",
+   "hl": [
+    2,
+    3
+   ],
+   "st": "P6",
+   "g": "e",
+   "k": "even#2"
+  },
+  {
+   "word": "mountain",
+   "sound": "ə",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "ai",
+   "k": "mountain#5"
+  },
+  {
+   "word": "captain",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ai"
+  },
+  {
+   "word": "certain",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ai"
+  },
+  {
+   "word": "fountain",
+   "sound": "ə",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "ai",
+   "k": "fountain#5"
+  },
+  {
+   "word": "curtain",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ai"
+  },
+  {
+   "word": "bargain",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ai"
+  },
+  {
+   "word": "table",
+   "sound": "ə",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/",
+   "k": "table#3"
+  },
+  {
+   "word": "little",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "apple",
+   "sound": "ə",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/",
+   "k": "apple#3"
+  },
+  {
+   "word": "candle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/",
+   "k": "candle#4"
+  },
+  {
+   "word": "handle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/",
+   "k": "handle#4"
+  },
+  {
+   "word": "simple",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "people",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "purple",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/",
+   "k": "purple#4"
+  },
+  {
+   "word": "middle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "bottle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "battle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/",
+   "k": "battle#4"
+  },
+  {
+   "word": "cattle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/",
+   "k": "cattle#4"
+  },
+  {
+   "word": "rattle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/",
+   "k": "rattle#4"
+  },
+  {
+   "word": "circle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "uncle",
+   "sound": "ə",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "single",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "ankle",
+   "sound": "ə",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "title",
+   "sound": "ə",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "bubble",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "puzzle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "needle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "noodle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "castle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "whistle",
+   "sound": "ə",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "jungle",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "le",
+   "note": "consonant-le。子音 + le で /əl/"
+  },
+  {
+   "word": "animal",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "animal#4"
+  },
+  {
+   "word": "capital",
+   "sound": "ə",
+   "hl": [
+    5,
+    6
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "capital#5"
+  },
+  {
+   "word": "hospital",
+   "sound": "ə",
+   "hl": [
+    6,
+    7
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "medal",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "metal",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "total",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "total#3"
+  },
+  {
+   "word": "local",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "local#3"
+  },
+  {
+   "word": "legal",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "legal#3"
+  },
+  {
+   "word": "signal",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "final",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "final#3"
+  },
+  {
+   "word": "normal",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "a",
+   "k": "normal#4"
+  },
+  {
+   "word": "pedal",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "a"
+  },
+  {
+   "word": "travel",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e",
+   "k": "travel#4"
+  },
+  {
+   "word": "level",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "model",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "e",
+   "k": "model#3"
+  },
+  {
+   "word": "novel",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "e",
+   "k": "novel#3"
+  },
+  {
+   "word": "camel",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "tunnel",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "e"
+  },
+  {
+   "word": "pencil",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "i"
+  },
+  {
+   "word": "April",
+   "sound": "ə",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "i"
+  },
+  {
+   "word": "evil",
+   "sound": "ə",
+   "hl": [
+    2,
+    3
+   ],
+   "st": "P6",
+   "g": "i"
+  },
+  {
+   "word": "symbol",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o",
+   "k": "symbol#4"
+  },
+  {
+   "word": "pistol",
+   "sound": "ə",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "o"
+  },
+  {
+   "word": "famous",
+   "sound": "ə",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "ou",
+   "k": "famous#3"
+  },
+  {
+   "word": "nervous",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ou"
+  },
+  {
+   "word": "serious",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ou",
+   "k": "serious#4"
+  },
+  {
+   "word": "various",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ou"
+  },
+  {
+   "word": "dangerous",
+   "sound": "ə",
+   "hl": [
+    6,
+    8
+   ],
+   "st": "P6",
+   "g": "ou"
+  },
+  {
+   "word": "jealous",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ou"
+  },
+  {
+   "word": "curious",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ou"
+  },
+  {
+   "word": "obvious",
+   "sound": "ə",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ou",
+   "k": "obvious#4"
+  },
+  {
+   "word": "enormous",
+   "sound": "ə",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "ou"
+  },
+  {
+   "word": "hammer",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "hammer#4"
+  },
+  {
+   "word": "butter",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "butter#4"
+  },
+  {
+   "word": "summer",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "summer#4"
+  },
+  {
+   "word": "number",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "number#4"
+  },
+  {
+   "word": "water",
+   "sound": "ɚ",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "er"
+  },
+  {
+   "word": "sister",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er"
+  },
+  {
+   "word": "winter",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er"
+  },
+  {
+   "word": "better",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "better#4"
+  },
+  {
+   "word": "letter",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "letter#4"
+  },
+  {
+   "word": "dinner",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "dinner#4"
+  },
+  {
+   "word": "finger",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er"
+  },
+  {
+   "word": "paper",
+   "sound": "ɚ",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "paper#3"
+  },
+  {
+   "word": "teacher",
+   "sound": "ɚ",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "er"
+  },
+  {
+   "word": "weather",
+   "sound": "ɚ",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "er"
+  },
+  {
+   "word": "mother",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "mother#4"
+  },
+  {
+   "word": "brother",
+   "sound": "ɚ",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "brother#5"
+  },
+  {
+   "word": "father",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "father#4"
+  },
+  {
+   "word": "another",
+   "sound": "ɚ",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "another#5"
+  },
+  {
+   "word": "under",
+   "sound": "ɚ",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "under#3"
+  },
+  {
+   "word": "thunder",
+   "sound": "ɚ",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "thunder#5"
+  },
+  {
+   "word": "cover",
+   "sound": "ɚ",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "cover#3"
+  },
+  {
+   "word": "offer",
+   "sound": "ɚ",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "er"
+  },
+  {
+   "word": "answer",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "answer#4"
+  },
+  {
+   "word": "corner",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "er",
+   "k": "corner#4"
+  },
+  {
+   "word": "doctor",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "or",
+   "k": "doctor#4"
+  },
+  {
+   "word": "actor",
+   "sound": "ɚ",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "or"
+  },
+  {
+   "word": "color",
+   "sound": "ɚ",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "or",
+   "k": "color#3"
+  },
+  {
+   "word": "mirror",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "or"
+  },
+  {
+   "word": "major",
+   "sound": "ɚ",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "or"
+  },
+  {
+   "word": "dollar",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ar"
+  },
+  {
+   "word": "collar",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ar"
+  },
+  {
+   "word": "sugar",
+   "sound": "ɚ",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "ar",
+   "k": "sugar#3"
+  },
+  {
+   "word": "grammar",
+   "sound": "ɚ",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "ar"
+  },
+  {
+   "word": "tractor",
+   "sound": "ɚ",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "or"
+  },
+  {
+   "word": "visitor",
+   "sound": "ɚ",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "or"
+  },
+  {
+   "word": "sailor",
+   "sound": "ɚ",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "or"
+  },
+  {
+   "word": "happy",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "happy#4"
+  },
+  {
+   "word": "city",
+   "sound": "i",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "y"
+  },
+  {
+   "word": "very",
+   "sound": "i",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "very#3"
+  },
+  {
+   "word": "funny",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "funny#4"
+  },
+  {
+   "word": "lucky",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "lucky#4"
+  },
+  {
+   "word": "money",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "money#4"
+  },
+  {
+   "word": "family",
+   "sound": "i",
+   "hl": [
+    5,
+    6
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "family#5"
+  },
+  {
+   "word": "baby",
+   "sound": "i",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "baby#3"
+  },
+  {
+   "word": "lady",
+   "sound": "i",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "lady#3"
+  },
+  {
+   "word": "study",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y"
+  },
+  {
+   "word": "copy",
+   "sound": "i",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "copy#3"
+  },
+  {
+   "word": "body",
+   "sound": "i",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "body#3"
+  },
+  {
+   "word": "busy",
+   "sound": "i",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "busy#3"
+  },
+  {
+   "word": "easy",
+   "sound": "i",
+   "hl": [
+    3,
+    4
+   ],
+   "st": "P6",
+   "g": "y"
+  },
+  {
+   "word": "angry",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y"
+  },
+  {
+   "word": "hungry",
+   "sound": "i",
+   "hl": [
+    5,
+    6
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "hungry#5"
+  },
+  {
+   "word": "pretty",
+   "sound": "i",
+   "hl": [
+    5,
+    6
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "pretty#5"
+  },
+  {
+   "word": "empty",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "empty#4"
+  },
+  {
+   "word": "party",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "party#4"
+  },
+  {
+   "word": "ready",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "ready#4"
+  },
+  {
+   "word": "heavy",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y",
+   "k": "heavy#4"
+  },
+  {
+   "word": "story",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y"
+  },
+  {
+   "word": "sorry",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y"
+  },
+  {
+   "word": "carry",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y"
+  },
+  {
+   "word": "hurry",
+   "sound": "i",
+   "hl": [
+    4,
+    5
+   ],
+   "st": "P6",
+   "g": "y"
+  },
+  {
+   "word": "valley",
+   "sound": "i",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ey"
+  },
+  {
+   "word": "monkey",
+   "sound": "i",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ey"
+  },
+  {
+   "word": "donkey",
+   "sound": "i",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ey"
+  },
+  {
+   "word": "turkey",
+   "sound": "i",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ey"
+  },
+  {
+   "word": "hockey",
+   "sound": "i",
+   "hl": [
+    4,
+    6
+   ],
+   "st": "P6",
+   "g": "ey",
+   "k": "hockey#4"
+  },
+  {
+   "word": "journey",
+   "sound": "i",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "ey"
+  },
+  {
+   "word": "chimney",
+   "sound": "i",
+   "hl": [
+    5,
+    7
+   ],
+   "st": "P6",
+   "g": "ey"
+  },
+  {
+   "word": "honey",
+   "sound": "i",
+   "hl": [
+    3,
+    5
+   ],
+   "st": "P6",
+   "g": "ey",
+   "k": "honey#3"
   }
  ]
 }

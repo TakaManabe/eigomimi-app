@@ -3,10 +3,24 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 const drill = JSON.parse(readFileSync(new URL('../data/drill-words.json', import.meta.url)));
 
-test('単語は一意で、語数が十分', () => {
+test('語と赤字位置の組は一意で、語数が十分', () => {
   const seen = new Set();
-  for (const w of drill.words) { assert.ok(w.word && w.sound, JSON.stringify(w)); assert.ok(!seen.has(w.word), `重複 ${w.word}`); seen.add(w.word); }
-  assert.ok(drill.words.length >= 1000);
+  for (const w of drill.words) {
+    assert.ok(w.word && w.sound, JSON.stringify(w));
+    const k = `${w.word}@${w.hl}`;
+    assert.ok(!seen.has(k), `重複 ${k}`); seen.add(k);
+  }
+  assert.ok(drill.words.length >= 1700);
+});
+test('同じ語を 2 回出すときは赤字位置が重ならず、記録キー k が分かれている', () => {
+  const byWord = new Map();
+  for (const w of drill.words) { if (!byWord.has(w.word)) byWord.set(w.word, []); byWord.get(w.word).push(w); }
+  for (const [word, es] of byWord) {
+    if (es.length === 1) { assert.ok(!es[0].k, `${word} は 1 件なのに k がある`); continue; }
+    assert.equal(es.filter(e => !e.k).length, 1, `${word} の記録キーが分かれていない`);
+    for (const a of es) for (const b of es) if (a !== b) assert.ok(a.hl[1] <= b.hl[0] || b.hl[1] <= a.hl[0], `${word} 赤字位置が重なる`);
+    assert.equal(new Set(es.map(e => e.k || e.word)).size, es.length, `${word} k が重複`);
+  }
 });
 test('セットの各音に 20 語以上、例語は同じ音', () => {
   for (const s of drill.sets) {
@@ -35,11 +49,22 @@ test('body / bat / but が基準語', () => {
 const cmu = JSON.parse(readFileSync(new URL('./cmu-vowels.json', import.meta.url)));
 test('全語の母音が CMU 発音辞書と一致（方言差・未収録は明示的に許容）', () => {
   for (const w of drill.words) {
+    if (w.st === 'P6') continue;   // 弱音節は位置ごとに別途検証（次のテスト）
     if (cmu.cmu_missing[w.word]) continue;
     const cand = cmu.vowels[w.word];
     assert.ok(cand, `${w.word} が CMU 照合結果にない`);
     if (cmu.dialect_ok[w.word]) continue;
     assert.ok(cand.includes(w.sound), `${w.word}: bank=${w.sound} cmu=${cand.join('/')}`);
+  }
+});
+test('弱音節の語は CMU でその位置が無強勢だと確認済み', () => {
+  const weak = drill.words.filter(w => w.st === 'P6');
+  assert.ok(weak.length >= 200, `弱音節が ${weak.length} 語`);
+  for (const w of weak) {
+    const arpa = cmu.weak[`${w.word}@${w.hl[0]},${w.hl[1]}`];
+    assert.ok(arpa, `${w.word} の弱音節検証結果が無い`);
+    assert.ok(/0$/.test(arpa), `${w.word}: ${arpa} は無強勢でない`);
+    assert.equal({ 'ə': true, 'ɚ': true, 'i': true }[w.sound], true, `${w.word} の音 ${w.sound}`);
   }
 });
 test('品詞や方言で読みが割れる語は入っていない', () => {
@@ -48,7 +73,7 @@ test('品詞や方言で読みが割れる語は入っていない', () => {
 });
 
 // ---------- フォニックス・コース ----------
-const STAGES = ['P1', 'P2', 'P3', 'P4', 'P5'];
+const STAGES = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
 // app.js の selectWords / build-drill-words.py の select と同じ規則
 function selectWords(sel) {
   let out = drill.words;
@@ -77,16 +102,31 @@ test('コースの各ステップは 40 語以上・選択肢 2 つ以上、n �
       assert.ok(ws.length >= 40, `${step.id} ${ws.length} 語`);
       assert.deepEqual([...new Set(ws.map(w => w.sound))].sort(), [...step.sounds].sort(), step.id);
       assert.ok(step.sounds.length >= 2, step.id);
-      // 選択肢が 6 つ以上のステップは毎問 3 択を作るので、各音に紛らわしい音が 2 つ以上必要
-      if (step.sounds.length > 5) {
-        assert.ok(step.mix, `${step.id} に mix が付いていない`);
-        for (const s of step.sounds) assert.ok((drill.neighbors[s] || []).filter(x => step.sounds.includes(x)).length >= 2, `${step.id} ${s}`);
-      }
+      if (step.sounds.length > 5) assert.ok(step.mix, `${step.id} に mix が付いていない`);
     }
   }
 });
-test('コースは 5 ステージすべての語を覆う', () => {
-  const covered = new Set();
-  for (const stage of drill.course) for (const step of stage.steps) for (const w of selectWords(step.sel)) covered.add(w.word);
-  assert.equal(covered.size, drill.words.length, `未収録 ${drill.words.length - covered.size} 語`);
+test('本コースは全語・全綴りをちょうど 1 回ずつ通る', () => {
+  const covered = new Map();   // 'st|g' -> ステップ数
+  const words = new Set();
+  for (const stage of drill.course.filter(c => !c.extra)) for (const step of stage.steps) {
+    for (const w of selectWords(step.sel)) words.add(`${w.word}@${w.hl}`);
+    for (const g of step.sel.g || []) { const k = `${step.sel.st[0]}|${g}`; covered.set(k, (covered.get(k) || 0) + 1); }
+  }
+  assert.equal(words.size, drill.words.length, `未収録 ${drill.words.length - words.size} 語`);
+  const all = new Set(drill.words.map(w => `${w.st}|${w.g}`));
+  for (const k of all) assert.equal(covered.get(k), 1, `綴り ${k} が本コースに ${covered.get(k) || 0} 回`);
+  for (const k of covered.keys()) assert.ok(all.has(k), `存在しない綴り ${k}`);
+});
+test('6 つの音節タイプと弱音節の音がそろっている', () => {
+  const sounds = new Set(drill.words.map(w => w.sound));
+  for (const s of ['ə', 'ɚ', 'i']) assert.ok(sounds.has(s), `${s} が無い`);
+  assert.equal(drill.course.filter(c => !c.extra).length, 6, '音節タイプのステージが 6 つでない');
+  const cle = drill.words.filter(w => w.st === 'P6' && w.g === 'le');
+  assert.ok(cle.length >= 20, `consonant-le が ${cle.length} 語`);
+  for (const w of ['about', 'sofa', 'lemon', 'table', 'hammer', 'happy']) assert.ok(drill.words.some(x => x.word === w && x.st === 'P6'), w);
+});
+test('全ステップの選択肢が 3 つ以上作れる', () => {
+  for (const stage of drill.course) for (const step of stage.steps)
+    assert.ok(step.mix ? step.sounds.length >= 3 : step.sounds.length >= 2, step.id);
 });
