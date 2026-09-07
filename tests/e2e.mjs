@@ -110,7 +110,8 @@ await run('cards', { width: 390, height: 844 }, async page => {
     if (await page.locator('.mk-why').isVisible()) {
       if (!shot) { await page.screenshot({ path: '/tmp/shots/d-cards-why.png' }); shot = true; }
       const w = await page.textContent('.mk-why');
-      if (!/綴り/.test(w) || !/英語耳/.test(w)) errors.push(`[cards] 理由に両軸が出ていない: ${w}`);
+      if (!/綴り/.test(w) || !/口/.test(w)) errors.push(`[cards] 理由に両軸が出ていない: ${w}`);
+      if (!/→/.test(w)) errors.push(`[cards] 綴りの一行ルールが出ていない: ${w}`);
       await page.click('.mk-next');
     } else { await page.keyboard.press('1'); }
     await page.waitForTimeout(300);

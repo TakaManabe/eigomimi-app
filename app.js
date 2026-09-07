@@ -1,4 +1,5 @@
 // 母音ドリル — 単語を見て母音を即答する。データは localStorage、音声は端末の音声合成（任意）。
+import { allocate } from './order.js';
 const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
@@ -95,6 +96,16 @@ function mixChoices(w, poolSounds = [], n = 4) {
   return shuffle([w.sound, ...out.slice(0, n - 1)]);
 }
 const eigoGroupsOf = snd => (DATA.eigoGroups || []).filter(g => g.sounds.includes(snd));
+const ruleOf = w => (DATA.rules || {})[`${w.st}|${w.g}`] || '';
+const mouthOf = snd => (DATA.mouth || {})[snd] || '';
+// 間違えたときの 2 行: フォニックスの規則と、英語耳の口の作り方（正解と、選んだ音の両方）
+function ruleLines(w, chosen) {
+  const out = [h('div', { class: 'small' }, h('b', {}, '綴り '), `${w.g} → `, ruleOf(w))];
+  const mouth = [h('span', {}, h('b', {}, ipa(w.sound)), ' ', mouthOf(w.sound))];
+  if (chosen && chosen !== w.sound && mouthOf(chosen)) mouth.push(h('span', { class: 'muted' }, `　／ ${ipa(chosen)} ${mouthOf(chosen)}`));
+  out.push(h('div', { class: 'small' }, h('b', {}, '口 '), ...mouth));
+  return out;
+}
 
 // 合格判定: 直近 PASS_RUNS 回が いずれも PASS_MIN 問以上・正答率 PASS_RATE 以上
 function recordRun(id, n, c) {
@@ -233,18 +244,30 @@ function renderHome(main) {
 const stat = (l, v, u) => h('div', {}, h('div', { class: 'val' }, String(v)), h('div', { class: 'small muted' }, l + (u ? `（${u}）` : '')));
 
 // ---------- 出題順（通常・カード共用）----------
-// 未出題・誤答が多い語を重み付きで優先。音ごとに均等に取る
+// 音ごとの取り分。語数が偏っているとき均等割りにすると、少ない音の語（2 語しか
+// 無い /e/ の any / many など）が毎回出てしまうので、語数の平方根に比例させて
+// ならす。取り切れない分は他の音へ回し、必ず n 問そろえる。
+// 重み付き無作為抽出（Efraimidis–Spirakis）。未出題と誤答の多い語を優先し、
+// 今日すでに出した語は控えめにする
+function weightOf(w) {
+  const d = S.words[wkey(w)]; let wt = 1;
+  if (!d || !d.s) return wt + 3;                       // 未出題を強く優先（プールを一巡させる）
+  wt += 3 * d.w / d.s;
+  if (d.lw === today()) wt += 1;                       // 今日間違えた
+  if (d.due && d.due <= today()) wt += 2;              // 復習期限
+  if (d.s >= 3 && d.w === 0) wt *= 0.4;                // 3 回以上無誤答
+  if (d.ls === today()) wt *= 0.5;                     // 今日すでに出した
+  return Math.max(0.05, wt);
+}
 function pickWords(pool, n, sounds) {
   if (n <= 0 || !pool.length) return [];
   const groups = sounds ? sounds.map(s => pool.filter(w => w.sound === s)) : [pool];
-  const per = Math.ceil(n / groups.length), out = [];
-  for (const g of groups) {
-    out.push(...g.map(w => {
-      const d = S.words[wkey(w)]; let wt = 1;
-      if (!d || !d.s) wt += 1.5; else { wt += 3 * d.w / d.s; if (d.lw === today()) wt += 1; if (d.due && d.due <= today()) wt += 2; if (d.s >= 3 && d.w === 0) wt *= 0.4; }
-      return { w, key: Math.pow(Math.random(), 1 / wt) };
-    }).sort((a, b) => b.key - a.key).slice(0, per).map(x => x.w));
-  }
+  const quota = allocate(groups.map(g => g.length), Math.min(n, pool.length));
+  const out = [];
+  groups.forEach((g, i) => {
+    out.push(...g.map(w => ({ w, key: Math.pow(Math.random(), 1 / weightOf(w)) }))
+      .sort((a, b) => b.key - a.key).slice(0, quota[i]).map(x => x.w));
+  });
   return out;
 }
 function reviewPoolFor(spec) {
@@ -263,7 +286,7 @@ function makeQueue(spec, weakOnly, count, reviewPool = reviewPoolFor(spec)) {
 // 復習キュー: 間違えた語は翌日から 1→3→7→14→30 日
 function recordWord(w, ok) {
   const d = S.words[wkey(w)] || { s: 0, c: 0, w: 0, lw: null };
-  d.s++;
+  d.s++; d.ls = today();
   if (ok) { d.c++; if (d.due) { d.iv = Math.min((d.iv ?? 0) + 1, INTERVALS.length - 1); d.due = addDays(today(), INTERVALS[d.iv]); } }
   else { d.w++; d.lw = today(); d.iv = 0; d.due = addDays(today(), INTERVALS[0]); }
   S.words[wkey(w)] = d; persistWords();
@@ -405,7 +428,9 @@ function renderDrill(main, spec, weakOnly) {
       streak = 0;
       if (timedOut) timeouts++; else { const k = `${cur.sound}→${s}`; conf[k] = (conf[k] || 0) + 1; S.conf[k] = (S.conf[k] || 0) + 1; persistConf(); }
       wrong.set(wkey(cur), cur);
-      fb.replaceChildren(...[h('span', { class: 'err' }, timedOut ? `⏱ 時間切れ — ${ipa(cur.sound)}` : `✗ 正解は ${ipa(cur.sound)}`), timedOut ? null : h('span', { class: 'small muted' }, `（${ipa(s)} と答えた）`), note].filter(Boolean));
+      fb.replaceChildren(...[
+        h('div', {}, h('span', { class: 'err' }, timedOut ? `⏱ 時間切れ — ${ipa(cur.sound)}` : `✗ 正解は ${ipa(cur.sound)}`), timedOut ? null : h('span', { class: 'small muted' }, `（${ipa(s)} と答えた）`)),
+        h('div', { class: 'mk-why' }, ...ruleLines(cur, timedOut ? null : s)), note].filter(Boolean));
       queue.splice(Math.min(queue.length, idx + RETRY_GAP[0] + Math.floor(Math.random() * (RETRY_GAP[1] - RETRY_GAP[0] + 1))), 0, cur);
     }
     recordWord(cur, ok);
@@ -538,11 +563,10 @@ function renderCards(main, spec, weakOnly, count, onBack) {
   // 間違えた理由を両軸で見せる: 綴りの罠 と 英語耳の罠
   function whyLines(w, chosen) {
     const gs = (DATA.gsounds[w.g] || []).slice(0, 4);
-    const grp = eigoGroupsOf(w.sound);
     return [
       h('div', { class: 'small' }, h('b', {}, '正解 '), ipa(w.sound), chosen ? h('span', { class: 'muted' }, `　（${ipa(chosen)} と答えた）`) : h('span', { class: 'muted' }, '　（時間切れ）')),
-      h('div', { class: 'small' }, h('b', {}, '綴り '), `${w.g} → `, gs.map(([snd, n]) => `${ipa(snd)} ${n}語`).join('・')),
-      grp.length ? h('div', { class: 'small' }, h('b', {}, '英語耳 '), `${grp[0].title}: `, grp[0].sounds.map(ipa).join(' ')) : null,
+      ...ruleLines(w, chosen),
+      h('div', { class: 'small muted' }, `${w.g} の内訳: `, gs.map(([snd, n]) => `${ipa(snd)} ${n}`).join('・')),
       w.note ? h('div', { class: 'small muted' }, '注: ' + w.note) : null,
     ].filter(Boolean);
   }

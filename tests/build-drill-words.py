@@ -619,6 +619,107 @@ def check_course(course, entries):
     main = [t for stg in course if not stg.get("extra") for t in stg["steps"]]
     print(f'本コース {len(main)} ステップ（うち綴り別 {len(main) - len(STAGE_META)}）、追加 {len(ids) - len(main)} ステップ')
 
+# ---------- 一行ルール（間違えたときに出す）----------
+# MOUTH: 英語耳の軸＝口の作り方。GRULE: フォニックスの軸＝綴りの読み方。
+# どちらも「超簡潔」を優先し、1 行 30 字程度に収める。
+MOUTH = {
+ 'ɑ':  '顎を大きく開けて「アー」',            'æ':  '口を横に広げて「エァ」',
+ 'ʌ':  '口をあまり開けず短く「ア」',          'ə':  '力を抜いて曖昧に。弱く速く',
+ 'e':  '「エ」より少し口を開く',              'ɪ':  '「イ」と「エ」の中間。力を抜く',
+ 'iː': '唇を横に引いて緊張させ長く',          'i':  '語末の軽い「イ」。短く弱く',
+ 'ʊ':  '唇を丸めず力を抜いた「ウ」',          'uː': '唇を強く丸めて突き出す',
+ 'eɪ': '「エ」から「イ」へ滑らす',            'aɪ': '「ア」から「イ」へ滑らす',
+ 'ɔɪ': '「オ」から「イ」へ滑らす',            'aʊ': '「ア」から「ウ」へ滑らす',
+ 'oʊ': '「オ」から「ウ」へ。唇を丸めていく',  'ɔː': '唇を丸めて「オー」',
+ 'ɝː': '舌を丸めて「アー」。唇は丸めない',    'ɚ':  '/ɝː/ を弱く短く。語尾で力を抜く',
+ 'ɑr': '「アー」のあと舌を丸める',            'ɔr': '「オー」のあと舌を丸める',
+ 'ɪr': '「イァ」のあと舌を丸める',            'er': '「エァ」のあと舌を丸める',
+}
+# 'ステージ|綴り' が優先、無ければ '綴り'、それも無ければ SRULE（ステージ共通）
+SRULE = {
+ 'P1': '子音で閉じた音節の母音は短く読む',
+ 'P2': '母音で終わる音節と、語末に e がある語は母音字を名前読み',
+ 'P3': '母音字が並ぶと 2 字で 1 つの母音',
+ 'P4': '母音 + r は r に引かれて別の音になる',
+ 'P5': '二重母音。語中か語末かで綴りを使い分ける',
+ 'P6': '強勢の無い音節は弱く曖昧になる',
+}
+GRULE = {
+ 'P1|a': '閉じた a は /æ/。w・qu の後は /ɑ/',
+ 'P1|i': '閉じた i は /ɪ/。開けば /aɪ/',
+ 'P1|o': '閉じた o は /ɑ/。開けば /oʊ/',
+ 'P1|u': '閉じた u は /ʌ/。o や ou の綴りでも /ʌ/ になる',
+ 'P1|e': '閉じた e は /e/。開けば /iː/',
+ 'P1|ea': 'ea でも短く /e/ になる語がある（bread, head）',
+ 'P2|a_e': '最後の e は読まない。a を名前読みで /eɪ/',
+ 'P2|i_e': '最後の e は読まない。i を名前読みで /aɪ/',
+ 'P2|o_e': '最後の e は読まない。o を名前読みで /oʊ/',
+ 'P2|u_e': '最後の e は読まない。u を名前読みで /uː/',
+ 'P2|a': '母音で終わる音節の a は名前読み /eɪ/',
+ 'P2|i': '母音で終わる音節の i は名前読み /aɪ/',
+ 'P2|o': '母音で終わる音節の o は名前読み /oʊ/',
+ 'P2|e': '母音で終わる音節の e は名前読み /iː/',
+ 'P2|y': '1 音節語の語末 y は /aɪ/（by, my）',
+ 'P3|ee': 'ee はほぼ必ず /iː/',
+ 'P3|ea': 'ea は /iː/ が基本。短い /e/ の語もある',
+ 'P3|ai': 'ai は /eɪ/。語中に使う',
+ 'P3|ay': 'ay は /eɪ/。語末に使う',
+ 'P3|oa': 'oa は /oʊ/',
+ 'P3|ow': '語末や -ow で終わると /oʊ/（snow）',
+ 'P3|igh': 'igh は /aɪ/。gh は読まない',
+ 'P3|oo': 'oo は /uː/ が基本。短い /ʊ/ もある（book）',
+ 'P3|ew': 'ew は /uː/。語末に使う',
+ 'P3|ue': 'ue は /uː/。語末に使う',
+ 'P3|ie': 'ie は /iː/ が多い。1 音節語では /aɪ/（pie）',
+ 'P4|ar': 'ar は /ɑr/',
+ 'P4|or': 'or は /ɔr/。w の後だけ /ɝː/（work）',
+ 'P4|er': 'er / ir / ur は 3 つとも同じ /ɝː/',
+ 'P4|ir': 'er / ir / ur は 3 つとも同じ /ɝː/',
+ 'P4|ur': 'er / ir / ur は 3 つとも同じ /ɝː/',
+ 'P4|ear': 'ear は /ɪr/ が多い。/ɝː/ や /er/ もある',
+ 'P4|air': 'air / are は /er/',
+ 'P4|are': 'air / are は /er/',
+ 'P4|eer': 'eer / ere は /ɪr/',
+ 'P4|ere': 'eer / ere は /ɪr/',
+ 'P4|ore': 'ore は /ɔr/',
+ 'P5|ou': 'ou は /aʊ/。語中に使う',
+ 'P5|ow': '語中や -own 以外の ow は /aʊ/（how, down）',
+ 'P5|oi': 'oi は /ɔɪ/。語中に使う',
+ 'P5|oy': 'oy は /ɔɪ/。語末に使う',
+ 'P5|oo': 'oo が短いと /ʊ/（book, good）',
+ 'P5|aw': 'aw は /ɔː/。語末に使う',
+ 'P5|au': 'au は /ɔː/。語中に使う',
+ 'P5|al': 'al の l の前は /ɔː/（talk, ball）',
+ 'P5|o': 'o でも /ɔː/ になる語がある（dog, off）',
+ 'P5|a': 'w の後の a は /ɑ/ か /ɔː/（want, wall）',
+ 'P5|u': 'l や sh の後の u は /ʊ/（full, push）',
+ 'P5|ough': 'ough は不規則。語ごとに覚える',
+ 'P5|augh': 'augh は /ɔː/（caught, taught）',
+ 'P6|a': '語末の a は弱く /ə/（sofa, banana）',
+ 'P6|o': '-on の o は弱く /ə/（lemon, button）',
+ 'P6|e': '-en の e は弱く /ə/（kitten, listen）',
+ 'P6|ai': '-ain は弱く /ə/（mountain, captain）',
+ 'P6|ou': '-ous は弱く /ə/（famous, nervous）',
+ 'P6|le': '子音 + le は /əl/（table, apple）',
+ 'P6|i': '-il / -ible の i は弱く /ə/（pencil）',
+ 'P6|er': '語末の -er は弱い r の音 /ɚ/（butter）',
+ 'P6|or': '語末の -or / -ar も /ɚ/（doctor, dollar）',
+ 'P6|ar': '語末の -ar は /ɚ/（sugar, dollar）',
+ 'P6|y': '2 音節以上の語末 y は軽い /i/（happy）',
+ 'P6|ey': '語末の -ey も軽い /i/（money, valley）',
+}
+
+def rule_for(st, g):
+    return GRULE.get(f'{st}|{g}') or GRULE.get(g) or SRULE[st]
+
+def check_rules(entries):
+    miss = sorted({s for e in entries for s in [e['sound']] if s not in MOUTH})
+    assert not miss, f'口の作り方が無い音: {miss}'
+    c = collections.Counter((e['st'], e['g']) for e in entries)
+    vague = sorted([f'{st}|{g}({n}語)' for (st, g), n in c.items() if n >= 20 and f'{st}|{g}' not in GRULE])
+    assert not vague, f'20 語以上あるのに専用ルールが無い綴り: {vague}'
+    print(f'一行ルール: 口の作り方 {len(MOUTH)} 音、綴りの規則 {len(GRULE)} 種（+ ステージ共通 {len(SRULE)}）')
+
 # ---------- 集約 ----------
 sets = [
     {"id": "d01", "itemId": "v01", "title": "/ɑ/ /æ/ /ʌ/", "sounds": ["ɑ", "æ", "ʌ"], "examples": {"ɑ": "body", "æ": "bat", "ʌ": "but"}, "hint": "『英語耳』の body / bat / but。顎の開き方（大・横・小）で分ける。/ʌ/ は綴りに注意"},
@@ -675,9 +776,12 @@ verify(words)
 EIGO = build_eigo()
 GSOUNDS = build_gsounds(words)
 COURSE = build_course(words)
+check_rules(words)
+RULES = {f'{st}|{g}': rule_for(st, g) for st, g in {(e['st'], e['g']) for e in words}}
 print("フォニックス・コース:")
 check_course(COURSE, words)
-out = {"version": 4, "course": COURSE, "neighbors": NEIGHBORS,
+out = {"version": 5, "course": COURSE, "neighbors": NEIGHBORS,
+       "mouth": MOUTH, "rules": RULES,
        "eigo": EIGO, "eigoGroups": EIGO_GROUPS, "gsounds": GSOUNDS,
        "note": "大量ドリル用の単語バンク。sound は強勢母音。note は方言差・綴り例外。sets はドリルの組み合わせ。tests/build-drill-words.py で生成。",
        "sets": sets, "words": words}

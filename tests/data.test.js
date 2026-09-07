@@ -130,3 +130,22 @@ test('全ステップの選択肢が 3 つ以上作れる', () => {
   for (const stage of drill.course) for (const step of stage.steps)
     assert.ok(step.mix ? step.sounds.length >= 3 : step.sounds.length >= 2, step.id);
 });
+
+// ---------- 一行ルール ----------
+test('全語に「綴りの規則」と「口の作り方」の一行が用意されている', () => {
+  for (const w of drill.words) {
+    const r = drill.rules[`${w.st}|${w.g}`];
+    assert.ok(r && r.length >= 4, `${w.word} (${w.st}|${w.g}) のルールが無い`);
+    assert.ok(r.length <= 40, `${w.word} のルールが長すぎる: ${r}`);
+    assert.ok(drill.mouth[w.sound], `${w.sound} の口の作り方が無い`);
+    assert.ok(drill.mouth[w.sound].length <= 24, `${w.sound} の口の作り方が長すぎる`);
+  }
+});
+test('20 語以上の綴りには専用ルールがある（ステージ共通の文言で済ませない）', () => {
+  const c = new Map(), generic = new Set(Object.values({
+    P1: '子音で閉じた音節の母音は短く読む', P2: '母音で終わる音節と、語末に e がある語は母音字を名前読み',
+    P3: '母音字が並ぶと 2 字で 1 つの母音', P4: '母音 + r は r に引かれて別の音になる',
+    P5: '二重母音。語中か語末かで綴りを使い分ける', P6: '強勢の無い音節は弱く曖昧になる' }));
+  for (const w of drill.words) { const k = `${w.st}|${w.g}`; c.set(k, (c.get(k) || 0) + 1); }
+  for (const [k, n] of c) if (n >= 20) assert.ok(!generic.has(drill.rules[k]), `${k}（${n}語）が共通文言のまま`);
+});
