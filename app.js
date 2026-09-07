@@ -3,6 +3,7 @@ const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
 const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
+const ROUNDS = [5, 10, 20, 30];      // ミックス（カード）1 ラウンドの枚数
 const INTERVALS = [1, 3, 7, 14, 30];  // 誤答語を復習する間隔（日）
 const PASS_RATE = 0.9, PASS_RUNS = 2, PASS_MIN = 20;  // 合格: 20問以上を正答率90%で2回連続
 const MIX_RATE = 0.3;                // 合格後、既習語を混ぜる割合（累積復習）
@@ -41,13 +42,15 @@ function save(key, val) {
 const S = {
   words: load('words', {}),          // word -> {s: 出題, c: 正解, w: 誤答, lw: 最終誤答日}
   log: load('log', []),              // {d, set, n, c, conf, sec}
-  settings: Object.assign({ count: 50, audio: true, voice: '', autoNext: true, limit: 3 }, load('settings', {})),
+  settings: Object.assign({ count: 50, audio: true, voice: '', autoNext: true, limit: 3, cards: false, round: 10 }, load('settings', {})),
   prog: load('prog', {}),            // stepId -> {runs: [{n, c, ts}], passed: ts}
+  conf: load('conf', {}),            // '正しい音→選んだ音' -> 回数
 };
 const persistWords = () => save('words', S.words);
 const persistLog = () => { if (S.log.length > 1000) S.log = S.log.slice(-1000); save('log', S.log); };
 const persistSettings = () => save('settings', S.settings);
 const persistProg = () => save('prog', S.prog);
+const persistConf = () => save('conf', S.conf);
 
 // ---------- データ ----------
 let DATA = null;
@@ -73,6 +76,25 @@ const isPassed = id => !!S.prog[id]?.passed;
 const nextStep = () => mainSteps().find(t => !isPassed(t.id));
 const stepRate = id => { const r = (S.prog[id]?.runs || []).slice(-1)[0]; return r && r.n ? Math.round(r.c / r.n * 100) : null; };
 const dueWords = () => { const t = today(); return DATA.words.filter(w => { const d = S.words[wkey(w)]; return d && d.due && d.due <= t; }); };
+
+// ミックスの選択肢: フォニックスが「どの語を出すか」、英語耳が「何と迷わせるか」を決める。
+// 正解 ＋ その綴りが取る別の音（読み違え）＋ 英語耳で同じまとまりの音（聞き違え）＋ 1 つ。
+// 同点はこれまで実際に選んでしまった相手を優先する。
+function mixChoices(w, poolSounds = [], n = 4) {
+  const rank = x => -(S.conf[`${w.sound}→${x}`] || 0);
+  const byRank = arr => shuffle([...new Set(arr)].filter(x => x && x !== w.sound)).sort((a, b) => rank(a) - rank(b));
+  const spell = byRank((DATA.gsounds[w.g] || []).map(([x]) => x));   // 綴りの罠
+  const ear = byRank(DATA.eigo[w.sound] || []);                      // 英語耳の罠
+  const out = [];
+  if (spell[0]) out.push(spell[0]);
+  const e0 = ear.find(x => !out.includes(x)); if (e0) out.push(e0);
+  for (const x of [...spell, ...ear, ...byRank(poolSounds), ...byRank(Object.keys(DATA.eigo))]) {
+    if (out.length >= n - 1) break;
+    if (!out.includes(x)) out.push(x);
+  }
+  return shuffle([w.sound, ...out.slice(0, n - 1)]);
+}
+const eigoGroupsOf = snd => (DATA.eigoGroups || []).filter(g => g.sounds.includes(snd));
 
 // 合格判定: 直近 PASS_RUNS 回が いずれも PASS_MIN 問以上・正答率 PASS_RATE 以上
 function recordRun(id, n, c) {
@@ -210,6 +232,43 @@ function renderHome(main) {
 }
 const stat = (l, v, u) => h('div', {}, h('div', { class: 'val' }, String(v)), h('div', { class: 'small muted' }, l + (u ? `（${u}）` : '')));
 
+// ---------- 出題順（通常・カード共用）----------
+// 未出題・誤答が多い語を重み付きで優先。音ごとに均等に取る
+function pickWords(pool, n, sounds) {
+  if (n <= 0 || !pool.length) return [];
+  const groups = sounds ? sounds.map(s => pool.filter(w => w.sound === s)) : [pool];
+  const per = Math.ceil(n / groups.length), out = [];
+  for (const g of groups) {
+    out.push(...g.map(w => {
+      const d = S.words[wkey(w)]; let wt = 1;
+      if (!d || !d.s) wt += 1.5; else { wt += 3 * d.w / d.s; if (d.lw === today()) wt += 1; if (d.due && d.due <= today()) wt += 2; if (d.s >= 3 && d.w === 0) wt *= 0.4; }
+      return { w, key: Math.pow(Math.random(), 1 / wt) };
+    }).sort((a, b) => b.key - a.key).slice(0, per).map(x => x.w));
+  }
+  return out;
+}
+function reviewPoolFor(spec) {
+  if (!(spec.isStep && isPassed(spec.id))) return [];
+  const inStep = new Set(spec.words.map(wkey));
+  return DATA.words.filter(w => S.words[wkey(w)]?.s && !inStep.has(wkey(w)));
+}
+function makeQueue(spec, weakOnly, count, reviewPool = reviewPoolFor(spec)) {
+  let pool = weakOnly ? spec.words.filter(isWeak) : spec.words;
+  if (!pool.length) pool = spec.words;
+  const n = count || pool.length;
+  const k = reviewPool.length ? Math.round(n * MIX_RATE) : 0;
+  return shuffle([...pickWords(pool, n - k, spec.sounds), ...pickWords(reviewPool, k, null)]).slice(0, n);
+}
+
+// 復習キュー: 間違えた語は翌日から 1→3→7→14→30 日
+function recordWord(w, ok) {
+  const d = S.words[wkey(w)] || { s: 0, c: 0, w: 0, lw: null };
+  d.s++;
+  if (ok) { d.c++; if (d.due) { d.iv = Math.min((d.iv ?? 0) + 1, INTERVALS.length - 1); d.due = addDays(today(), INTERVALS[d.iv]); } }
+  else { d.w++; d.lw = today(); d.iv = 0; d.due = addDays(today(), INTERVALS[0]); }
+  S.words[wkey(w)] = d; persistWords();
+}
+
 // ---------- ドリルの対象 ----------
 function specForStep(id) {
   const st = stepById(id); if (!st) return null;
@@ -243,6 +302,11 @@ function renderDrill(main, spec, weakOnly) {
     exMap[snd] = spec.examples?.[snd] || (all.filter(w => w.sound === snd && !w.note).slice(0, 2).map(w => w.word).join(' / ')
                  || DATA.words.filter(w => w.sound === snd && !w.note).slice(0, 2).map(w => w.word).join(' / '));
 
+  const roundRow = h('div', { class: 'field', hidden: !S.settings.cards },
+    h('span', { class: 'small' }, '1 ラウンドの枚数（区切り）'),
+    seg(ROUNDS.map(r => [r, `${r}枚`]), S.settings.round, v => { S.settings.round = v; persistSettings(); }));
+  const whyRow = h('p', { class: 'small muted', hidden: !S.settings.cards },
+    'ミックス: 出題する語はフォニックス（綴りの型）、選択肢は英語耳（日本語で潰れる音）＋その綴りが取る別の音。間違えると両方の理由が出ます。');
   const cfg = h('section', { class: 'card' },
     h('h2', {}, spec.title), h('p', { class: 'small muted' }, spec.hint || ''),
     h('p', { class: 'small' }, spec.mix
@@ -250,35 +314,17 @@ function renderDrill(main, spec, weakOnly) {
       : spec.sounds.map(s => `${ipa(s)} ${all.filter(w => w.sound === s).length}語`).join('　')),
     passed ? h('p', { class: 'small ok' }, `合格済み。既習語を ${Math.round(MIX_RATE * 100)}% 混ぜて出題します`) : null,
     spec.isStep && !passed ? h('p', { class: 'small muted' }, `合格まで: ${PASS_MIN}問以上を正答率${Math.round(PASS_RATE * 100)}%で${PASS_RUNS}回連続`) : null,
-    h('div', { class: 'field' }, h('span', { class: 'small' }, '出題数'), seg(COUNTS.map(c => [c, c || '無制限']), count, v => { count = v; S.settings.count = v; persistSettings(); })),
+    h('div', { class: 'field' }, h('span', { class: 'small' }, '1 セッションの枚数'), seg(COUNTS.map(c => [c, c || '無制限']), count, v => { count = v; S.settings.count = v; persistSettings(); })),
     h('div', { class: 'field' }, h('span', { class: 'small' }, '回答の制限時間'), seg(LIMITS.map(l => [l, l ? `${l}秒` : 'なし']), S.settings.limit, v => { S.settings.limit = v; persistSettings(); })),
     h('div', { class: 'field' }, h('span', { class: 'small' }, '不正解のあと'), seg([[true, '1.5秒で自動的に次へ'], [false, '「次へ」を押す']], S.settings.autoNext, v => { S.settings.autoNext = v; persistSettings(); })),
+    h('div', { class: 'field' }, h('span', { class: 'small' }, '形式'), seg([[false, 'ふつう'], [true, 'ミックス（カード）']], !!S.settings.cards, v => { S.settings.cards = v; persistSettings(); roundRow.hidden = !v; whyRow.hidden = !v; })),
+    roundRow, whyRow,
     weakOnly ? h('p', { class: 'small err' }, `苦手な語だけ（${all.filter(isWeak).length} 語）`) : null,
     h('div', { class: 'row' }, h('button', { class: 'btn primary big', onClick: start }, 'スタート'), h('a', { class: 'btn ghost', href: '#/' }, '戻る')),
     h('p', { class: 'small muted' }, 'キーボード: 数字キーで回答、Space / Enter で次へ'));
   main.append(cfg);
 
-  // 出題順: 未出題・誤答が多い語を重み付きで優先。音ごとに均等に取る
-  function pick(pool, n, sounds) {
-    if (n <= 0 || !pool.length) return [];
-    const groups = sounds ? sounds.map(s => pool.filter(w => w.sound === s)) : [pool];
-    const per = Math.ceil(n / groups.length), out = [];
-    for (const g of groups) {
-      out.push(...g.map(w => {
-        const d = S.words[wkey(w)]; let wt = 1;
-        if (!d || !d.s) wt += 1.5; else { wt += 3 * d.w / d.s; if (d.lw === today()) wt += 1; if (d.due && d.due <= today()) wt += 2; if (d.s >= 3 && d.w === 0) wt *= 0.4; }
-        return { w, key: Math.pow(Math.random(), 1 / wt) };
-      }).sort((a, b) => b.key - a.key).slice(0, per).map(x => x.w));
-    }
-    return out;
-  }
-  function buildQueue() {
-    let pool = weakOnly ? all.filter(isWeak) : all;
-    if (!pool.length) pool = all;
-    const n = count || pool.length;
-    const k = reviewPool.length ? Math.round(n * MIX_RATE) : 0;
-    return shuffle([...pick(pool, n - k, spec.sounds), ...pick(reviewPool, k, null)]).slice(0, n);
-  }
+  const buildQueue = () => makeQueue(spec, weakOnly, count, reviewPool);
   // 選択肢: 通常はステップの音すべて。音が 6 つ以上のときは正解＋紛らわしい 2 音の 3 択
   function choiceSounds(sound) {
     if (!spec.mix) return spec.sounds;
@@ -317,10 +363,12 @@ function renderDrill(main, spec, weakOnly) {
   window.addEventListener('keydown', onKey);
 
   function start() {
+    if (S.settings.cards) { cfg.hidden = true; cardsCleanup = renderCards(main, spec, weakOnly, count, () => { cfg.hidden = false; }); return; }
     queue = buildQueue(); if (!queue.length) return toast('出題できる語がありません');
     idx = answered = correct = streak = best = timeouts = 0; conf = {}; per = {}; wrong = new Map(); t0 = Date.now();
     cfg.hidden = true; stage.hidden = false; show();
   }
+  let cardsCleanup = null;
   function show() {
     if (!alive) return;
     if (idx >= queue.length || (count && answered >= count)) return finish();
@@ -355,17 +403,12 @@ function renderDrill(main, spec, weakOnly) {
       fb.replaceChildren(...[h('span', { class: 'ok' }, `✓ ${ipa(cur.sound)}`), note].filter(Boolean));
     } else {
       streak = 0;
-      if (timedOut) timeouts++; else { const k = `${cur.sound}→${s}`; conf[k] = (conf[k] || 0) + 1; }
+      if (timedOut) timeouts++; else { const k = `${cur.sound}→${s}`; conf[k] = (conf[k] || 0) + 1; S.conf[k] = (S.conf[k] || 0) + 1; persistConf(); }
       wrong.set(wkey(cur), cur);
       fb.replaceChildren(...[h('span', { class: 'err' }, timedOut ? `⏱ 時間切れ — ${ipa(cur.sound)}` : `✗ 正解は ${ipa(cur.sound)}`), timedOut ? null : h('span', { class: 'small muted' }, `（${ipa(s)} と答えた）`), note].filter(Boolean));
       queue.splice(Math.min(queue.length, idx + RETRY_GAP[0] + Math.floor(Math.random() * (RETRY_GAP[1] - RETRY_GAP[0] + 1))), 0, cur);
     }
-    // 復習キュー: 間違えた語は翌日から 1→3→7→14→30 日
-    const d = S.words[wkey(cur)] || { s: 0, c: 0, w: 0, lw: null };
-    d.s++;
-    if (ok) { d.c++; if (d.due) { d.iv = Math.min((d.iv ?? 0) + 1, INTERVALS.length - 1); d.due = addDays(today(), INTERVALS[d.iv]); } }
-    else { d.w++; d.lw = today(); d.iv = 0; d.due = addDays(today(), INTERVALS[0]); }
-    S.words[wkey(cur)] = d; persistWords();
+    recordWord(cur, ok);
     speak(cur.word);
     idx++;
     if (ok) timer = setTimeout(show, 550);
@@ -396,8 +439,157 @@ function renderDrill(main, spec, weakOnly) {
         h('a', { class: 'btn ghost', href: '#/' }, 'ホーム'))));
     window.scrollTo(0, 0);
   }
-  return () => { alive = false; clearTimeout(timer); clearTimeout(limitT); window.removeEventListener('keydown', onKey); try { speechSynthesis.cancel(); } catch { /* ignore */ } };
+  return () => { alive = false; clearTimeout(timer); clearTimeout(limitT); window.removeEventListener('keydown', onKey); if (cardsCleanup) cardsCleanup(); try { speechSynthesis.cancel(); } catch { /* ignore */ } };
 }
+// ---------- ミックス（カード）モード — mikan 風 ----------
+// 出題する語はフォニックス、選択肢は英語耳＋綴りの罠。1 ラウンドずつ進み、
+// 間違えたカードはそのラウンドの終わりにもう一周する。
+function renderCards(main, spec, weakOnly, count, onBack) {
+  const size = S.settings.round || 10;
+  let queue = makeQueue(spec, weakOnly, count);
+  if (!queue.length) { toast('出題できる語がありません'); onBack(); return null; }
+
+  let round = 0, redo = 0, cards = [], ci = 0, retry = [];
+  let done = 0, correct = 0, streak = 0, best = 0, t0 = Date.now();
+  let cur = null, locked = false, alive = true, timer = null, limitT = null, timeouts = 0;
+  const conf = {}, per = {}, wrong = new Map();
+  let curChoices = [];
+
+  const ring = h('div', { class: 'mk-ring' }, h('span', {}, '0%'));
+  const rlabel = h('div', { class: 'mk-round' });
+  const rsub = h('div', { class: 'small muted' });
+  const streakEl = h('div', { class: 'mk-streak' });
+  const tag = h('span', { class: 'mk-tag' });
+  const wordEl = h('div', { class: 'word' });
+  const card = h('div', { class: 'mk-card' }, tag, wordEl);
+  const tbar = h('div', { class: 'tbar' }, h('div'));
+  const choices = h('div', { class: 'mk-choices' });
+  const why = h('div', { class: 'mk-why', hidden: true });
+  const nextBtn = h('button', { class: 'btn primary big mk-next', hidden: true, onClick: () => show() }, '次へ');
+  const stage = h('section', { class: 'card' },
+    h('div', { class: 'mk-top' }, ring, h('div', { class: 'mk-meta' }, rlabel, rsub), streakEl),
+    card, tbar, choices, why,
+    h('div', { class: 'center', style: 'margin-top:.5rem' }, nextBtn),
+    h('div', { class: 'center', style: 'margin-top:.5rem' }, h('button', { class: 'btn ghost small', onClick: finish }, 'ここで終了')));
+  main.append(stage);
+
+  const onKey = e => {
+    const i = Number(e.key) - 1;
+    if (i >= 0 && i < curChoices.length && !locked) { e.preventDefault(); answer(curChoices[i]); }
+    else if ((e.code === 'Space' || e.key === 'Enter') && !nextBtn.hidden) { e.preventDefault(); nextBtn.click(); }
+  };
+  window.addEventListener('keydown', onKey);
+
+  function nextRound() {
+    if (retry.length) { cards = shuffle(retry); retry = []; redo++; }
+    else { if (!queue.length) return finish(); cards = queue.splice(0, size); round++; redo = 0; }
+    ci = 0; show();
+  }
+  function show() {
+    if (!alive) return;
+    clearTimeout(timer); timer = null; clearTimeout(limitT); limitT = null;
+    if (ci >= cards.length) return roundEnd();
+    cur = cards[ci]; locked = false;
+    tag.textContent = cur.g.replace('_e', '_e');
+    wordEl.replaceChildren(hlWord(cur)); wordEl.className = 'word';
+    card.className = 'mk-card';
+    why.hidden = true; why.replaceChildren(); nextBtn.hidden = true;
+    curChoices = mixChoices(cur, spec.sounds, 4);
+    choices.replaceChildren(...curChoices.map(x =>
+      h('button', { class: 'btn choice', dataset: { s: x }, onClick: () => answer(x) },
+        h('b', {}, ipa(x)), h('span', { class: 'small' }, exampleFor(x)))));
+    rlabel.textContent = redo ? `ラウンド ${round} やり直し ${redo}` : `ラウンド ${round}`;
+    rsub.textContent = `${ci + 1} / ${cards.length}　残り ${queue.length + retry.length} 枚`;
+    streakEl.textContent = streak ? `🔥 ${streak}` : '';
+    const p = Math.round(ci / cards.length * 100);
+    ring.style.setProperty('--p', p); ring.firstChild.textContent = p + '%';
+    const lim = S.settings.limit;
+    tbar.hidden = !lim;
+    if (lim) {
+      const inner = tbar.firstChild; inner.style.transition = 'none'; inner.style.width = '100%';
+      requestAnimationFrame(() => { inner.style.transition = `width ${lim}s linear`; inner.style.width = '0%'; });
+      limitT = setTimeout(() => answer(null), lim * 1000);
+    }
+  }
+  function answer(x) {
+    if (locked || !cur) return; locked = true;
+    clearTimeout(limitT); limitT = null;
+    const inner = tbar.firstChild; inner.style.transition = 'none'; inner.style.width = getComputedStyle(inner).width;
+    const timedOut = x == null, ok = !timedOut && x === cur.sound;
+    done++;
+    per[cur.sound] = per[cur.sound] || { n: 0, c: 0 }; per[cur.sound].n++;
+    wordEl.textContent = cur.word;
+    card.classList.add(ok ? 'ok' : 'ng');
+    choices.querySelectorAll('.choice').forEach(b => { b.disabled = true; if (b.dataset.s === cur.sound) b.classList.add('ok'); else if (b.dataset.s === x) b.classList.add('ng'); });
+    if (ok) { correct++; streak++; best = Math.max(best, streak); per[cur.sound].c++; }
+    else {
+      streak = 0; retry.push(cur); wrong.set(wkey(cur), cur);
+      if (timedOut) timeouts++;
+      else { const k = `${cur.sound}→${x}`; conf[k] = (conf[k] || 0) + 1; S.conf[k] = (S.conf[k] || 0) + 1; persistConf(); }
+      why.replaceChildren(...whyLines(cur, timedOut ? null : x));
+      why.hidden = false;
+    }
+    recordWord(cur, ok);
+    speak(cur.word);
+    ci++;
+    if (ok) timer = setTimeout(show, 420);
+    else { nextBtn.hidden = false; nextBtn.focus(); if (S.settings.autoNext) timer = setTimeout(show, 2200); }
+  }
+  // 間違えた理由を両軸で見せる: 綴りの罠 と 英語耳の罠
+  function whyLines(w, chosen) {
+    const gs = (DATA.gsounds[w.g] || []).slice(0, 4);
+    const grp = eigoGroupsOf(w.sound);
+    return [
+      h('div', { class: 'small' }, h('b', {}, '正解 '), ipa(w.sound), chosen ? h('span', { class: 'muted' }, `　（${ipa(chosen)} と答えた）`) : h('span', { class: 'muted' }, '　（時間切れ）')),
+      h('div', { class: 'small' }, h('b', {}, '綴り '), `${w.g} → `, gs.map(([snd, n]) => `${ipa(snd)} ${n}語`).join('・')),
+      grp.length ? h('div', { class: 'small' }, h('b', {}, '英語耳 '), `${grp[0].title}: `, grp[0].sounds.map(ipa).join(' ')) : null,
+      w.note ? h('div', { class: 'small muted' }, '注: ' + w.note) : null,
+    ].filter(Boolean);
+  }
+  function roundEnd() {
+    const n = cards.length, c = cards.filter(w => !retry.includes(w)).length;
+    card.className = 'mk-card';
+    tag.textContent = ''; tbar.hidden = true; why.hidden = true; nextBtn.hidden = true;
+    wordEl.replaceChildren(h('div', { class: 'mk-done' }, retry.length ? '💪' : '🎉'));
+    ring.style.setProperty('--p', 100); ring.firstChild.textContent = '100%';
+    rlabel.textContent = `ラウンド ${round}${redo ? ` やり直し ${redo}` : ''} 完了`;
+    rsub.textContent = `${c} / ${n} 正解`;
+    choices.replaceChildren(
+      h('button', { class: 'btn primary big', onClick: nextRound },
+        retry.length ? `間違えた ${retry.length} 枚をもう一周` : (queue.length ? '次のラウンド' : '結果を見る')),
+      h('button', { class: 'btn ghost', onClick: finish }, 'ここで終了'));
+    curChoices = [];
+  }
+  function finish() {
+    if (!alive) return;
+    alive = false; clearTimeout(timer); clearTimeout(limitT);
+    window.removeEventListener('keydown', onKey);
+    stage.remove();
+    const sec = Math.round((Date.now() - t0) / 1000);
+    let justPassed = false;
+    if (done) {
+      S.log.push({ d: today(), ts: Date.now(), set: spec.id, n: done, c: correct, conf, sec, to: timeouts, lim: S.settings.limit, mode: 'cards' }); persistLog();
+      if (spec.isStep) { const was = isPassed(spec.id); justPassed = recordRun(spec.id, done, correct) && !was; }
+    }
+    const wl = [...wrong.values()];
+    main.append(h('section', { class: 'card' },
+      h('h2', {}, done ? `結果: ${correct} / ${done}（${Math.round(correct / done * 100)}%）` : '結果なし'),
+      justPassed ? h('p', { class: 'ok' }, '✓ このステップに合格しました') : null,
+      h('div', { class: 'small muted' }, `最長連続 ${best}　${Math.floor(sec / 60)}分${sec % 60}秒`, timeouts ? `　時間切れ ${timeouts}` : ''),
+      h('div', { class: 'chips' }, ...Object.keys(per).map(x => h('span', { class: 'chip' }, h('b', {}, ipa(x)), ` ${per[x].c}/${per[x].n}`))),
+      Object.keys(conf).length ? h('div', { class: 'chips' }, ...Object.entries(conf).sort((a, b) => b[1] - a[1]).map(([k, v]) => { const [f, to] = k.split('→'); return h('span', { class: 'chip warn' }, `${ipa(f)} → ${ipa(to)} ×${v}`); })) : h('p', { class: 'ok' }, '混同なし'),
+      wl.length ? h('div', {}, h('h3', {}, `間違えたカード（${wl.length}）`), h('div', { class: 'chips' }, ...wl.map(e => h('button', { class: 'chip sel', onClick: () => speak(e.word) }, h('b', {}, hlWord(e)), ` ${ipa(e.sound)}`)))) : null,
+      h('div', { class: 'row', style: 'margin-top:.6rem' },
+        h('button', { class: 'btn primary', onClick: () => { main.lastChild.remove(); onBack(); } }, 'もう一回'),
+        h('a', { class: 'btn ghost', href: '#/' }, 'ホーム'))));
+    window.scrollTo(0, 0);
+  }
+  const exampleFor = snd => ((DATA.words.find(w => w.sound === snd && !w.note && w.word.length <= 5)
+    || DATA.words.find(w => w.sound === snd)) || {}).word || '';
+  nextRound();
+  return () => { alive = false; clearTimeout(timer); clearTimeout(limitT); window.removeEventListener('keydown', onKey); };
+}
+
 function seg(options, value, onChange) {
   const el = h('div', { class: 'seg' });
   for (const [v, label] of options) el.append(h('button', { class: v === value ? 'on' : '', onClick: () => { [...el.children].forEach((b, i) => b.classList.toggle('on', options[i][0] === v)); onChange(v); } }, String(label)));

@@ -91,6 +91,39 @@ await run('schwa', { width: 390, height: 844 }, async page => {
   if (!(await page.locator('.word .hl').count())) errors.push('[schwa] 赤字が出ていない');
   await page.screenshot({ path: '/tmp/shots/d-schwa.png' });
 });
+await run('cards', { width: 390, height: 844 }, async page => {
+  // ミックス（カード）モード: 出題はフォニックス、選択肢は英語耳＋綴りの罠
+  await page.goto(BASE + '#/s/P1-1'); await page.waitForSelector('text=スタート');
+  await page.click('.seg button:has-text("ミックス")');
+  if (!(await page.locator('.field:has-text("1 ラウンドの枚数")').isVisible())) errors.push('[cards] ラウンド枚数の設定が出ない');
+  await page.click('.seg button:text-is("5枚")');
+  await page.click('.seg button:text-is("なし")');
+  await page.click('.seg button:has-text("20")');
+  await page.click('text=スタート'); await page.waitForSelector('.mk-card');
+  if ((await page.locator('.mk-choices .choice').count()) !== 4) errors.push('[cards] 選択肢が 4 つでない');
+  if (!/ラウンド 1/.test(await page.textContent('.mk-round'))) errors.push('[cards] ラウンド表示が無い');
+  await page.screenshot({ path: '/tmp/shots/d-cards.png' });
+  // 5 枚でラウンドが切れる
+  let shot = false;
+  for (let i = 0; i < 40; i++) {
+    if (await page.locator('.mk-round:has-text("完了")').count()) break;
+    if (await page.locator('.mk-why').isVisible()) {
+      if (!shot) { await page.screenshot({ path: '/tmp/shots/d-cards-why.png' }); shot = true; }
+      const w = await page.textContent('.mk-why');
+      if (!/綴り/.test(w) || !/英語耳/.test(w)) errors.push(`[cards] 理由に両軸が出ていない: ${w}`);
+      await page.click('.mk-next');
+    } else { await page.keyboard.press('1'); }
+    await page.waitForTimeout(300);
+  }
+  if (!(await page.locator('.mk-round:has-text("完了")').count())) errors.push('[cards] ラウンドが完了しない');
+  await page.screenshot({ path: '/tmp/shots/d-cards-round.png' });
+  // 設定は覚えている
+  await page.goto(BASE + '#/s/P1-2'); await page.waitForSelector('text=スタート');
+  if (!(await page.locator('.seg button.on:has-text("ミックス")').count())) errors.push('[cards] 形式が保存されていない');
+  if (!(await page.locator('.seg button.on:text-is("5枚")').count())) errors.push('[cards] ラウンド枚数が保存されていない');
+  // ふつうに戻す（後続テストのため）
+  await page.click('.seg button:text-is("ふつう")');
+});
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');
   await page.click('.seg button:text-is("2秒")'); await page.click('.seg button:has-text("20")'); await page.click('text=スタート'); await page.waitForSelector('.word');

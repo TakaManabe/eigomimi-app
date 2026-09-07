@@ -450,8 +450,7 @@ def verify(entries):
 # ---------- フォニックス・コース（7 ステージ / 26 ステップ）----------
 # sel の指定: st=ステージ, upto=そのステージまで累積, g=綴りパターン, note=方言・例外語,
 #             sounds=選択肢に出す音（未指定なら該当語に現れる音すべて）
-# 紛らわしい音の対応表。選択肢が 6 つ以上になる総合ステップでは、
-# 毎問「正解 + この表から選んだ紛らわしい 2 音」の 3 択にする。
+# 既存モード用: 紛らわしい音の対応表（選択肢が 6 つ以上の総合ステップで 3 択を作る）
 NEIGHBORS = {
  'ɑ':  ['æ', 'ʌ', 'ɔː', 'oʊ'],   'æ':  ['ɑ', 'ʌ', 'e'],
  'ʌ':  ['æ', 'ɑ', 'ʊ', 'ɔː'],    'e':  ['æ', 'ɪ', 'eɪ', 'iː'],
@@ -467,6 +466,35 @@ NEIGHBORS = {
 }
 for _a, _b in [('ʌ', 'ə'), ('e', 'ə'), ('ɪ', 'ə'), ('ɪ', 'i'), ('iː', 'i'), ('ɝː', 'ɚ'), ('ɔr', 'ɚ'), ('ɑ', 'ə')]:
     NEIGHBORS[_a].append(_b)
+
+# 英語耳の区分＝日本語話者が 1 つの音に潰してしまう音のまとまり。
+# 選択肢はここから作る（フォニックスは「どの語を出すか」だけを決める）。
+EIGO_GROUPS = [
+ {"id": "v01", "title": "顎の開き（body / bat / but）", "sounds": ['ɑ', 'æ', 'ʌ', 'ə']},
+ {"id": "v02", "title": "舌の高さ", "sounds": ['iː', 'ɪ', 'e', 'i']},
+ {"id": "v03", "title": "唇の緊張", "sounds": ['uː', 'ʊ']},
+ {"id": "v04", "title": "出発点の口", "sounds": ['aɪ', 'eɪ', 'ɔɪ']},
+ {"id": "v05", "title": "出発点の開き", "sounds": ['aʊ', 'oʊ']},
+ {"id": "v06", "title": "唇の丸め", "sounds": ['ɔː', 'ɑ']},
+ {"id": "v07", "title": "r の前の母音", "sounds": ['ɝː', 'ɑr', 'ɔr', 'ɚ']},
+ {"id": "v08", "title": "ear / air / are", "sounds": ['ɪr', 'er', 'ɑr']},
+]
+
+def build_eigo():
+    """音 -> 英語耳で同じまとまりに入る他の音"""
+    out = collections.defaultdict(list)
+    for g in EIGO_GROUPS:
+        grp = g["sounds"]
+        for a in grp:
+            for b in grp:
+                if a != b and b not in out[a]: out[a].append(b)
+    return dict(out)
+
+def build_gsounds(entries):
+    """綴り -> その綴りが実際に取る音（語数の多い順）。読み違えの選択肢に使う"""
+    c = collections.defaultdict(collections.Counter)
+    for e in entries: c[e["g"]][e["sound"]] += 1
+    return {g: [[s, n] for s, n in cc.most_common()] for g, cc in c.items()}
 
 MIN_STEP = 40      # 1 ステップの最少語数
 STAGE_META = [
@@ -574,14 +602,17 @@ def check_course(course, entries):
             assert len(snds) >= 2, f'{stp["id"]} の選択肢が {len(snds)} 個'
             stp["n"] = len(ws); stp["sounds"] = snds
             if len(snds) > 5:
-                # 毎問 3 択を作る。紛らわしい音が 2 つ取れない音は、残りをその場から補う
-                stp["mix"] = True
+                stp["mix"] = True    # 既存モード: 毎問 3 択を作る
                 assert len(snds) >= 3, f'{stp["id"]} は 3 択を作れない'
-                thin = [x for x in snds if len(set(snds) & set(NEIGHBORS[x])) < 2]
-                if thin: print(f'    （{stp["id"]}: {"/".join(thin)} は紛らわしい音が足りず、残りは他の音から補う）')
+            # ミックスモード: どの語にも「綴りの罠」か「英語耳の罠」が 2 つ以上あること。
+            # 4 枚目の選択肢が足りない語は、アプリ側が他の音から補う
+            for w in ws:
+                cand = {x for x, _ in GSOUNDS[w["g"]]} | set(EIGO.get(w["sound"], [])) | set(snds)
+                cand.discard(w["sound"])
+                assert len(cand) >= 2, f'{stp["id"]} の {w["word"]} は選択肢を作れない'
             if not stg.get("extra"):
                 for g in stp["sel"].get("g", []): seen_g.add((stp["sel"]["st"][0], g))
-            print(f'  {stp["id"]:12} {stp["title"]:26} {len(ws):5} 語  {"3択生成" if stp.get("mix") else "/".join(snds)}')
+            print(f'  {stp["id"]:12} {stp["title"]:26} {len(ws):5} 語  {"/".join(snds)}')
     # 本コースが全綴りを漏れなく 1 回ずつ通っているか
     allg = {(e["st"], e["g"]) for e in entries}
     assert seen_g == allg, f'綴りの過不足: 未収録 {sorted(allg - seen_g)} / 余分 {sorted(seen_g - allg)}'
@@ -641,10 +672,13 @@ pairs = [(e["word"], tuple(e["hl"])) for e in words]
 assert len(pairs) == len(set(pairs)), f'同じ語・同じ位置の重複: {[x for x, n in collections.Counter(pairs).items() if n > 1]}'
 
 verify(words)
+EIGO = build_eigo()
+GSOUNDS = build_gsounds(words)
 COURSE = build_course(words)
 print("フォニックス・コース:")
 check_course(COURSE, words)
-out = {"version": 3, "course": COURSE, "neighbors": NEIGHBORS,
+out = {"version": 4, "course": COURSE, "neighbors": NEIGHBORS,
+       "eigo": EIGO, "eigoGroups": EIGO_GROUPS, "gsounds": GSOUNDS,
        "note": "大量ドリル用の単語バンク。sound は強勢母音。note は方言差・綴り例外。sets はドリルの組み合わせ。tests/build-drill-words.py で生成。",
        "sets": sets, "words": words}
 json.dump(out, open('data/drill-words.json', 'w'), ensure_ascii=False, indent=1)

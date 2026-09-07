@@ -58,6 +58,29 @@ main{max-width:640px;margin:0 auto;padding:.8rem}
 .bar-wrap{flex:1;width:100%;display:flex;align-items:flex-end}.bar{width:100%;background:var(--primary);opacity:.55;border-radius:4px 4px 0 0;min-height:2px}.bar.today{opacity:1}
 #toast{position:fixed;left:50%;bottom:calc(20px + var(--sb));transform:translateX(-50%);background:#111827;color:#fff;padding:.6rem 1rem;border-radius:12px;font-size:.9rem;opacity:0;transition:opacity .2s;z-index:40;max-width:92vw;pointer-events:none}
 #toast.show{opacity:1}#toast.err{background:var(--err)}#toast.ok{background:var(--ok)}
+/* ミックス（カード）モード — mikan 風 */
+:root{--mk:#f97316;--mk-soft:#fff7ed;--mk-line:#fed7aa}
+@media(prefers-color-scheme:dark){:root{--mk-soft:#3a2410;--mk-line:#7c3d12}}
+.mk-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem}
+.mk-ring{flex:0 0 auto;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:.75rem;font-weight:700;
+  background:conic-gradient(var(--mk) calc(var(--p,0)*1%),var(--line) 0)}
+.mk-ring>span{width:36px;height:36px;border-radius:50%;background:var(--bg);display:grid;place-items:center}
+.mk-meta{flex:1;min-width:0}
+.mk-round{font-weight:700}
+.mk-streak{color:var(--mk);font-weight:700}
+.mk-card{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:1.6rem 1rem;text-align:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.07);transition:border-color .15s,background .15s,transform .12s}
+.mk-card.ok{border-color:var(--ok);background:#f0fdf4}
+.mk-card.ng{border-color:var(--err);background:#fef2f2}
+@media(prefers-color-scheme:dark){.mk-card.ok{background:#052e1b}.mk-card.ng{background:#3f1010}}
+.mk-card .word{padding:.2rem 0 .1rem}
+.mk-tag{display:inline-block;font-size:.72rem;padding:.15rem .6rem;border-radius:999px;background:var(--mk-soft);
+  border:1px solid var(--mk-line);color:var(--mk);font-weight:700}
+.mk-choices{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin:.8rem 0 .3rem}
+.mk-choices .choice{min-height:70px;border-radius:16px;border-width:2px}
+.mk-why{background:var(--bg);border-radius:12px;padding:.55rem .7rem;margin-top:.5rem;text-align:left}
+.mk-why b{color:var(--mk)}
+.mk-done{font-size:2.4rem}
 @media(min-width:640px){.word{font-size:3.4rem}}
 </style>
 </head>
