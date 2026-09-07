@@ -1,7 +1,7 @@
 {
-  "name": "英語耳 母音トレーナー",
-  "short_name": "英語耳",
-  "description": "『英語耳』の母音を反復・聞き分け・録音比較・復習間隔で身につける練習アプリ",
+  "name": "母音ドリル（英語耳）",
+  "short_name": "母音ドリル",
+  "description": "単語を見て母音を即答する大量ドリル",
   "lang": "ja",
   "start_url": "./index.html",
   "scope": "./",

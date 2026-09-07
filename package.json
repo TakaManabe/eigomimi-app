@@ -1,15 +1,14 @@
 {
-  "name": "eigomimi-app",
-  "version": "1.0.0",
+  "name": "vowel-drill",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "『英語耳』母音トレーナー（静的PWA）",
+  "description": "母音ドリル（英語耳）— 単語を見て母音を即答する静的PWA",
   "scripts": {
     "start": "python3 -m http.server 8123",
+    "build:words": "python3 tests/build-drill-words.py",
     "test": "node --test tests/*.test.js",
     "test:e2e": "node tests/e2e.mjs"
   },
-  "devDependencies": {
-    "playwright": "^1.56.0"
-  }
+  "devDependencies": { "playwright": "^1.56.0" }
 }

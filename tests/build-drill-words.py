@@ -197,9 +197,47 @@ there where their
 very berry cherry merry
 """)
 
+# ---------- 強調範囲（その音に対応する綴り）の推定 ----------
+import re
+PATTERNS = {
+ 'ɑ': [r'(?<=[wW])a(?=[a-z])', r'(?<=qu)a', r'ya', r'al(?=m\b)', r'o', r'a'],
+ 'æ': [r'au', r'a'],
+ 'ʌ': [r'u', r'oo', r'ou', r'oe', r'o'],
+ 'iː': [r'ee', r'ea', r'ie', r'ei', r'ey', r'e'],
+ 'ɪ': [r'ui', r'i', r'y', r'u', r'o', r'e'],
+ 'e': [r'ea', r'ai', r'ie', r'e', r'a'],
+ 'uː': [r'oo', r'ou', r'ew', r'ue', r'ui', r'oe', r'u', r'o'],
+ 'ʊ': [r'oo', r'ou', r'u', r'o'],
+ 'aɪ': [r'eye', r'igh', r'uy', r'ei', r'ai', r'ie', r'y', r'i'],
+ 'eɪ': [r'eigh', r'ai', r'ay', r'ei', r'ey', r'ea', r'a'],
+ 'ɔɪ': [r'oi', r'oy'],
+ 'aʊ': [r'ou', r'ow'],
+ 'oʊ': [r'oa', r'ow', r'oe', r'ou', r'o'],
+ 'ɔː': [r'ough', r'augh', r'aw', r'au', r'a', r'o'],
+ 'ɝː': [r'ear', r'ur', r'ir', r'er', r'or'],
+ 'ɑr': [r'ear', r'ar'],
+ 'ɔr': [r'oor', r'our', r'ore', r'oar', r'or', r'ar'],
+ 'ɪr': [r'eer', r'ear', r'ere', r'ier', r'eir', r'er'],
+ 'er': [r'air', r'are', r'ear', r'ere', r'eir', r'err', r'er'],
+}
+# 語ごとの手動指定（強勢母音が最初のクラスタでない語など）: word -> (start, end)
+OVERRIDE = {
+ 'attack': (3, 4), 'adapt': (2, 3), 'eleven': (2, 3), 'another': (2, 3), 'include': (4, 5),
+ 'about': (2, 4), 'allow': (3, 5), 'announce': (3, 5), 'annoy': (3, 5), 'enjoy': (3, 5), 'employ': (4, 6), 'destroy': (5, 7),
+ 'believe': (3, 5), 'receive': (3, 5), 'achieve': (3, 5), 'agree': (3, 5), 'obey': (2, 4), 'canoe': (3, 5),
+ 'severe': (3, 6), 'toward': (3, 5), 'applause': (4, 6), 'alarm': (2, 4), 'above': (2, 3),
+ 'idea': (0, 1), 'forest': (1, 3), 'two': (1, 3), 'eye': (0, 3), 'who': (2, 3), 'shoe': (2, 4),
+}
+def highlight(word, sound):
+    if word in OVERRIDE: return list(OVERRIDE[word])
+    for pat in PATTERNS.get(sound, []):
+        m = re.search(pat, word, re.I)
+        if m: return [m.start(), m.end()]
+    return None
+
 # ---------- 集約 ----------
 sets = [
-    {"id": "d01", "itemId": "v01", "title": "/ɑ/ /æ/ /ʌ/", "sounds": ["ɑ", "æ", "ʌ"], "hint": "顎の開き方（大・横・小）で分ける。/ʌ/ は綴りに注意"},
+    {"id": "d01", "itemId": "v01", "title": "/ɑ/ /æ/ /ʌ/", "sounds": ["ɑ", "æ", "ʌ"], "examples": {"ɑ": "body", "æ": "bat", "ʌ": "but"}, "hint": "『英語耳』の body / bat / but。顎の開き方（大・横・小）で分ける。/ʌ/ は綴りに注意"},
     {"id": "d02", "itemId": "v02", "title": "/iː/ /ɪ/ /e/", "sounds": ["iː", "ɪ", "e"], "hint": "舌の高さ（高・中高・中）"},
     {"id": "d03", "itemId": "v03", "title": "/uː/ /ʊ/", "sounds": ["uː", "ʊ"], "hint": "唇の緊張（強・弱）。oo は両方あり得る"},
     {"id": "d04", "itemId": "v04", "title": "/aɪ/ /eɪ/ /ɔɪ/", "sounds": ["aɪ", "eɪ", "ɔɪ"], "hint": "出発点の口（ア・エ・オ）"},
@@ -208,7 +246,7 @@ sets = [
     {"id": "d07", "itemId": "v07", "title": "/ɝː/ /ɑr/ /ɔr/", "sounds": ["ɝː", "ɑr", "ɔr"], "hint": "R の前の母音（無・ア・オ）"},
     {"id": "d08", "itemId": "v07", "title": "/ɪr/ /er/ /ɑr/", "sounds": ["ɪr", "er", "ɑr"], "hint": "ear / air / are"},
     {"id": "d09", "itemId": "v02", "title": "/iː/ /ɪ/", "sounds": ["iː", "ɪ"], "hint": "2択で速さ重視"},
-    {"id": "d10", "itemId": "v01", "title": "/æ/ /ʌ/", "sounds": ["æ", "ʌ"], "hint": "2択で速さ重視"},
+    {"id": "d10", "itemId": "v01", "title": "/æ/ /ʌ/", "sounds": ["æ", "ʌ"], "examples": {"æ": "bat", "ʌ": "but"}, "hint": "bat / but。2択で速さ重視"},
 ]
 words = []
 seen = collections.defaultdict(set)
@@ -217,6 +255,9 @@ for s, lst in W.items():
         if w in seen[s]: continue
         seen[s].add(w)
         e = {"word": w, "sound": s}
+        hl = highlight(w, s)
+        if hl: e["hl"] = hl
+        else: print("no highlight:", w, s)
         if note: e["note"] = note
         words.append(e)
 # 同じ語が複数音に登録されていないか

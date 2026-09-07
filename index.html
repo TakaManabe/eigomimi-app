@@ -3,21 +3,68 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>英語耳 母音トレーナー</title>
-<meta name="description" content="『英語耳』の母音を反復・聞き分け・録音比較・復習間隔で身につける個人用練習アプリ">
+<title>母音ドリル</title>
+<meta name="description" content="単語を見て母音を即答する『英語耳』式の大量ドリル">
 <meta name="theme-color" content="#1e3a8a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="英語耳">
+<meta name="apple-mobile-web-app-title" content="母音ドリル">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="stylesheet" href="css/style.css">
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--primary:#1d4ed8;--ok:#059669;--err:#dc2626;--warn:#d97706;--sb:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#0f172a;--card:#1e293b;--text:#f1f5f9;--muted:#94a3b8;--line:#334155;--primary:#3b82f6}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5}
+body{padding-bottom:calc(1rem + var(--sb))}
+button{font:inherit;color:inherit}
+a{color:var(--primary);text-decoration:none}
+h1,h2,h3{margin:0 0 .4rem;line-height:1.3}h1{font-size:1.2rem}h2{font-size:1.15rem}h3{font-size:1rem}
+p{margin:.4rem 0}
+.small{font-size:.85rem}.muted{color:var(--muted)}.center{text-align:center}.ok{color:var(--ok)}.err{color:var(--err)}
+.row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}.between{justify-content:space-between}
+header{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top,0px) + .6rem) 1rem .6rem;background:#1e40af;color:#fff}
+header a{color:#fff;font-weight:700}
+header .pill{font-size:.75rem;padding:.15rem .55rem;border-radius:999px;background:rgba(255,255,255,.2)}
+main{max-width:640px;margin:0 auto;padding:.8rem}
+.card{background:var(--card);border-radius:14px;padding:.9rem 1rem;margin-bottom:.8rem;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;min-height:44px;padding:.55rem 1rem;border-radius:12px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:600}
+.btn:disabled{opacity:.5}.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.ghost{background:transparent}
+.btn.small{min-height:36px;padding:.35rem .7rem;font-size:.85rem}.btn.big{min-height:56px;font-size:1.1rem;padding:.7rem 1.4rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:.4rem .8rem;min-height:38px;cursor:pointer;font-size:.9rem}
+.seg button.on{background:var(--primary);color:#fff}
+.field{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--line);flex-wrap:wrap}.field:last-of-type{border-bottom:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;text-align:center}
+.stats .val{font-size:1.7rem;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0}
+.chip{display:inline-flex;align-items:center;gap:.25rem;padding:.3rem .65rem;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:.9rem}
+.chip.warn{border-color:var(--warn)}.chip.sel{cursor:pointer;min-height:40px}
+.tbar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin:0 auto .2rem;max-width:320px}.tbar>div{height:100%;background:var(--warn);width:100%}
+.progress{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:.3rem 0}.progress>div{height:100%;background:var(--ok);transition:width .2s}
+.word{font-size:2.8rem;font-weight:800;text-align:center;padding:1.1rem 0 .3rem;transition:color .15s}
+.word.ok{color:var(--ok)}
+.hl{color:var(--err);font-weight:900;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:.8rem 0 .4rem}.choices.two{grid-template-columns:repeat(2,1fr)}
+.choice{flex-direction:column;min-height:76px;gap:0;font-size:1.5rem;font-weight:500}
+.choice .small{font-size:.72rem;font-weight:400;color:var(--muted)}
+.choice.ok{background:#dcfce7;border-color:var(--ok);color:#14532d}.choice.ng{background:#fee2e2;border-color:var(--err);color:#7f1d1d}
+.fb{min-height:1.8rem;text-align:center;font-size:1.05rem}
+.tbl{width:100%;border-collapse:collapse;font-size:.9rem}.tbl td,.tbl th{text-align:left;padding:.35rem .3rem;border-bottom:1px solid var(--line)}.tbl th{color:var(--muted);font-weight:500}
+.bars{display:flex;gap:.4rem;align-items:flex-end;height:90px}.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar-wrap{flex:1;width:100%;display:flex;align-items:flex-end}.bar{width:100%;background:var(--primary);opacity:.55;border-radius:4px 4px 0 0;min-height:2px}.bar.today{opacity:1}
+#toast{position:fixed;left:50%;bottom:calc(20px + var(--sb));transform:translateX(-50%);background:#111827;color:#fff;padding:.6rem 1rem;border-radius:12px;font-size:.9rem;opacity:0;transition:opacity .2s;z-index:40;max-width:92vw;pointer-events:none}
+#toast.show{opacity:1}#toast.err{background:var(--err)}#toast.ok{background:var(--ok)}
+@media(min-width:640px){.word{font-size:3.4rem}}
+</style>
 </head>
 <body>
-<div id="app">
-  <noscript>このアプリには JavaScript が必要です。</noscript>
-</div>
-<script type="module" src="js/app.js"></script>
+<header><a href="#/">母音ドリル</a><span class="pill" id="online"></span></header>
+<main id="main"><p class="muted center">読み込み中…</p></main>
+<div id="toast" role="status"></div>
+<script type="module" src="app.js"></script>
+<noscript>このアプリには JavaScript が必要です。</noscript>
 </body>
 </html>
