@@ -207,7 +207,7 @@ function renderDrill(main, setId, weakOnly) {
     if (idx >= queue.length || (count && answered >= count)) return finish();
     clearTimeout(timer); timer = null; clearTimeout(limitT); limitT = null;
     cur = queue[idx]; locked = false;
-    wordEl.textContent = cur.word; wordEl.className = 'word';
+    wordEl.replaceChildren(hlWord(cur)); wordEl.className = 'word';
     const lim = S.settings.limit;
     tbar.hidden = !lim;
     if (lim) {
@@ -227,12 +227,12 @@ function renderDrill(main, setId, weakOnly) {
     const timedOut = s == null;
     const ok = !timedOut && s === cur.sound; answered++;
     per[cur.sound] = per[cur.sound] || { n: 0, c: 0 }; per[cur.sound].n++;
-    wordEl.replaceChildren(hlWord(cur));
+    wordEl.textContent = cur.word;
+    wordEl.classList.add(ok ? 'ok' : 'ng');
     choices.querySelectorAll('.choice').forEach(b => { b.disabled = true; if (b.dataset.s === cur.sound) b.classList.add('ok'); else if (b.dataset.s === s) b.classList.add('ng'); });
     const note = cur.note ? h('div', { class: 'small muted' }, '注: ' + cur.note) : null;
     if (ok) {
       correct++; streak++; best = Math.max(best, streak); per[cur.sound].c++;
-      wordEl.classList.add('ok');
       fb.replaceChildren(...[h('span', { class: 'ok' }, `✓ ${ipa(cur.sound)}`), note].filter(Boolean));
     } else {
       streak = 0;
