@@ -3,9 +3,26 @@
 import json, collections
 
 W = {}   # sound -> [(word, note)]
+
+# CMU 発音辞書との照合で除外した語（理由つき）。品詞や方言で狙う母音が変わる語は入れない。
+EXCLUDE = {
+    'idea':     '/aɪˈdiːə/ 強勢は dea。狙う i が無強勢',
+    'hotel':    '/hoʊˈtel/ 強勢は tel。狙う o が無強勢',
+    'wallet':   'CMU は /ˈwɔːlət/ のみ。wa 語の /ɑ/ 群と割れる',
+    'live':     '/lɪv/ と /laɪv/ の二通り',
+    'minute':   '/ˈmɪnɪt/ と /maɪˈnjuːt/ の二通り',
+    'dove':     '/dʌv/（鳥）と /doʊv/（dive の過去）の二通り',
+    'our':      '/aʊr/ /ɑr/ と揺れる',
+    'object':   '名 /ˈɑbdʒekt/ 動 /əbˈdʒekt/ で強勢移動',
+    'contract': '名 /ˈkɑntrækt/ 動 /kənˈtrækt/ で強勢移動',
+    'conflict': '名 /ˈkɑnflɪkt/ 動 /kənˈflɪkt/ で強勢移動',
+}
+
 def add(sound, words, note=None):
     for w in words.split():
-        W.setdefault(sound, []).append((w.replace('_', ' '), note))
+        w = w.replace('_', ' ')
+        if w in EXCLUDE: continue
+        W.setdefault(sound, []).append((w, note))
 
 # ---------- /ɑ/ ----------
 add('ɑ', """hot pot lot not got cot dot rot shot spot knot plot slot cop top mop hop shop stop drop crop chop
@@ -235,6 +252,197 @@ def highlight(word, sound):
         if m: return [m.start(), m.end()]
     return None
 
+# ---------- フォニックス: 綴りパターン g とステージ st ----------
+# 音節タイプ順（閉音節 → 開音節/マジック e → 母音チーム → r 音 → 二重母音ほか）。
+# Reading Universe / Five from Five の scope & sequence と、Hanna(1967)/Fry(2004) の
+# 綴り頻度（閉音節の一字母音は 86〜97% 安定）にもとづく並び。
+R_SOUNDS = {'ɑr', 'ɔr', 'ɪr', 'er', 'ɝː'}
+SHORT = {'æ', 'ɪ', 'ɑ', 'ʌ', 'e'}
+LONG = {'eɪ', 'aɪ', 'oʊ', 'uː', 'iː'}
+OPEN_LONG = {('a', 'eɪ'), ('i', 'aɪ'), ('o', 'oʊ'), ('e', 'iː'), ('u', 'uː'), ('y', 'aɪ')}
+
+def grapheme(word, hl):
+    a, b = hl
+    g = word[a:b].lower()
+    if re.fullmatch(r'[^aeiouy]e', word[b:]): g += '_e'   # マジック e
+    return g
+
+def stage(g, sound):
+    if sound in R_SOUNDS: return 'P4'          # r 性母音
+    if sound in SHORT: return 'P1'             # 閉音節の短母音（綴り例外もここ）
+    if sound in LONG:
+        if g.endswith('_e'): return 'P2'       # マジック e
+        if (g, sound) in OPEN_LONG: return 'P2'  # 開音節
+        return 'P3'                            # 母音チーム
+    return 'P5'                                # aʊ ɔɪ ʊ ɔː
+
+# ---------- CMU 発音辞書との照合 ----------
+# tests/cmudict.dict（gitignore。https://github.com/cmusphinx/cmudict の cmudict.dict）が
+# あれば全語の強勢母音を機械照合し、派生データ tests/cmu-vowels.json を書き出す。
+# 辞書が無い環境では照合をスキップするが、書き出し済みの JSON を data.test.js が検査する。
+import os, urllib.request
+
+ARPA_IPA = {'AA': 'ɑ', 'AE': 'æ', 'AH': 'ʌ', 'AO': 'ɔː', 'AW': 'aʊ', 'AY': 'aɪ', 'EH': 'e',
+            'ER': 'ɝː', 'EY': 'eɪ', 'IH': 'ɪ', 'IY': 'iː', 'OW': 'oʊ', 'OY': 'ɔɪ', 'UH': 'ʊ', 'UW': 'uː'}
+# R が続くときの r 性母音
+ARPA_IPA_R = {'ɑ': 'ɑr', 'ɔː': 'ɔr', 'ɪ': 'ɪr', 'iː': 'ɪr', 'e': 'er', 'eɪ': 'er',
+              'ʌ': 'ɝː', 'oʊ': 'ɔr', 'ʊ': 'ʊr', 'aʊ': 'aʊr', 'ɝː': 'ɝː'}
+
+# CMU と食い違うが意図的に採用している語（方言差）。理由を必ず書く。
+DIALECT_OK = {
+    'raw': 'CMU は merger 側の /ɑ/ のみ。非 merger 米語では /ɔː/',
+    'floss': 'CLOTH 語。CMU は /ɑ/、非 merger 米語では /ɔː/',
+    'hog': 'CLOTH 語。CMU は /ɑ/、非 merger 米語では /ɔː/',
+    'frog': 'CLOTH 語。CMU は /ɑ/、非 merger 米語では /ɔː/',
+    'smog': 'CLOTH 語。CMU は /ɑ/、非 merger 米語では /ɔː/',
+    'jog': 'CLOTH 語。CMU は /ɑ/、非 merger 米語では /ɔː/',
+}
+CMU_MISSING = {'perm': 'CMU 未収録。/pɝːm/ で確定的なので採用'}
+
+CMU_PATH = os.environ.get('CMUDICT') or os.path.join(os.path.dirname(__file__), 'cmudict.dict')
+CMU_URL = 'https://raw.githubusercontent.com/cmusphinx/cmudict/master/cmudict.dict'
+
+def load_cmu(path):
+    if not os.path.exists(path):
+        try:
+            print('cmudict を取得中…', CMU_URL)
+            urllib.request.urlretrieve(CMU_URL, path)
+        except Exception as ex:
+            print('cmudict を取得できません（照合をスキップ）:', ex)
+            return None
+    d = collections.defaultdict(list)
+    for line in open(path, encoding='utf-8'):
+        line = line.split('#')[0].strip()
+        if not line: continue
+        parts = line.split()
+        d[re.sub(r'\(\d+\)$', '', parts[0])].append(parts[1:])
+    return d
+
+def stressed_vowels(phones):
+    """主強勢(1)の母音を IPA で返す。R が続けば r 性母音にする。"""
+    out = []
+    for i, p in enumerate(phones):
+        m = re.match(r'([A-Z]+)([0-2])$', p)
+        if not m: continue
+        base, stress = m.group(1), m.group(2)
+        if base not in ARPA_IPA or stress != '1': continue
+        ipa = ARPA_IPA[base]
+        if base == 'ER' or (i + 1 < len(phones) and phones[i + 1] == 'R'):
+            ipa = ARPA_IPA_R.get(ipa, ipa)
+        out.append(ipa)
+    return out
+
+def verify(entries):
+    cmu = load_cmu(CMU_PATH)
+    if cmu is None: return
+    vowels, bad, missing = {}, [], []
+    for e in entries:
+        key = e['word'].lower()
+        cand = sorted({v[0] for v in (stressed_vowels(p) for p in cmu.get(key, [])) if v})
+        if not cand:
+            if key not in CMU_MISSING: missing.append(e['word'])
+            continue
+        vowels[e['word']] = cand
+        if e['sound'] not in cand and e['word'] not in DIALECT_OK:
+            bad.append((e['word'], e['sound'], cand))
+    assert not bad, 'CMU と不一致（EXCLUDE か DIALECT_OK に入れて理由を書くこと）: ' + repr(bad)
+    assert not missing, 'CMU 未収録（CMU_MISSING に入れて理由を書くこと）: ' + repr(missing)
+    json.dump({'note': 'CMU Pronouncing Dictionary から生成した強勢母音。build-drill-words.py が書き出す。',
+               'source': CMU_URL, 'dialect_ok': DIALECT_OK, 'cmu_missing': CMU_MISSING, 'vowels': vowels},
+              open(os.path.join(os.path.dirname(__file__), 'cmu-vowels.json'), 'w'), ensure_ascii=False, indent=1)
+    print(f'CMU 照合 OK: {len(vowels)} 語（方言差 {len(DIALECT_OK)} 語、未収録 {len(CMU_MISSING)} 語は明示的に許容）')
+
+
+# ---------- フォニックス・コース（7 ステージ / 26 ステップ）----------
+# sel の指定: st=ステージ, upto=そのステージまで累積, g=綴りパターン, note=方言・例外語,
+#             sounds=選択肢に出す音（未指定なら該当語に現れる音すべて）
+COURSE = [
+ {"id": "P1", "title": "1. 閉音節の短母音", "hint": "一字の母音は 86〜97% この音。ここが土台", "steps": [
+   {"id": "P1a", "title": "a / i / o", "hint": "bat / hit / hot", "sel": {"st": ["P1"], "sounds": ["æ", "ɪ", "ɑ"]}},
+   {"id": "P1b", "title": "u / e", "hint": "but / bed。綴り o・ou の /ʌ/ も混ざる", "sel": {"st": ["P1"], "sounds": ["ʌ", "e"]}},
+   {"id": "P1c", "title": "短母音 5 つ（混合）", "hint": "body / bat / but を目印に", "sel": {"st": ["P1"]}},
+ ]},
+ {"id": "P2", "title": "2. マジック e と開音節", "hint": "母音字の名前どおりに読む長母音", "steps": [
+   {"id": "P2a", "title": "マジック e", "hint": "a_e / i_e / o_e / u_e。最後の e は読まない", "sel": {"st": ["P2"], "g": ["a_e", "i_e", "o_e", "u_e", "ea_e", "ie_e", "oo_e"]}},
+   {"id": "P2b", "title": "開音節", "hint": "母音で終わる音節は長く読む", "sel": {"st": ["P2"], "g": ["a", "i", "o", "e", "u", "y"]}},
+   {"id": "P2c", "title": "短 vs 長（総合）", "hint": "hat↔hate, hop↔hope。ここが最重要", "sel": {"upto": "P2"}},
+ ]},
+ {"id": "P3", "title": "3. 母音チーム", "hint": "2 字で 1 つの長母音", "steps": [
+   {"id": "P3a", "title": "ee / ea / ai / ay", "hint": "/iː/ と /eɪ/", "sel": {"st": ["P3"], "sounds": ["iː", "eɪ"]}},
+   {"id": "P3b", "title": "oa / ow / igh / ew", "hint": "/oʊ/ /aɪ/ /uː/", "sel": {"st": ["P3"], "sounds": ["oʊ", "aɪ", "uː"]}},
+   {"id": "P3c", "title": "母音チーム（総合）", "hint": "既習の短母音・マジック e も混ぜる", "sel": {"upto": "P3"}},
+ ]},
+ {"id": "P4", "title": "4. r 性母音", "hint": "日本語話者に最難。ここは時間をかける", "steps": [
+   {"id": "P4a", "title": "ar / or / er·ir·ur", "hint": "/ɑr/ /ɔr/ /ɝː/", "sel": {"st": ["P4"], "sounds": ["ɑr", "ɔr", "ɝː"]}},
+   {"id": "P4b", "title": "air·are / ear·eer", "hint": "/er/ /ɪr/ と /ɝː/ の区別", "sel": {"st": ["P4"], "sounds": ["er", "ɪr", "ɝː"]}},
+   {"id": "P4c", "title": "r 性母音 5 つ（総合）", "hint": "ar / or / er / air / ear", "sel": {"st": ["P4"]}},
+ ]},
+ {"id": "P5", "title": "5. 二重母音とその他", "hint": "残りの母音", "steps": [
+   {"id": "P5a", "title": "ou / ow / oi / oy", "hint": "/aʊ/ と /ɔɪ/", "sel": {"st": ["P5"], "sounds": ["aʊ", "ɔɪ"]}},
+   {"id": "P5b", "title": "/uː/ と /ʊ/", "hint": "唇の緊張。oo は両方ある", "sel": {"sounds": ["uː", "ʊ"]}},
+   {"id": "P5c", "title": "/ɔː/ と /ɑ/", "hint": "唇の丸め。merger 地域では同音", "sel": {"sounds": ["ɔː", "ɑ"]}},
+   {"id": "P5d", "title": "全母音（総合）", "hint": "1,546 語すべてから出題", "sel": {"upto": "P5"}},
+ ]},
+ {"id": "P6", "title": "6. 一綴り多音の罠", "hint": "同じ綴りで音が割れる語だけを集めた識別ドリル", "steps": [
+   {"id": "P6a", "title": "ea", "hint": "/iː/ seat か /e/ bread か", "sel": {"g": ["ea", "ea_e"], "sounds": ["iː", "e"]}},
+   {"id": "P6b", "title": "oo", "hint": "/uː/ moon か /ʊ/ book か", "sel": {"g": ["oo", "oo_e"], "sounds": ["uː", "ʊ", "ʌ"]}},
+   {"id": "P6c", "title": "ow / ou", "hint": "/aʊ/ how か /oʊ/ show か", "sel": {"g": ["ow", "ou", "ou_e"], "sounds": ["aʊ", "oʊ", "uː", "ʊ"]}},
+   {"id": "P6d", "title": "ar / or / ear", "hint": "r の前の綴りは当てにならない", "sel": {"g": ["ar", "or", "ear"]}},
+   {"id": "P6e", "title": "o", "hint": "最難。/ɑ/ /oʊ/ /ɔː/ /ʌ/ に割れる", "sel": {"g": ["o"], "sounds": ["ɑ", "oʊ", "ɔː", "ʌ"]}},
+   {"id": "P6f", "title": "a", "hint": "/æ/ /eɪ/ /ɑ/ /ɔː/ に割れる", "sel": {"g": ["a"], "sounds": ["æ", "eɪ", "ɑ", "ɔː"]}},
+   {"id": "P6g", "title": "i / y", "hint": "/ɪ/ hit か /aɪ/ by か", "sel": {"g": ["i", "y"], "sounds": ["ɪ", "aɪ"]}},
+   {"id": "P6h", "title": "e", "hint": "/e/ bed か /iː/ even か", "sel": {"g": ["e"], "sounds": ["e", "iː"]}},
+   {"id": "P6i", "title": "u", "hint": "/ʌ/ bus か /ʊ/ push か /uː/ か", "sel": {"g": ["u", "u_e"], "sounds": ["ʌ", "ʊ", "uː"]}},
+ ]},
+ {"id": "P7", "title": "7. 方言差と綴り例外", "hint": "cot–caught merger、CLOTH 語、綴り例外", "steps": [
+   {"id": "P7a", "title": "注記のある語", "hint": "地域差があるので参考程度に", "sel": {"note": True}},
+ ]},
+]
+# 紛らわしい音の対応表。選択肢が 6 つ以上になる総合ステップでは、
+# 毎問「正解 + この表から選んだ紛らわしい 2 音」の 3 択にする。
+NEIGHBORS = {
+ 'ɑ':  ['æ', 'ʌ', 'ɔː', 'oʊ'],   'æ':  ['ɑ', 'ʌ', 'e'],
+ 'ʌ':  ['æ', 'ɑ', 'ʊ', 'ɔː'],    'e':  ['æ', 'ɪ', 'eɪ', 'iː'],
+ 'ɪ':  ['iː', 'e', 'ɪr'],        'iː': ['ɪ', 'e', 'eɪ'],
+ 'uː': ['ʊ', 'oʊ', 'ʌ'],         'ʊ':  ['uː', 'ʌ', 'oʊ'],
+ 'aɪ': ['eɪ', 'ɑ', 'ɔɪ'],        'eɪ': ['e', 'aɪ', 'iː'],
+ 'ɔɪ': ['ɔː', 'aɪ', 'oʊ'],       'aʊ': ['oʊ', 'ɑ', 'ɔː'],
+ 'oʊ': ['ɔː', 'ʌ', 'aʊ', 'uː'],  'ɔː': ['ɑ', 'oʊ', 'ʌ', 'aʊ'],
+ 'ɝː': ['ɑr', 'ɔr', 'er', 'ɪr'], 'ɑr': ['ɔr', 'ɝː', 'ɑ'],
+ 'ɔr': ['ɑr', 'ɝː', 'oʊ'],       'ɪr': ['ɝː', 'er', 'iː'],
+ 'er': ['ɪr', 'ɝː', 'e'],
+}
+
+ORDER = ["P1", "P2", "P3", "P4", "P5"]
+
+def select(entries, sel):
+    """COURSE の sel でエントリを絞る（app.js の同名処理と揃えること）"""
+    out = entries
+    if "st" in sel: out = [e for e in out if e.get("st") in sel["st"]]
+    if "upto" in sel:
+        lim = ORDER.index(sel["upto"])
+        out = [e for e in out if e.get("st") in ORDER[:lim + 1]]
+    if "g" in sel: out = [e for e in out if e.get("g") in sel["g"]]
+    if sel.get("note"): out = [e for e in out if e.get("note")]
+    if "sounds" in sel: out = [e for e in out if e["sound"] in sel["sounds"]]
+    return out
+
+def check_course(entries):
+    for stg in COURSE:
+        for stp in stg["steps"]:
+            ws = select(entries, stp["sel"])
+            snds = sorted({w["sound"] for w in ws})
+            assert len(ws) >= 40, f'{stp["id"]} の語が少なすぎる: {len(ws)}'
+            assert len(snds) >= 2, f'{stp["id"]} の選択肢が {len(snds)} 個: {snds}'
+            stp["n"] = len(ws)
+            stp["sounds"] = snds
+            if len(snds) > 5:
+                stp["mix"] = True   # 毎問 3 択を生成
+                pool = set(snds)
+                for snd in snds:
+                    assert len(pool & set(NEIGHBORS[snd])) >= 2, f'{stp["id"]} の {snd} に紛らわしい音が足りない'
+            print(f'  {stp["id"]:5} {stp["title"]:20} {len(ws):5} 語  {"3択生成" if stp.get("mix") else "/".join(snds)}')
+
 # ---------- 集約 ----------
 sets = [
     {"id": "d01", "itemId": "v01", "title": "/ɑ/ /æ/ /ʌ/", "sounds": ["ɑ", "æ", "ʌ"], "examples": {"ɑ": "body", "æ": "bat", "ʌ": "but"}, "hint": "『英語耳』の body / bat / but。顎の開き方（大・横・小）で分ける。/ʌ/ は綴りに注意"},
@@ -256,7 +464,10 @@ for s, lst in W.items():
         seen[s].add(w)
         e = {"word": w, "sound": s}
         hl = highlight(w, s)
-        if hl: e["hl"] = hl
+        if hl:
+            e["hl"] = hl
+            e["g"] = grapheme(w, hl)
+            e["st"] = stage(e["g"], s)
         else: print("no highlight:", w, s)
         if note: e["note"] = note
         words.append(e)
@@ -265,7 +476,10 @@ by_word = collections.defaultdict(set)
 for e in words: by_word[e["word"]].add(e["sound"])
 dups = {w: s for w, s in by_word.items() if len(s) > 1}
 assert not dups, f"重複: {dups}"
-out = {"version": 1,
+verify(words)
+print("フォニックス・コース:")
+check_course(words)
+out = {"version": 2, "course": COURSE, "neighbors": NEIGHBORS,
        "note": "大量ドリル用の単語バンク。sound は強勢母音。note は方言差・綴り例外。sets はドリルの組み合わせ。tests/build-drill-words.py で生成。",
        "sets": sets, "words": words}
 json.dump(out, open('data/drill-words.json', 'w'), ensure_ascii=False, indent=1)

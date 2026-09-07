@@ -3,6 +3,10 @@ const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
 const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
+const INTERVALS = [1, 3, 7, 14, 30];  // 誤答語を復習する間隔（日）
+const PASS_RATE = 0.9, PASS_RUNS = 2, PASS_MIN = 20;  // 合格: 20問以上を正答率90%で2回連続
+const MIX_RATE = 0.3;                // 合格後、既習語を混ぜる割合（累積復習）
+const STAGES = ['P1', 'P2', 'P3', 'P4', 'P5'];
 
 // ---------- 小道具 ----------
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -37,16 +41,47 @@ const S = {
   words: load('words', {}),          // word -> {s: 出題, c: 正解, w: 誤答, lw: 最終誤答日}
   log: load('log', []),              // {d, set, n, c, conf, sec}
   settings: Object.assign({ count: 50, audio: true, voice: '', autoNext: true, limit: 3 }, load('settings', {})),
+  prog: load('prog', {}),            // stepId -> {runs: [{n, c, ts}], passed: ts}
 };
 const persistWords = () => save('words', S.words);
 const persistLog = () => { if (S.log.length > 1000) S.log = S.log.slice(-1000); save('log', S.log); };
 const persistSettings = () => save('settings', S.settings);
+const persistProg = () => save('prog', S.prog);
 
 // ---------- データ ----------
 let DATA = null;
 const wordsFor = set => DATA.words.filter(w => set.sounds.includes(w.sound));
 const setById = id => DATA.sets.find(s => s.id === id);
 const isWeak = w => { const d = S.words[w.word]; return d && d.w > 0 && d.w >= d.c; };
+
+// ---------- フォニックス・コース ----------
+// sel の解釈は tests/build-drill-words.py の select() と同じにすること
+function selectWords(sel) {
+  let out = DATA.words;
+  if (sel.st) out = out.filter(w => sel.st.includes(w.st));
+  if (sel.upto) { const lim = STAGES.indexOf(sel.upto); out = out.filter(w => STAGES.indexOf(w.st) >= 0 && STAGES.indexOf(w.st) <= lim); }
+  if (sel.g) out = out.filter(w => sel.g.includes(w.g));
+  if (sel.note) out = out.filter(w => w.note);
+  if (sel.sounds) out = out.filter(w => sel.sounds.includes(w.sound));
+  return out;
+}
+const allSteps = () => DATA.course.flatMap(st => st.steps);
+const stepById = id => allSteps().find(t => t.id === id);
+const isPassed = id => !!S.prog[id]?.passed;
+const nextStep = () => allSteps().find(t => !isPassed(t.id));
+const stepRate = id => { const r = (S.prog[id]?.runs || []).slice(-1)[0]; return r && r.n ? Math.round(r.c / r.n * 100) : null; };
+const dueWords = () => { const t = today(); return DATA.words.filter(w => { const d = S.words[w.word]; return d && d.due && d.due <= t; }); };
+
+// 合格判定: 直近 PASS_RUNS 回が いずれも PASS_MIN 問以上・正答率 PASS_RATE 以上
+function recordRun(id, n, c) {
+  const p = S.prog[id] || (S.prog[id] = { runs: [] });
+  p.runs.push({ n, c, ts: Date.now() });
+  if (p.runs.length > 20) p.runs = p.runs.slice(-20);
+  const last = p.runs.slice(-PASS_RUNS);
+  if (!p.passed && last.length === PASS_RUNS && last.every(r => r.n >= PASS_MIN && r.c / r.n >= PASS_RATE)) p.passed = Date.now();
+  persistProg();
+  return !!p.passed;
+}
 
 // ---------- 音声（合成音声のみ。発音判定はしない）----------
 function speak(text) {
@@ -87,14 +122,44 @@ function renderHome(main) {
         h('div', { class: 'small' }, w.n || ''), h('div', { class: 'small muted' }, w.d.slice(5).replace('-', '/'))))),
       h('p', { class: 'small muted' }, '単語を見て母音を即答。速さより「迷わず正しく」。間違えた語は同じ回の後半と次回以降に優先して出ます。答えを見たら声に出す。')),
   );
+  // 今日の復習
+  const due = dueWords();
+  main.append(h('section', { class: 'card' },
+    h('div', { class: 'row between' }, h('h2', {}, '今日の復習'), h('span', { class: 'small muted' }, `${due.length} 語`)),
+    due.length
+      ? h('div', {}, h('p', { class: 'small muted' }, '前に間違えた語。正解するたび 1→3→7→14→30 日の間隔で戻ってきます'),
+          h('a', { class: 'btn primary', href: '#/r' }, `復習する（${due.length}）`))
+      : h('p', { class: 'small muted' }, '今日の復習はありません。間違えた語が翌日から順に出ます')));
+
+  // フォニックス・コース
+  const nx = nextStep();
+  const donePass = allSteps().filter(t => isPassed(t.id)).length;
+  main.append(h('section', { class: 'card' },
+    h('div', { class: 'row between' }, h('h2', {}, 'フォニックス・コース'), h('span', { class: 'small muted' }, `${donePass} / ${allSteps().length} 合格`)),
+    h('p', { class: 'small muted' }, `綴りの型ごとに、音節タイプの順（閉音節 → マジック e → 母音チーム → r 音 → 二重母音）で進みます。${PASS_MIN}問以上を正答率${Math.round(PASS_RATE * 100)}%で${PASS_RUNS}回連続すると合格。合格後はそのステップに既習語が${Math.round(MIX_RATE * 100)}%混ざります。`),
+    h('div', { class: 'progress' }, h('div', { style: `width:${Math.round(donePass / allSteps().length * 100)}%` }))));
+  for (const stg of DATA.course) {
+    const rows = stg.steps.map(t => {
+      const p = isPassed(t.id), isNext = nx && nx.id === t.id, rate = stepRate(t.id);
+      return h('div', { class: 'field' },
+        h('span', { class: 'small' + (p ? ' ok' : '') }, p ? '✓ ' : (isNext ? '▶ ' : '　'), t.title,
+          h('span', { class: 'small muted' }, `　${t.n}語`, rate == null ? '' : `　直近 ${rate}%`)),
+        h('a', { class: 'btn small' + (isNext ? ' primary' : ''), href: `#/s/${t.id}` }, p ? '復習' : '始める'));
+    });
+    main.append(h('section', { class: 'card' },
+      h('h3', {}, stg.title), h('p', { class: 'small muted' }, stg.hint || ''), ...rows));
+  }
+  // 従来の音コントラスト別セット
+  const legacy = h('div');
+  main.append(h('section', { class: 'card' }, h('details', {}, h('summary', {}, h('b', {}, '音のコントラスト別セット（従来の d01〜d10）')), legacy)));
   for (const set of DATA.sets) {
     const ws = wordsFor(set);
     const sl = S.log.filter(l => l.set === set.id);
     const tot = sl.reduce((a, l) => a + l.n, 0), cor = sl.reduce((a, l) => a + l.c, 0);
     const seen = ws.filter(w => S.words[w.word]?.s).length;
     const weak = ws.filter(isWeak).length;
-    main.append(h('section', { class: 'card' },
-      h('div', { class: 'row between' }, h('h2', {}, set.title), h('span', { class: 'small muted' }, `${ws.length} 語`)),
+    legacy.append(h('div', { class: 'card', style: 'margin-top:.6rem' },
+      h('div', { class: 'row between' }, h('h3', {}, set.title), h('span', { class: 'small muted' }, `${ws.length} 語`)),
       h('div', { class: 'small muted' }, set.hint || ''),
       h('div', { class: 'small' }, tot ? `正答率 ${Math.round(cor / tot * 100)}%（${cor}/${tot}）` : '未実施', `　既出 ${seen}/${ws.length}`, weak ? h('span', { class: 'err' }, `　苦手 ${weak}`) : ''),
       h('div', { class: 'row' },
@@ -115,7 +180,8 @@ function renderHome(main) {
       if (obj.app !== 'vowel-drill' || typeof obj.words !== 'object' || !Array.isArray(obj.log)) throw new Error('形式が違います');
       for (const [w, d] of Object.entries(obj.words)) { const cur = S.words[w] || { s: 0, c: 0, w: 0, lw: null }; S.words[w] = { s: cur.s + (d.s | 0), c: cur.c + (d.c | 0), w: cur.w + (d.w | 0), lw: [cur.lw, d.lw].filter(Boolean).sort().pop() || null }; }
       S.log = [...S.log, ...obj.log.filter(l => l && l.d && l.set)].sort((a, b) => (a.ts || 0) - (b.ts || 0));
-      persistWords(); persistLog(); toast('復元しました（既存データに追加）', 'ok'); route();
+      if (obj.prog && typeof obj.prog === 'object') for (const [k, v] of Object.entries(obj.prog)) if (!S.prog[k] || (v.passed && !S.prog[k].passed)) S.prog[k] = v;
+      persistWords(); persistLog(); persistProg(); toast('復元しました（既存データに追加）', 'ok'); route();
     } catch (err) { toast('復元できません: ' + err.message, 'err'); }
     e.target.value = '';
   } });
@@ -127,72 +193,117 @@ function renderHome(main) {
       voiceSel),
     h('div', { class: 'row', style: 'margin-top:.6rem' },
       h('button', { class: 'btn small', onClick: () => {
-        const blob = new Blob([JSON.stringify({ app: 'vowel-drill', schema: 1, exportedAt: new Date().toISOString(), words: S.words, log: S.log }, null, 1)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify({ app: 'vowel-drill', schema: 1, exportedAt: new Date().toISOString(), words: S.words, log: S.log, prog: S.prog }, null, 1)], { type: 'application/json' });
         const a = h('a', { href: URL.createObjectURL(blob), download: `vowel-drill-${today()}.json` }); document.body.append(a); a.click(); a.remove();
       } }, 'バックアップ書き出し'),
       h('button', { class: 'btn small', onClick: () => file.click() }, '復元'), file,
-      h('button', { class: 'btn small ghost err', onClick: () => { if (confirm('学習記録をすべて削除しますか？')) { S.words = {}; S.log = []; persistWords(); persistLog(); route(); } } }, '記録を消去')),
+      h('button', { class: 'btn small ghost err', onClick: () => { if (confirm('学習記録をすべて削除しますか？')) { S.words = {}; S.log = []; S.prog = {}; persistWords(); persistLog(); persistProg(); route(); } } }, '記録を消去')),
     h('p', { class: 'small muted' }, `単語 ${DATA.words.length} 語 ／ 記録は端末内のみ（サーバー送信なし）。自動の発音判定は行いません。`)));
 }
 const stat = (l, v, u) => h('div', {}, h('div', { class: 'val' }, String(v)), h('div', { class: 'small muted' }, l + (u ? `（${u}）` : '')));
 
-// ---------- ドリル ----------
-function renderDrill(main, setId, weakOnly) {
-  const set = setById(setId);
-  if (!set) { main.append(h('p', {}, 'セットが見つかりません'), h('a', { class: 'btn', href: '#/' }, 'ホーム')); return () => {}; }
-  const all = wordsFor(set);
-  let count = S.settings.count;
+// ---------- ドリルの対象 ----------
+function specForStep(id) {
+  const st = stepById(id); if (!st) return null;
+  const stage = DATA.course.find(c => c.steps.some(t => t.id === id));
+  return { id, title: `${stage.title.replace(/^\d+\.\s*/, '')} — ${st.title}`, hint: st.hint,
+           words: selectWords(st.sel), sounds: st.sounds, mix: !!st.mix, isStep: true };
+}
+function specForSet(id) {
+  const set = setById(id); if (!set) return null;
+  return { id, title: set.title, hint: set.hint, words: wordsFor(set), sounds: set.sounds, mix: false, isStep: false, examples: set.examples };
+}
+function specForReview() {
+  const words = dueWords();
+  const sounds = [...new Set(words.map(w => w.sound))];
+  return { id: 'review', title: '今日の復習', hint: '前に間違えた語。正解するたび 1→3→7→14→30 日の間隔で戻ってきます',
+           words, sounds, mix: sounds.length > 5, isStep: false };
+}
 
-  // 設定
+// ---------- ドリル ----------
+function renderDrill(main, spec, weakOnly) {
+  if (!spec) { main.append(h('p', {}, '見つかりません'), h('a', { class: 'btn', href: '#/' }, 'ホーム')); return () => {}; }
+  const all = spec.words;
+  if (!all.length) { main.append(h('div', { class: 'card' }, h('h2', {}, spec.title), h('p', {}, '出題できる語がありません'), h('a', { class: 'btn', href: '#/' }, 'ホーム'))); return () => {}; }
+  let count = S.settings.count;
+  const passed = spec.isStep && isPassed(spec.id);
+  // 合格前は blocked（そのステップの語だけ）、合格後は mixed（既習語を混ぜる）
+  const stepSet = new Set(all.map(w => w.word));
+  const reviewPool = passed ? DATA.words.filter(w => S.words[w.word]?.s && !stepSet.has(w.word)) : [];
+  const exMap = {};
+  for (const snd of new Set(DATA.words.map(w => w.sound)))
+    exMap[snd] = spec.examples?.[snd] || (all.filter(w => w.sound === snd && !w.note).slice(0, 2).map(w => w.word).join(' / ')
+                 || DATA.words.filter(w => w.sound === snd && !w.note).slice(0, 2).map(w => w.word).join(' / '));
+
   const cfg = h('section', { class: 'card' },
-    h('h2', {}, set.title), h('p', { class: 'small muted' }, set.hint || ''),
-    h('p', { class: 'small' }, set.sounds.map(s => `${ipa(s)} ${all.filter(w => w.sound === s).length}語`).join('　')),
+    h('h2', {}, spec.title), h('p', { class: 'small muted' }, spec.hint || ''),
+    h('p', { class: 'small' }, spec.mix
+      ? `${all.length} 語 ・ ${spec.sounds.length} 音（毎問 3 択を作ります）`
+      : spec.sounds.map(s => `${ipa(s)} ${all.filter(w => w.sound === s).length}語`).join('　')),
+    passed ? h('p', { class: 'small ok' }, `合格済み。既習語を ${Math.round(MIX_RATE * 100)}% 混ぜて出題します`) : null,
+    spec.isStep && !passed ? h('p', { class: 'small muted' }, `合格まで: ${PASS_MIN}問以上を正答率${Math.round(PASS_RATE * 100)}%で${PASS_RUNS}回連続`) : null,
     h('div', { class: 'field' }, h('span', { class: 'small' }, '出題数'), seg(COUNTS.map(c => [c, c || '無制限']), count, v => { count = v; S.settings.count = v; persistSettings(); })),
     h('div', { class: 'field' }, h('span', { class: 'small' }, '回答の制限時間'), seg(LIMITS.map(l => [l, l ? `${l}秒` : 'なし']), S.settings.limit, v => { S.settings.limit = v; persistSettings(); })),
     h('div', { class: 'field' }, h('span', { class: 'small' }, '不正解のあと'), seg([[true, '1.5秒で自動的に次へ'], [false, '「次へ」を押す']], S.settings.autoNext, v => { S.settings.autoNext = v; persistSettings(); })),
     weakOnly ? h('p', { class: 'small err' }, `苦手な語だけ（${all.filter(isWeak).length} 語）`) : null,
     h('div', { class: 'row' }, h('button', { class: 'btn primary big', onClick: start }, 'スタート'), h('a', { class: 'btn ghost', href: '#/' }, '戻る')),
-    h('p', { class: 'small muted' }, 'キーボード: 1〜3 で回答、Space / Enter で次へ'));
+    h('p', { class: 'small muted' }, 'キーボード: 数字キーで回答、Space / Enter で次へ'));
   main.append(cfg);
 
-  // 出題順: 未出題・誤答が多い語を重み付きで優先、各音から均等に
+  // 出題順: 未出題・誤答が多い語を重み付きで優先。音ごとに均等に取る
+  function pick(pool, n, sounds) {
+    if (n <= 0 || !pool.length) return [];
+    const groups = sounds ? sounds.map(s => pool.filter(w => w.sound === s)) : [pool];
+    const per = Math.ceil(n / groups.length), out = [];
+    for (const g of groups) {
+      out.push(...g.map(w => {
+        const d = S.words[w.word]; let wt = 1;
+        if (!d || !d.s) wt += 1.5; else { wt += 3 * d.w / d.s; if (d.lw === today()) wt += 1; if (d.due && d.due <= today()) wt += 2; if (d.s >= 3 && d.w === 0) wt *= 0.4; }
+        return { w, key: Math.pow(Math.random(), 1 / wt) };
+      }).sort((a, b) => b.key - a.key).slice(0, per).map(x => x.w));
+    }
+    return out;
+  }
   function buildQueue() {
     let pool = weakOnly ? all.filter(isWeak) : all;
     if (!pool.length) pool = all;
-    const n = count || pool.length, per = Math.ceil(n / set.sounds.length), picked = [];
-    for (const s of set.sounds) {
-      const cand = pool.filter(w => w.sound === s).map(w => {
-        const d = S.words[w.word]; let wt = 1;
-        if (!d || !d.s) wt += 1.5; else { wt += 3 * d.w / d.s; if (d.lw === today()) wt += 1; if (d.s >= 3 && d.w === 0) wt *= 0.4; }
-        return { w, key: Math.pow(Math.random(), 1 / wt) };
-      }).sort((a, b) => b.key - a.key).slice(0, per).map(x => x.w);
-      picked.push(...cand);
-    }
-    return shuffle(picked).slice(0, n);
+    const n = count || pool.length;
+    const k = reviewPool.length ? Math.round(n * MIX_RATE) : 0;
+    return shuffle([...pick(pool, n - k, spec.sounds), ...pick(reviewPool, k, null)]).slice(0, n);
+  }
+  // 選択肢: 通常はステップの音すべて。音が 6 つ以上のときは正解＋紛らわしい 2 音の 3 択
+  function choiceSounds(sound) {
+    if (!spec.mix) return spec.sounds;
+    const pool = spec.sounds.filter(s => s !== sound);
+    const near = shuffle((DATA.neighbors?.[sound] || []).filter(s => pool.includes(s))).slice(0, 2);
+    while (near.length < 2 && near.length < pool.length) { const o = shuffle(pool.filter(s => !near.includes(s)))[0]; if (!o) break; near.push(o); }
+    return shuffle([sound, ...near]);
   }
 
-  // セッション状態
   let queue = [], idx = 0, answered = 0, correct = 0, streak = 0, best = 0, t0 = 0, cur = null, locked = false, alive = true, timer = null, limitT = null, timeouts = 0;
-  let conf = {}, per = {}, wrong = new Map();
+  let conf = {}, per = {}, wrong = new Map(), curChoices = [];
 
   const wordEl = h('div', { class: 'word' });
   const tbar = h('div', { class: 'tbar' }, h('div'));
   const fb = h('div', { class: 'fb' });
-  const choices = h('div', { class: 'choices' + (set.sounds.length === 2 ? ' two' : '') });
+  const choices = h('div', { class: 'choices' });
   const bar = h('div', { class: 'progress' }, h('div'));
   const status = h('div', { class: 'row between small muted' });
   const nextBtn = h('button', { class: 'btn primary big', hidden: true, onClick: next }, '次へ');
   const stage = h('section', { class: 'card', hidden: true }, status, bar, wordEl, tbar, choices, fb,
     h('div', { class: 'center', style: 'margin-top:.5rem' }, nextBtn), h('div', { class: 'center', style: 'margin-top:.5rem' }, h('button', { class: 'btn ghost small', onClick: finish }, 'ここで終了')));
   main.append(stage);
-  for (const s of set.sounds) {
-    const ex = set.examples?.[s] || all.filter(w => w.sound === s && !w.note).slice(0, 2).map(w => w.word).join(' / ');
-    choices.append(h('button', { class: 'btn choice', dataset: { s }, onClick: () => answer(s) }, h('b', {}, ipa(s)), h('span', { class: 'small' }, ex)));
+
+  function drawChoices(sounds) {
+    curChoices = sounds;
+    choices.className = 'choices' + (sounds.length === 2 ? ' two' : '');
+    choices.replaceChildren(...sounds.map(s =>
+      h('button', { class: 'btn choice', dataset: { s }, onClick: () => answer(s) }, h('b', {}, ipa(s)), h('span', { class: 'small' }, exMap[s] || ''))));
   }
   const onKey = e => {
     if (stage.hidden) return;
     const i = Number(e.key) - 1;
-    if (i >= 0 && i < set.sounds.length) { e.preventDefault(); answer(set.sounds[i]); }
+    if (i >= 0 && i < curChoices.length) { e.preventDefault(); answer(curChoices[i]); }
     else if ((e.code === 'Space' || e.key === 'Enter') && !nextBtn.hidden) { e.preventDefault(); next(); }
   };
   window.addEventListener('keydown', onKey);
@@ -208,6 +319,7 @@ function renderDrill(main, setId, weakOnly) {
     clearTimeout(timer); timer = null; clearTimeout(limitT); limitT = null;
     cur = queue[idx]; locked = false;
     wordEl.replaceChildren(hlWord(cur)); wordEl.className = 'word';
+    drawChoices(choiceSounds(cur.sound));
     const lim = S.settings.limit;
     tbar.hidden = !lim;
     if (lim) {
@@ -216,7 +328,6 @@ function renderDrill(main, setId, weakOnly) {
       limitT = setTimeout(() => answer(null), lim * 1000);
     }
     fb.replaceChildren(); nextBtn.hidden = true;
-    choices.querySelectorAll('.choice').forEach(b => { b.classList.remove('ok', 'ng'); b.disabled = false; });
     status.replaceChildren(h('span', {}, `${answered + 1}${count ? ' / ' + count : ''}`), h('span', {}, `正解 ${correct}　連続 ${streak}`));
     bar.firstChild.style.width = (count ? Math.min(100, answered / count * 100) : 0) + '%';
   }
@@ -241,8 +352,11 @@ function renderDrill(main, setId, weakOnly) {
       fb.replaceChildren(...[h('span', { class: 'err' }, timedOut ? `⏱ 時間切れ — ${ipa(cur.sound)}` : `✗ 正解は ${ipa(cur.sound)}`), timedOut ? null : h('span', { class: 'small muted' }, `（${ipa(s)} と答えた）`), note].filter(Boolean));
       queue.splice(Math.min(queue.length, idx + RETRY_GAP[0] + Math.floor(Math.random() * (RETRY_GAP[1] - RETRY_GAP[0] + 1))), 0, cur);
     }
+    // 復習キュー: 間違えた語は翌日から 1→3→7→14→30 日
     const d = S.words[cur.word] || { s: 0, c: 0, w: 0, lw: null };
-    d.s++; if (ok) d.c++; else { d.w++; d.lw = today(); }
+    d.s++;
+    if (ok) { d.c++; if (d.due) { d.iv = Math.min((d.iv ?? 0) + 1, INTERVALS.length - 1); d.due = addDays(today(), INTERVALS[d.iv]); } }
+    else { d.w++; d.lw = today(); d.iv = 0; d.due = addDays(today(), INTERVALS[0]); }
     S.words[cur.word] = d; persistWords();
     speak(cur.word);
     idx++;
@@ -255,17 +369,22 @@ function renderDrill(main, setId, weakOnly) {
     clearTimeout(timer); clearTimeout(limitT);
     stage.hidden = true;
     const sec = Math.round((Date.now() - t0) / 1000);
-    if (answered) { S.log.push({ d: today(), ts: Date.now(), set: set.id, n: answered, c: correct, conf, sec, to: timeouts, lim: S.settings.limit }); persistLog(); }
+    let justPassed = false;
+    if (answered) {
+      S.log.push({ d: today(), ts: Date.now(), set: spec.id, n: answered, c: correct, conf, sec, to: timeouts, lim: S.settings.limit }); persistLog();
+      if (spec.isStep) { const was = isPassed(spec.id); justPassed = recordRun(spec.id, answered, correct) && !was; }
+    }
     const wl = [...wrong.values()];
     main.append(h('section', { class: 'card' },
       h('h2', {}, answered ? `結果: ${correct} / ${answered}（${Math.round(correct / answered * 100)}%）` : '結果なし'),
+      justPassed ? h('p', { class: 'ok' }, '✓ このステップに合格しました。次のステップへ進めます') : null,
       h('div', { class: 'small muted' }, `最長連続 ${best}　${Math.floor(sec / 60)}分${sec % 60}秒`, timeouts ? `　時間切れ ${timeouts}` : ''),
-      h('div', { class: 'chips' }, ...set.sounds.map(s => h('span', { class: 'chip' }, h('b', {}, ipa(s)), ` ${per[s] ? `${per[s].c}/${per[s].n}` : '—'}`))),
+      h('div', { class: 'chips' }, ...spec.sounds.filter(s => per[s]).map(s => h('span', { class: 'chip' }, h('b', {}, ipa(s)), ` ${per[s].c}/${per[s].n}`))),
       Object.keys(conf).length ? h('div', { class: 'chips' }, ...Object.entries(conf).sort((a, b) => b[1] - a[1]).map(([k, v]) => { const [f, to] = k.split('→'); return h('span', { class: 'chip warn' }, `${ipa(f)} → ${ipa(to)} ×${v}`); })) : h('p', { class: 'ok' }, '混同なし'),
       wl.length ? h('div', {}, h('h3', {}, `間違えた語（${wl.length}）— タップで音声、声に出して確認`), h('div', { class: 'chips' }, ...wl.map(e => h('button', { class: 'chip sel', onClick: () => speak(e.word) }, h('b', {}, hlWord(e)), ` ${ipa(e.sound)}`)))) : null,
       h('div', { class: 'row', style: 'margin-top:.6rem' },
         h('button', { class: 'btn primary', onClick: () => { main.lastChild.remove(); cfg.hidden = false; } }, 'もう一回'),
-        wl.length ? h('a', { class: 'btn', href: `#/d/${set.id}?weak=1` }, '苦手だけ') : null,
+        wl.length ? h('a', { class: 'btn', href: location.hash.split('?')[0] + '?weak=1' }, '苦手だけ') : null,
         h('a', { class: 'btn ghost', href: '#/' }, 'ホーム'))));
     window.scrollTo(0, 0);
   }
@@ -283,9 +402,11 @@ function route() {
   const main = $('#main');
   if (cleanup) { try { cleanup(); } catch { /* ignore */ } cleanup = null; }
   main.replaceChildren(); window.scrollTo(0, 0);
-  const m = location.hash.match(/^#\/d\/([^?]+)(\?weak=1)?/);
-  if (m) cleanup = renderDrill(main, m[1], !!m[2]);
-  else renderHome(main);
+  const m = location.hash.match(/^#\/(d|s|r)(?:\/([^?]+))?(\?weak=1)?/);
+  if (m) {
+    const spec = m[1] === 's' ? specForStep(m[2]) : m[1] === 'r' ? specForReview() : specForSet(m[2]);
+    cleanup = renderDrill(main, spec, !!m[3]);
+  } else renderHome(main);
 }
 async function boot() {
   const online = $('#online'); const upd = () => { online.textContent = 'オフライン'; online.hidden = navigator.onLine; }; upd();
