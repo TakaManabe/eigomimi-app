@@ -149,3 +149,33 @@ test('20 語以上の綴りには専用ルールがある（ステージ共通�
   for (const w of drill.words) { const k = `${w.st}|${w.g}`; c.set(k, (c.get(k) || 0) + 1); }
   for (const [k, n] of c) if (n >= 20) assert.ok(!generic.has(drill.rules[k]), `${k}（${n}語）が共通文言のまま`);
 });
+
+// ---------- 英語耳 Lesson との対応 ----------
+test('第3章 母音編の Lesson 13〜25 が全部あり、音が本の目次と合う', () => {
+  assert.deepEqual(drill.lessons.map(l => l.n), [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]);
+  const want = { 13: ['ɑ'], 14: ['æ'], 15: ['ʌ'], 16: ['iː', 'ɪ', 'e', 'i'], 17: ['uː', 'ʊ'],
+    18: ['aɪ', 'eɪ', 'ɔɪ'], 19: ['aʊ', 'oʊ'], 20: ['ɔː'], 21: ['ɝː'], 22: ['ɚ'], 23: ['ɑr'], 24: ['ɔr'], 25: ['ə'] };
+  for (const L of drill.lessons) {
+    assert.deepEqual(L.focus, want[L.n], `Lesson ${L.n}`);
+    for (const f of L.focus) assert.ok(L.sounds.includes(f), `Lesson ${L.n} の ${f}`);
+    assert.ok(L.page > 0 && L.title, `Lesson ${L.n}`);
+  }
+});
+test('Lesson 別ステップは対象の音を十分に含む', () => {
+  const stage = drill.course.find(c => c.id === 'L');
+  assert.ok(stage && stage.extra, 'Lesson 別コースが無い');
+  assert.equal(stage.steps.length, 13);
+  for (const step of stage.steps) {
+    const ws = selectWords(step.sel);
+    const own = ws.filter(w => step.focus.includes(w.sound)).length;
+    assert.ok(own >= 30, `${step.id} の対象音が ${own} 語`);
+    // Lesson が対比グループ全体を扱う回（16〜19）は focus = sounds なので、そこは 2 音以上あればよい
+    if (step.focus.length < step.sel.sounds.length) assert.ok(ws.length - own >= 20, `${step.id} に対比の音が足りない`);
+    else assert.ok(step.sel.sounds.length >= 2, `${step.id} は 1 音しかない`);
+  }
+});
+test('本の母音編に Lesson が無い音を明記している', () => {
+  const covered = new Set(drill.lessons.flatMap(l => l.focus));
+  const all = new Set(drill.words.map(w => w.sound));
+  for (const s of all) assert.ok(covered.has(s) || drill.noLesson[s], `${s} が Lesson にも noLesson にも無い`);
+});

@@ -496,6 +496,48 @@ def build_gsounds(entries):
     for e in entries: c[e["g"]][e["sound"]] += 1
     return {g: [[s, n] for s, n in cc.most_common()] for g, cc in c.items()}
 
+# ---------- 英語耳（改訂3版）第3章 母音編 の Lesson との対応 ----------
+# 目次 p.008-009 より。Lesson を音声で練習し終えたら、その音を狙ったドリルに来る。
+# 語のプールは「その Lesson の音 ＋ 英語耳で同じまとまりに入る音」、
+# 出題の 6 割をその Lesson の音（focus）に寄せる。
+LESSONS = [
+ (13, '[ɑ]',            'めいっぱい口を開けた「ア」',              62, ['ɑ']),
+ (14, '[æ]',            '舌が前にある音',                          64, ['æ']),
+ (15, '[ʌ]',            'のどの奥から短く出す「ア」',              66, ['ʌ']),
+ (16, '[iː][ɪ][e]',     '口の開け方で変わる 3 種の音',             69, ['iː', 'ɪ', 'e', 'i']),
+ (17, '[uː][ʊ]',        'uː は日本語よりも口をすぼめて出す「ウ」',  71, ['uː', 'ʊ']),
+ (18, '[aɪ][eɪ][ɔɪ]',   '小さな「ィ」をなめらかにそえる',          72, ['aɪ', 'eɪ', 'ɔɪ']),
+ (19, '[aʊ][oʊ]',       '小さな「ゥ」をなめらかにそえる',          73, ['aʊ', 'oʊ']),
+ (20, '[ɔː]',           '口の奥でよく響かせた「オー」',            74, ['ɔː']),
+ (21, '[ɝː]',           '舌を水平に持ち上げて思い切りうなる',      76, ['ɝː']),
+ (22, '[ɚ]',            '舌を水平に持ち上げて短くうなる',          78, ['ɚ']),
+ (23, '[ɑɚ]',           '[ɑ] から [ɚ] へなめらかに移行する',       79, ['ɑr']),
+ (24, '[ɔɚ]',           '[ɔ] から [ɚ] へなめらかに移行する',       80, ['ɔr']),
+ (25, '[ə]',            '地味だけど一番よく出てくる、弱くあいまいな音', 83, ['ə']),
+]
+# 本書の母音編に対応する Lesson が無い音（ドリルには入っている）
+NO_LESSON = {'ɪr': 'ear 型。母音編に単独の Lesson は無い（第4章 R編で扱う）',
+             'er': 'air / are 型。母音編に単独の Lesson は無い（第4章 R編で扱う）'}
+
+def build_lessons():
+    out = []
+    for n, ipa, title, page, focus in LESSONS:
+        partners = []
+        for g in EIGO_GROUPS:
+            if any(f in g["sounds"] for f in focus):
+                partners += [x for x in g["sounds"] if x not in focus and x not in partners]
+        out.append({"n": n, "ipa": ipa, "title": title, "page": page,
+                    "focus": focus, "sounds": sorted(set(focus) | set(partners))})
+    return out
+
+def lesson_steps(lessons):
+    steps = []
+    for L in lessons:
+        steps.append({"id": f'L{L["n"]}', "title": f'Lesson {L["n"]} {L["ipa"]}',
+                      "hint": f'{L["title"]}（p.{L["page"]}）',
+                      "focus": L["focus"], "sel": {"sounds": L["sounds"]}})
+    return steps
+
 MIN_STEP = 40      # 1 ステップの最少語数
 STAGE_META = [
  ("P1", "1. 閉音節 — 短母音", "一字の母音は 86〜97% この音。ここが土台"),
@@ -571,6 +613,9 @@ def build_course(entries):
         {"id": "X-note", "title": "方言差と綴り例外", "hint": "cot–caught merger、CLOTH 語ほか", "sel": {"note": True}},
         {"id": "X-all", "title": "全母音（総合）", "hint": "収録語すべてから出題", "sel": {"upto": "P6"}},
       ]},
+      {"id": "L", "title": "英語耳 Lesson 別（第3章 母音編）", "extra": True,
+       "hint": "本の Lesson を音声で練習し終えたら、ここでその音の語を大量にこなす。出題の 6 割がその Lesson の音",
+       "steps": lesson_steps(LESSON_DATA)},
       {"id": "T", "title": "一綴り多音の罠（進捗には数えません）", "hint": "同じ綴りで音が割れる語だけを集めた識別ドリル", "extra": True, "steps": traps},
     ]
     return course + extra
@@ -604,12 +649,13 @@ def check_course(course, entries):
             if len(snds) > 5:
                 stp["mix"] = True    # 既存モード: 毎問 3 択を作る
                 assert len(snds) >= 3, f'{stp["id"]} は 3 択を作れない'
-            # ミックスモード: どの語にも「綴りの罠」か「英語耳の罠」が 2 つ以上あること。
-            # 4 枚目の選択肢が足りない語は、アプリ側が他の音から補う
+            # ミックスモード: 本コースはどの語にも「綴りの罠」か「英語耳の罠」が 2 つ以上あること。
+            # 英語耳 Lesson 別のように音を絞ったステップは 1 つでよい（残りはアプリが他の音から補う）
+            need = 1 if stg.get("extra") else 2
             for w in ws:
                 cand = {x for x, _ in GSOUNDS[w["g"]]} | set(EIGO.get(w["sound"], [])) | set(snds)
                 cand.discard(w["sound"])
-                assert len(cand) >= 2, f'{stp["id"]} の {w["word"]} は選択肢を作れない'
+                assert len(cand) >= need, f'{stp["id"]} の {w["word"]} は選択肢を作れない'
             if not stg.get("extra"):
                 for g in stp["sel"].get("g", []): seen_g.add((stp["sel"]["st"][0], g))
             print(f'  {stp["id"]:12} {stp["title"]:26} {len(ws):5} 語  {"/".join(snds)}')
@@ -774,13 +820,15 @@ assert len(pairs) == len(set(pairs)), f'同じ語・同じ位置の重複: {[x f
 
 verify(words)
 EIGO = build_eigo()
+LESSON_DATA = build_lessons()
 GSOUNDS = build_gsounds(words)
 COURSE = build_course(words)
 check_rules(words)
 RULES = {f'{st}|{g}': rule_for(st, g) for st, g in {(e['st'], e['g']) for e in words}}
 print("フォニックス・コース:")
 check_course(COURSE, words)
-out = {"version": 5, "course": COURSE, "neighbors": NEIGHBORS,
+out = {"version": 6, "course": COURSE, "neighbors": NEIGHBORS,
+       "lessons": LESSON_DATA, "noLesson": NO_LESSON,
        "mouth": MOUTH, "rules": RULES,
        "eigo": EIGO, "eigoGroups": EIGO_GROUPS, "gsounds": GSOUNDS,
        "note": "大量ドリル用の単語バンク。sound は強勢母音。note は方言差・綴り例外。sets はドリルの組み合わせ。tests/build-drill-words.py で生成。",

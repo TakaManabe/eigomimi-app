@@ -8,6 +8,7 @@ const ROUNDS = [5, 10, 20, 30];      // ミックス（カード）1 ラウン�
 const INTERVALS = [1, 3, 7, 14, 30];  // 誤答語を復習する間隔（日）
 const PASS_RATE = 0.9, PASS_RUNS = 2, PASS_MIN = 20;  // 合格: 20問以上を正答率90%で2回連続
 const MIX_RATE = 0.3;                // 合格後、既習語を混ぜる割合（累積復習）
+const FOCUS_RATE = 0.6;              // 英語耳 Lesson 別で、その Lesson の音に寄せる割合
 const STAGES = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
 const wkey = w => w.k || w.word;   // 記録キー。同じ語でも赤字の位置が違えば別扱い
 
@@ -185,7 +186,17 @@ function renderHome(main) {
     main.append(h('section', { class: 'card' },
       h('h3', {}, stg.title), h('p', { class: 'small muted' }, stg.hint || ''), ...stg.steps.map(stepRow)));
   }
-  for (const stg of DATA.course.filter(c => c.extra)) {
+  const lessonStage = DATA.course.find(c => c.id === 'L');
+  if (lessonStage) main.append(h('section', { class: 'card' }, h('details', {},
+    h('summary', {}, h('b', {}, lessonStage.title)),
+    h('p', { class: 'small muted' }, lessonStage.hint || ''),
+    ...lessonStage.steps.map(t => h('div', { class: 'field' },
+      h('span', { class: 'small' }, t.title,
+        h('div', { class: 'small muted' }, t.hint, `　${t.n}語`)),
+      h('a', { class: 'btn small', href: `#/s/${t.id}` }, 'ドリル'))),
+    h('p', { class: 'small muted' }, Object.entries(DATA.noLesson || {})
+      .map(([k, v]) => `${ipa(k)} … ${v}`).join(' ／ ')))));
+  for (const stg of DATA.course.filter(c => c.extra && c.id !== 'L')) {
     main.append(h('section', { class: 'card' }, h('details', {},
       h('summary', {}, h('b', {}, stg.title)),
       h('p', { class: 'small muted' }, stg.hint || ''), ...stg.steps.map(stepRow))));
@@ -259,8 +270,16 @@ function weightOf(w) {
   if (d.ls === today()) wt *= 0.5;                     // 今日すでに出した
   return Math.max(0.05, wt);
 }
-function pickWords(pool, n, sounds) {
+function pickWords(pool, n, sounds, focus) {
   if (n <= 0 || !pool.length) return [];
+  // 英語耳 Lesson 別: 出題の FOCUS_RATE をその Lesson の音に寄せる
+  if (focus && focus.length && sounds) {
+    const f = sounds.filter(x => focus.includes(x)), o = sounds.filter(x => !focus.includes(x));
+    if (f.length && o.length) {
+      const nf = Math.max(1, Math.round(n * FOCUS_RATE));
+      return [...pickWords(pool, nf, f), ...pickWords(pool, n - nf, o)];
+    }
+  }
   const groups = sounds ? sounds.map(s => pool.filter(w => w.sound === s)) : [pool];
   const quota = allocate(groups.map(g => g.length), Math.min(n, pool.length));
   const out = [];
@@ -280,7 +299,7 @@ function makeQueue(spec, weakOnly, count, reviewPool = reviewPoolFor(spec)) {
   if (!pool.length) pool = spec.words;
   const n = count || pool.length;
   const k = reviewPool.length ? Math.round(n * MIX_RATE) : 0;
-  return shuffle([...pickWords(pool, n - k, spec.sounds), ...pickWords(reviewPool, k, null)]).slice(0, n);
+  return shuffle([...pickWords(pool, n - k, spec.sounds, spec.focus), ...pickWords(reviewPool, k, null)]).slice(0, n);
 }
 
 // 復習キュー: 間違えた語は翌日から 1→3→7→14→30 日
@@ -296,8 +315,10 @@ function recordWord(w, ok) {
 function specForStep(id) {
   const st = stepById(id); if (!st) return null;
   const stage = DATA.course.find(c => c.steps.some(t => t.id === id));
-  return { id, title: `${stage.title.replace(/^\d+\.\s*/, '')} — ${st.title}`, hint: st.hint,
-           words: selectWords(st.sel), sounds: st.sounds, mix: !!st.mix, isStep: true };
+  const extra = !!stage.extra;
+  return { id, title: extra ? st.title : `${stage.title.replace(/^\d+\.\s*/, '')} — ${st.title}`,
+           hint: st.hint, words: selectWords(st.sel), sounds: st.sounds, focus: st.focus,
+           mix: !!st.mix, isStep: !extra };
 }
 function specForSet(id) {
   const set = setById(id); if (!set) return null;

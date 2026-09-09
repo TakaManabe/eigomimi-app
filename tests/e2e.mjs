@@ -53,6 +53,11 @@ const flow = async (page, tag) => {
   if (!/弱音節/.test(await page.textContent('main'))) errors.push(`[${tag}] 弱音節ステージが無い`);
   await page.click('summary:has-text("一綴り多音の罠")');
   await page.waitForSelector('a[href="#/s/T-o"]');
+  // 英語耳 Lesson 別
+  await page.click('summary:has-text("英語耳 Lesson 別")');
+  await page.waitForSelector('a[href="#/s/L13"]');
+  const lt = await page.textContent('main');
+  if (!/Lesson 25/.test(lt) || !/p\.83/.test(lt)) errors.push(`[${tag}] Lesson 一覧が不足`);
 };
 await run('mobile', { width: 390, height: 844 }, flow);
 await run('desktop', { width: 1280, height: 800 }, flow);
@@ -124,6 +129,15 @@ await run('cards', { width: 390, height: 844 }, async page => {
   if (!(await page.locator('.seg button.on:text-is("5枚")').count())) errors.push('[cards] ラウンド枚数が保存されていない');
   // ふつうに戻す（後続テストのため）
   await page.click('.seg button:text-is("ふつう")');
+});
+await run('lesson', { width: 390, height: 844 }, async page => {
+  // 英語耳 Lesson 別: 出題の 6 割がその Lesson の音に寄る
+  await page.goto(BASE + '#/s/L25'); await page.waitForSelector('text=スタート');
+  if (!/一番よく出てくる/.test(await page.textContent('main'))) errors.push('[lesson] Lesson の説明が出ていない');
+  await page.click('.seg button:text-is("なし")');
+  await page.click('.seg button:has-text("50")');
+  await page.click('text=スタート'); await page.waitForSelector('.word');
+  await page.screenshot({ path: '/tmp/shots/d-lesson.png' });
 });
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');
