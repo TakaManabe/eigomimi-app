@@ -248,10 +248,28 @@ function renderHome(main) {
         const blob = new Blob([JSON.stringify({ app: 'vowel-drill', schema: 1, exportedAt: new Date().toISOString(), words: S.words, log: S.log, prog: S.prog }, null, 1)], { type: 'application/json' });
         const a = h('a', { href: URL.createObjectURL(blob), download: `vowel-drill-${today()}.json` }); document.body.append(a); a.click(); a.remove();
       } }, 'バックアップ書き出し'),
-      h('button', { class: 'btn small', onClick: () => file.click() }, '復元'), file,
-      h('button', { class: 'btn small ghost err', onClick: () => { if (confirm('学習記録をすべて削除しますか？')) { S.words = {}; S.log = []; S.prog = {}; persistWords(); persistLog(); persistProg(); route(); } } }, '記録を消去')),
-    h('p', { class: 'small muted' }, `単語 ${DATA.words.length} 語 ／ 記録は端末内のみ（サーバー送信なし）。自動の発音判定は行いません。`)));
+      h('button', { class: 'btn small', onClick: () => file.click() }, '復元'), file),
+    h('h3', { style: 'margin-top:1rem' }, '記録のリセット'),
+    h('p', { class: 'small muted' }, '消した記録は元に戻せません。先にバックアップを書き出しておくと安全です。'),
+    ...RESETS.map(r => h('div', { class: 'field' },
+      h('span', { class: 'small' }, r.label, h('div', { class: 'small muted' }, r.desc)),
+      h('button', { class: 'btn small ghost err', onClick: () => {
+        if (!confirm(`${r.label}\n\n${r.desc}\n\n元に戻せません。実行しますか？`)) return;
+        r.run(); toast(`${r.label}を実行しました`, 'ok'); route();
+      } }, 'リセット'))),
+    h('p', { class: 'small muted', style: 'margin-top:.8rem' }, `単語 ${DATA.words.length} 語 ／ 記録は端末内のみ（サーバー送信なし）。自動の発音判定は行いません。`)));
 }
+// 記録のリセット。粒度を分けて、間違って全部消さずに済むようにする
+const RESETS = [
+  { id: 'due', label: '復習キューだけ', desc: '「今日の復習」の予定を空にします。正答率や合格はそのまま',
+    run: () => { for (const d of Object.values(S.words)) { delete d.due; delete d.iv; } persistWords(); } },
+  { id: 'prog', label: 'コースの合格だけ', desc: 'ステップの合格と直近の成績を消して、最初のステップからやり直します',
+    run: () => { S.prog = {}; persistProg(); } },
+  { id: 'conf', label: '混同の記録だけ', desc: '「正しい音 → 選んだ音」の集計を消します。ミックスの選択肢の寄せ方が初期化されます',
+    run: () => { S.conf = {}; persistConf(); } },
+  { id: 'all', label: 'すべての記録', desc: '単語ごとの成績・履歴・合格・復習キュー・混同のすべてを消します',
+    run: () => { S.words = {}; S.log = []; S.prog = {}; S.conf = {}; persistWords(); persistLog(); persistProg(); persistConf(); } },
+];
 const stat = (l, v, u) => h('div', {}, h('div', { class: 'val' }, String(v)), h('div', { class: 'small muted' }, l + (u ? `（${u}）` : '')));
 
 // ---------- 出題順（通常・カード共用）----------
@@ -302,8 +320,18 @@ function makeQueue(spec, weakOnly, count, reviewPool = reviewPoolFor(spec)) {
   return shuffle([...pickWords(pool, n - k, spec.sounds, spec.focus), ...pickWords(reviewPool, k, null)]).slice(0, n);
 }
 
+// 中止したときに書き戻せるよう、変更前の値を 1 回だけ控える
+function snap(map, obj, key) { if (!map.has(key)) map.set(key, obj[key] === undefined ? undefined : (typeof obj[key] === 'object' ? { ...obj[key] } : obj[key])); }
+function rollback(snapWords, snapConf) {
+  for (const [k, v] of snapWords) { if (v === undefined) delete S.words[k]; else S.words[k] = v; }
+  for (const [k, v] of snapConf) { if (v === undefined) delete S.conf[k]; else S.conf[k] = v; }
+  snapWords.clear(); snapConf.clear();
+  persistWords(); persistConf();
+}
+
 // 復習キュー: 間違えた語は翌日から 1→3→7→14→30 日
-function recordWord(w, ok) {
+function recordWord(w, ok, snapWords) {
+  if (snapWords) snap(snapWords, S.words, wkey(w));
   const d = S.words[wkey(w)] || { s: 0, c: 0, w: 0, lw: null };
   d.s++; d.ls = today();
   if (ok) { d.c++; if (d.due) { d.iv = Math.min((d.iv ?? 0) + 1, INTERVALS.length - 1); d.due = addDays(today(), INTERVALS[d.iv]); } }
@@ -380,6 +408,7 @@ function renderDrill(main, spec, weakOnly) {
 
   let queue = [], idx = 0, answered = 0, correct = 0, streak = 0, best = 0, t0 = 0, cur = null, locked = false, alive = true, timer = null, limitT = null, timeouts = 0;
   let conf = {}, per = {}, wrong = new Map(), curChoices = [];
+  const snapWords = new Map(), snapConf = new Map();   // 中止したときに書き戻す
 
   const wordEl = h('div', { class: 'word' });
   const tbar = h('div', { class: 'tbar' }, h('div'));
@@ -389,7 +418,7 @@ function renderDrill(main, spec, weakOnly) {
   const status = h('div', { class: 'row between small muted' });
   const nextBtn = h('button', { class: 'btn primary big', hidden: true, onClick: next }, '次へ');
   const stage = h('section', { class: 'card', hidden: true }, status, bar, wordEl, tbar, choices, fb,
-    h('div', { class: 'center', style: 'margin-top:.5rem' }, nextBtn), h('div', { class: 'center', style: 'margin-top:.5rem' }, h('button', { class: 'btn ghost small', onClick: finish }, 'ここで終了')));
+    h('div', { class: 'center', style: 'margin-top:.5rem' }, nextBtn), h('div', { class: 'center', style: 'margin-top:.5rem' }, h('button', { class: 'btn ghost small err', onClick: abort }, '中止')));
   main.append(stage);
 
   function drawChoices(sounds) {
@@ -447,20 +476,29 @@ function renderDrill(main, spec, weakOnly) {
       fb.replaceChildren(...[h('span', { class: 'ok' }, `✓ ${ipa(cur.sound)}`), note].filter(Boolean));
     } else {
       streak = 0;
-      if (timedOut) timeouts++; else { const k = `${cur.sound}→${s}`; conf[k] = (conf[k] || 0) + 1; S.conf[k] = (S.conf[k] || 0) + 1; persistConf(); }
+      if (timedOut) timeouts++; else { const k = `${cur.sound}→${s}`; conf[k] = (conf[k] || 0) + 1; snap(snapConf, S.conf, k); S.conf[k] = (S.conf[k] || 0) + 1; persistConf(); }
       wrong.set(wkey(cur), cur);
       fb.replaceChildren(...[
         h('div', {}, h('span', { class: 'err' }, timedOut ? `⏱ 時間切れ — ${ipa(cur.sound)}` : `✗ 正解は ${ipa(cur.sound)}`), timedOut ? null : h('span', { class: 'small muted' }, `（${ipa(s)} と答えた）`)),
         h('div', { class: 'mk-why' }, ...ruleLines(cur, timedOut ? null : s)), note].filter(Boolean));
       queue.splice(Math.min(queue.length, idx + RETRY_GAP[0] + Math.floor(Math.random() * (RETRY_GAP[1] - RETRY_GAP[0] + 1))), 0, cur);
     }
-    recordWord(cur, ok);
+    recordWord(cur, ok, snapWords);
     speak(cur.word);
     idx++;
     if (ok) timer = setTimeout(show, 550);
     else { nextBtn.hidden = false; nextBtn.focus(); if (S.settings.autoNext) timer = setTimeout(show, 1500); }
   }
   function next() { clearTimeout(timer); show(); }
+  // 中止: この回に付けた記録をすべて取り消して設定画面に戻る
+  function abort() {
+    if (answered && !confirm('中止すると、この回の記録は残りません。中止しますか？')) return;
+    clearTimeout(timer); clearTimeout(limitT);
+    rollback(snapWords, snapConf);
+    stage.hidden = true; cfg.hidden = false;
+    toast(answered ? '中止しました（記録は残していません）' : '中止しました');
+    window.scrollTo(0, 0);
+  }
   function finish() {
     if (!alive) return;
     clearTimeout(timer); clearTimeout(limitT);
@@ -499,6 +537,7 @@ function renderCards(main, spec, weakOnly, count, onBack) {
   let done = 0, correct = 0, streak = 0, best = 0, t0 = Date.now();
   let cur = null, locked = false, alive = true, timer = null, limitT = null, timeouts = 0;
   const conf = {}, per = {}, wrong = new Map();
+  const snapWords = new Map(), snapConf = new Map();   // 中止したときに書き戻す
   let curChoices = [];
 
   const ring = h('div', { class: 'mk-ring' }, h('span', {}, '0%'));
@@ -516,7 +555,7 @@ function renderCards(main, spec, weakOnly, count, onBack) {
     h('div', { class: 'mk-top' }, ring, h('div', { class: 'mk-meta' }, rlabel, rsub), streakEl),
     card, tbar, choices, why,
     h('div', { class: 'center', style: 'margin-top:.5rem' }, nextBtn),
-    h('div', { class: 'center', style: 'margin-top:.5rem' }, h('button', { class: 'btn ghost small', onClick: finish }, 'ここで終了')));
+    h('div', { class: 'center', style: 'margin-top:.5rem' }, h('button', { class: 'btn ghost small err', onClick: abort }, '中止')));
   main.append(stage);
 
   const onKey = e => {
@@ -571,11 +610,11 @@ function renderCards(main, spec, weakOnly, count, onBack) {
     else {
       streak = 0; retry.push(cur); wrong.set(wkey(cur), cur);
       if (timedOut) timeouts++;
-      else { const k = `${cur.sound}→${x}`; conf[k] = (conf[k] || 0) + 1; S.conf[k] = (S.conf[k] || 0) + 1; persistConf(); }
+      else { const k = `${cur.sound}→${x}`; conf[k] = (conf[k] || 0) + 1; snap(snapConf, S.conf, k); S.conf[k] = (S.conf[k] || 0) + 1; persistConf(); }
       why.replaceChildren(...whyLines(cur, timedOut ? null : x));
       why.hidden = false;
     }
-    recordWord(cur, ok);
+    recordWord(cur, ok, snapWords);
     speak(cur.word);
     ci++;
     if (ok) timer = setTimeout(show, 420);
@@ -602,8 +641,18 @@ function renderCards(main, spec, weakOnly, count, onBack) {
     choices.replaceChildren(
       h('button', { class: 'btn primary big', onClick: nextRound },
         retry.length ? `間違えた ${retry.length} 枚をもう一周` : (queue.length ? '次のラウンド' : '結果を見る')),
-      h('button', { class: 'btn ghost', onClick: finish }, 'ここで終了'));
+      h('button', { class: 'btn ghost err', onClick: abort }, '中止'));
     curChoices = [];
+  }
+  // 中止: この回に付けた記録をすべて取り消して設定画面に戻る
+  function abort() {
+    if (done && !confirm('中止すると、この回の記録は残りません。中止しますか？')) return;
+    alive = false; clearTimeout(timer); clearTimeout(limitT);
+    window.removeEventListener('keydown', onKey);
+    rollback(snapWords, snapConf);
+    stage.remove(); onBack();
+    toast(done ? '中止しました（記録は残していません）' : '中止しました');
+    window.scrollTo(0, 0);
   }
   function finish() {
     if (!alive) return;

@@ -139,6 +139,64 @@ await run('lesson', { width: 390, height: 844 }, async page => {
   await page.click('text=スタート'); await page.waitForSelector('.word');
   await page.screenshot({ path: '/tmp/shots/d-lesson.png' });
 });
+await run('abort', { width: 390, height: 844 }, async page => {
+  // 中止すると、その回の記録が一切残らない
+  await page.goto(BASE);
+  await page.evaluate(() => { localStorage.clear(); });
+  await page.goto(BASE + '#/s/P1-1'); await page.waitForSelector('text=スタート');
+  await page.click('.seg button:text-is("なし")'); await page.click('.seg button:has-text("20")');
+  await page.click('text=スタート'); await page.waitForSelector('.word');
+  for (let i = 0; i < 4; i++) {
+    await page.keyboard.press('1'); await page.waitForTimeout(250);
+    const nb = page.locator('button.btn.primary.big:text-is("次へ")');
+    if (await nb.isVisible()) { await nb.click(); await page.waitForTimeout(150); }
+  }
+  const mid = await page.evaluate(() => ({ w: Object.keys(JSON.parse(localStorage.getItem('vd:words') || '{}')).length }));
+  if (!mid.w) errors.push('[abort] 回答が記録されていない（前提が崩れている）');
+  page.once('dialog', d => d.accept());
+  await page.click('button:text-is("中止")');
+  await page.waitForSelector('text=スタート');
+  const after = await page.evaluate(() => ({
+    w: Object.keys(JSON.parse(localStorage.getItem('vd:words') || '{}')).length,
+    log: JSON.parse(localStorage.getItem('vd:log') || '[]').length,
+    conf: Object.keys(JSON.parse(localStorage.getItem('vd:conf') || '{}')).length,
+    prog: Object.keys(JSON.parse(localStorage.getItem('vd:prog') || '{}')).length,
+  }));
+  if (after.w || after.log || after.conf || after.prog) errors.push(`[abort] 中止後に記録が残っている: ${JSON.stringify(after)}`);
+  if (await page.locator('button:text-is("ここで終了")').count()) errors.push('[abort] 「ここで終了」が残っている');
+  await page.screenshot({ path: '/tmp/shots/d-abort.png' });
+});
+await run('reset', { width: 390, height: 844 }, async page => {
+  // 設定の「記録のリセット」— 粒度ごとに消える範囲が違う
+  await page.goto(BASE);
+  await page.evaluate(() => {
+    localStorage.setItem('vd:words', JSON.stringify({ hot: { s: 3, c: 2, w: 1, lw: '2020-01-01', iv: 1, due: '2020-01-05' } }));
+    localStorage.setItem('vd:prog', JSON.stringify({ 'P1-1': { runs: [{ n: 20, c: 19 }], passed: 1 } }));
+    localStorage.setItem('vd:conf', JSON.stringify({ 'æ→ʌ': 3 }));
+  });
+  await page.reload(); await page.waitForSelector('text=記録のリセット');
+  const rows = await page.locator('.field:has-text("リセット")').count();
+  if (rows < 4) errors.push(`[reset] リセットの選択肢が ${rows} 件`);
+  await page.screenshot({ path: '/tmp/shots/d-reset.png', fullPage: true });
+  // 復習キューだけ消す → 単語の成績と合格は残る
+  page.once('dialog', d => d.accept());
+  await page.click('.field:has-text("復習キューだけ") button:text-is("リセット")');
+  await page.waitForTimeout(300);
+  const a = await page.evaluate(() => ({
+    due: JSON.parse(localStorage.getItem('vd:words')).hot.due,
+    s: JSON.parse(localStorage.getItem('vd:words')).hot.s,
+    prog: Object.keys(JSON.parse(localStorage.getItem('vd:prog') || '{}')).length,
+  }));
+  if (a.due !== undefined) errors.push('[reset] 復習キューが消えていない');
+  if (a.s !== 3 || a.prog !== 1) errors.push('[reset] 復習キューだけのはずが他も消えた');
+  // すべて消す
+  page.once('dialog', d => d.accept());
+  await page.click('.field:has-text("すべての記録") button:text-is("リセット")');
+  await page.waitForTimeout(300);
+  const b = await page.evaluate(() => ['vd:words', 'vd:log', 'vd:prog', 'vd:conf']
+    .map(k => Object.keys(JSON.parse(localStorage.getItem(k) || '{}')).length).reduce((x, y) => x + y, 0));
+  if (b) errors.push(`[reset] すべて消えていない: ${b}`);
+});
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');
   await page.click('.seg button:text-is("2秒")'); await page.click('.seg button:has-text("20")'); await page.click('text=スタート'); await page.waitForSelector('.word');

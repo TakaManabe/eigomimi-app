@@ -1,5 +1,5 @@
 /* 母音ドリル Service Worker: 全ファイルをプリキャッシュ、network-first で更新 */
-const VERSION = 'drill-v0.2.4';
+const VERSION = 'drill-v0.2.5';
 const FILES = ['./', './index.html', './app.js', './order.js', './manifest.webmanifest', './data/drill-words.json', './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-180.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => Promise.all(FILES.map(f => c.add(f).catch(() => {})))).then(() => self.skipWaiting()));
