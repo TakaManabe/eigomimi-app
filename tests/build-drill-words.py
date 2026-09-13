@@ -248,7 +248,7 @@ addw('ə', """mountain captain certain fountain curtain bargain""", r'ai(?=n$)',
 # /ə/ consonant-le（6 番目の音節タイプ）
 addw('ə', """table little apple candle handle simple people purple middle bottle battle cattle
 rattle circle uncle single ankle title bubble puzzle needle noodle castle whistle jungle
-""", r'le$', -1, 'AH0', 'consonant-le。子音 + le で /əl/')
+""", r'le$', -1, 'AH0', 'consonant-le。子音 + le の母音は /ə/')
 # /ə/ 語末 -al / -el / -il / -ol
 addw('ə', """animal capital hospital medal metal total local legal signal final normal pedal
 travel level model novel camel tunnel pencil April evil April_ symbol pistol
@@ -575,7 +575,9 @@ def gtitle(gs):
     return " / ".join(show) + (" …" if len(gs) > 6 else "")
 
 def examples(entries, n=2):
-    return " ".join(e["word"] for e in entries[:n])
+    """ステップの見出しに出す例語。規則の例外語は避ける（方言注記の語は使ってよい）"""
+    plain = [e for e in entries if not e.get("ex")]
+    return " ".join(e["word"] for e in (plain or entries)[:n])
 
 def build_course(entries):
     """本コース: 音節タイプ順に、すべての綴りをちょうど 1 回ずつ通る。
@@ -717,7 +719,7 @@ GRULE = {
  'P3|ew': 'ew は /uː/。語末に使う',
  'P3|ue': 'ue は /uː/。語末に使う',
  'P3|ie': 'ie は /iː/ が多い。1 音節語では /aɪ/（pie）',
- 'P4|ar': 'ar は /ɑr/',
+ 'P4|ar': 'ar は /ɑr/。w の後は /ɔr/（war, warm）',
  'P4|or': 'or は /ɔr/。w の後だけ /ɝː/（work）',
  'P4|er': 'er / ir / ur は 3 つとも同じ /ɝː/',
  'P4|ir': 'er / ir / ur は 3 つとも同じ /ɝː/',
@@ -741,12 +743,12 @@ GRULE = {
  'P5|u': 'l や sh の後の u は /ʊ/（full, push）',
  'P5|ough': 'ough は不規則。語ごとに覚える',
  'P5|augh': 'augh は /ɔː/（caught, taught）',
- 'P6|a': '語末の a は弱く /ə/（sofa, banana）',
+ 'P6|a': '弱い音節の a は /ə/。語頭の a- も（sofa, about）',
  'P6|o': '-on の o は弱く /ə/（lemon, button）',
  'P6|e': '-en の e は弱く /ə/（kitten, listen）',
  'P6|ai': '-ain は弱く /ə/（mountain, captain）',
  'P6|ou': '-ous は弱く /ə/（famous, nervous）',
- 'P6|le': '子音 + le は /əl/（table, apple）',
+ 'P6|le': '子音 + le の母音は /ə/（table, apple）',
  'P6|i': '-il / -ible の i は弱く /ə/（pencil）',
  'P6|er': '語末の -er は弱い r の音 /ɚ/（butter）',
  'P6|or': '語末の -or / -ar も /ɚ/（doctor, dollar）',
@@ -757,6 +759,30 @@ GRULE = {
 
 def rule_for(st, g):
     return GRULE.get(f'{st}|{g}') or GRULE.get(g) or SRULE[st]
+
+def covered_sounds(rule):
+    """ルール文が名前を挙げている音。'air / are は /er/' の区切りの / は拾わない"""
+    names = sorted(MOUTH, key=len, reverse=True)
+    return set(re.findall(r'/(' + '|'.join(re.escape(x) for x in names) + r')/', rule))
+
+def mark_exceptions(entries):
+    """その綴りのルールが説明していない語に ex を立て、例外どうしをまとめる"""
+    groups = collections.defaultdict(list)
+    for e in entries:
+        cov = covered_sounds(rule_for(e['st'], e['g']))
+        if cov and e['sound'] not in cov:
+            e['ex'] = 1
+            groups[f"{e['st']}|{e['g']}|{e['sound']}"].append(e['word'])
+    # 「綴り o だが /ʌ/」のような注記は、例外の表示と同じことを言うので落とす
+    for e in entries:
+        if e.get('ex') and re.fullmatch(r'綴り \S+ だが /\S+/', e.get('note') or ''): del e['note']
+    n = sum(len(v) for v in groups.values())
+    print(f'規則の例外: {n} 語（{n / len(entries) * 100:.1f}%）、{len(groups)} グループ')
+    # ルールが答えと食い違ったまま放置されていないか
+    for e in entries:
+        cov = covered_sounds(rule_for(e['st'], e['g']))
+        assert not cov or e['sound'] in cov or e.get('ex'), f'{e["word"]} のルールが答えと矛盾'
+    return {k: sorted(v, key=str.lower) for k, v in groups.items()}
 
 def check_rules(entries):
     miss = sorted({s for e in entries for s in [e['sound']] if s not in MOUTH})
@@ -822,12 +848,13 @@ verify(words)
 EIGO = build_eigo()
 LESSON_DATA = build_lessons()
 GSOUNDS = build_gsounds(words)
-COURSE = build_course(words)
 check_rules(words)
+EXGROUPS = mark_exceptions(words)
+COURSE = build_course(words)
 RULES = {f'{st}|{g}': rule_for(st, g) for st, g in {(e['st'], e['g']) for e in words}}
 print("フォニックス・コース:")
 check_course(COURSE, words)
-out = {"version": 6, "course": COURSE, "neighbors": NEIGHBORS,
+out = {"version": 7, "course": COURSE, "neighbors": NEIGHBORS, "exGroups": EXGROUPS,
        "lessons": LESSON_DATA, "noLesson": NO_LESSON,
        "mouth": MOUTH, "rules": RULES,
        "eigo": EIGO, "eigoGroups": EIGO_GROUPS, "gsounds": GSOUNDS,

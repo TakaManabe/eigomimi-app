@@ -179,3 +179,24 @@ test('本の母音編に Lesson が無い音を明記している', () => {
   const all = new Set(drill.words.map(w => w.sound));
   for (const s of all) assert.ok(covered.has(s) || drill.noLesson[s], `${s} が Lesson にも noLesson にも無い`);
 });
+
+// ---------- 規則の例外 ----------
+test('ルールが答えと矛盾する語には例外の印がある', () => {
+  const names = Object.keys(drill.mouth).sort((a, b) => b.length - a.length).map(x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const re = new RegExp('/(' + names.join('|') + ')/', 'g');
+  for (const w of drill.words) {
+    const rule = drill.rules[`${w.st}|${w.g}`];
+    const cov = new Set([...rule.matchAll(re)].map(m => m[1]));
+    if (!cov.size) continue;                       // ステージ共通の文言（音を名指ししていない）
+    if (cov.has(w.sound)) { assert.ok(!w.ex, `${w.word} は規則どおりなのに例外印`); continue; }
+    assert.ok(w.ex, `${w.word}: 答え ${w.sound} を規則「${rule}」が説明していないのに例外印が無い`);
+    const fam = drill.exGroups[`${w.st}|${w.g}|${w.sound}`];
+    assert.ok(fam && fam.includes(w.word), `${w.word} が exGroups に無い`);
+  }
+});
+test('例外は全体のごく一部にとどまる', () => {
+  const n = drill.words.filter(w => w.ex).length;
+  assert.ok(n / drill.words.length < 0.08, `例外が ${n} 語（${(n / drill.words.length * 100).toFixed(1)}%）で多すぎる`);
+  assert.ok(drill.words.some(w => w.word === 'many' && w.ex), 'many が例外になっていない');
+  assert.ok(!drill.words.some(w => w.word === 'care' && w.ex), 'care は規則どおりなのに例外');
+});

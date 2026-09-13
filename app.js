@@ -98,13 +98,32 @@ function mixChoices(w, poolSounds = [], n = 4) {
 }
 const eigoGroupsOf = snd => (DATA.eigoGroups || []).filter(g => g.sounds.includes(snd));
 const ruleOf = w => (DATA.rules || {})[`${w.st}|${w.g}`] || '';
+// その綴りが取る音の内訳。上位で切っても、その語の答えは必ず入れる
+function breakdown(w, n = 4) {
+  const all = DATA.gsounds[w.g] || [];
+  if (all.slice(0, n).some(([x]) => x === w.sound)) return all.slice(0, n);
+  const own = all.find(([x]) => x === w.sound);
+  return own ? [...all.slice(0, n - 1), own] : all.slice(0, n);
+}
 const mouthOf = snd => (DATA.mouth || {})[snd] || '';
 // 間違えたときの 2 行: フォニックスの規則と、英語耳の口の作り方（正解と、選んだ音の両方）
 function ruleLines(w, chosen) {
-  const out = [h('div', { class: 'small' }, h('b', {}, '綴り '), `${w.g} → `, ruleOf(w))];
+  const out = [];
+  if (w.ex) {
+    // 綴りの規則で説明できない語。規則をそのまま出すと答えと矛盾するので、例外として見せる
+    const fam = (DATA.exGroups || {})[`${w.st}|${w.g}|${w.sound}`] || [];
+    out.push(h('div', { class: 'small' }, h('b', { class: 'err' }, '例外 '), `${w.g} なのに ${ipa(w.sound)}`,
+      fam.length > 1 ? h('span', { class: 'muted' }, `　仲間: ${fam.slice(0, 6).join(' ')}${fam.length > 6 ? ' …' : ''}`) : null));
+    out.push(h('div', { class: 'small muted' }, `ふつうは… ${ruleOf(w)}`));
+  } else {
+    out.push(h('div', { class: 'small' }, h('b', {}, '綴り '), `${w.g} → `, ruleOf(w)));
+  }
   const mouth = [h('span', {}, h('b', {}, ipa(w.sound)), ' ', mouthOf(w.sound))];
   if (chosen && chosen !== w.sound && mouthOf(chosen)) mouth.push(h('span', { class: 'muted' }, `　／ ${ipa(chosen)} ${mouthOf(chosen)}`));
   out.push(h('div', { class: 'small' }, h('b', {}, '口 '), ...mouth));
+  const bd = breakdown(w);
+  if (bd.length > 1) out.push(h('div', { class: 'small muted' }, `${w.g} の内訳: `,
+    ...bd.map(([snd, n], i) => h('span', snd === w.sound ? { class: 'err' } : {}, `${i ? '・' : ''}${ipa(snd)} ${n}`))));
   return out;
 }
 
@@ -622,11 +641,9 @@ function renderCards(main, spec, weakOnly, count, onBack) {
   }
   // 間違えた理由を両軸で見せる: 綴りの罠 と 英語耳の罠
   function whyLines(w, chosen) {
-    const gs = (DATA.gsounds[w.g] || []).slice(0, 4);
     return [
       h('div', { class: 'small' }, h('b', {}, '正解 '), ipa(w.sound), chosen ? h('span', { class: 'muted' }, `　（${ipa(chosen)} と答えた）`) : h('span', { class: 'muted' }, '　（時間切れ）')),
       ...ruleLines(w, chosen),
-      h('div', { class: 'small muted' }, `${w.g} の内訳: `, gs.map(([snd, n]) => `${ipa(snd)} ${n}`).join('・')),
       w.note ? h('div', { class: 'small muted' }, '注: ' + w.note) : null,
     ].filter(Boolean);
   }

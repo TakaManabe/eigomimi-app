@@ -197,6 +197,38 @@ await run('reset', { width: 390, height: 844 }, async page => {
     .map(k => Object.keys(JSON.parse(localStorage.getItem(k) || '{}')).length).reduce((x, y) => x + y, 0));
   if (b) errors.push(`[reset] すべて消えていない: ${b}`);
 });
+await run('exception', { width: 390, height: 844 }, async page => {
+  // 例外語（o なのに /ʌ/: money, mother, love …）でルールと答えが矛盾しないこと
+  await page.goto(BASE);
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('vd:settings', JSON.stringify({ count: 50, limit: 0, autoNext: false, cards: false, audio: false })); });
+  await page.goto(BASE + '#/s/P1-2'); await page.waitForSelector('text=スタート');
+  await page.click('text=スタート'); await page.waitForSelector('.word');
+  const fam = new Set(['money', 'mother', 'brother', 'other', 'another', 'nothing', 'love', 'come', 'some', 'done', 'none', 'cover', 'color', 'honey', 'oven', 'glove', 'above', 'dozen', 'front', 'son', 'ton', 'won', 'wonder', 'govern', 'sponge', 'stomach', 'onion', 'shove', 'Monday', 'month']);
+  let seen = false;
+  for (let i = 0; i < 60 && !seen; i++) {
+    if (!(await page.locator('.word').isVisible())) break;
+    const word = (await page.textContent('.word')).trim();
+    const hit = fam.has(word);
+    // 例外語なら、わざと違う音を選んで理由を出す
+    const btns = page.locator('.choice'); const n = await btns.count();
+    let clicked = false;
+    for (let k = 0; k < n; k++) { const t = await btns.nth(k).textContent(); if (hit ? !t.includes('/ʌ/') : true) { await btns.nth(k).click(); clicked = true; break; } }
+    if (!clicked) await page.keyboard.press('1');
+    await page.waitForTimeout(200);
+    if (hit) {
+      const fb = await page.textContent('.fb');
+      if (!/例外/.test(fb)) errors.push(`[exception] ${word}: 例外の表示が無い — ${fb}`);
+      if (!/ふつうは/.test(fb)) errors.push(`[exception] ${word}: 通常ルールの但し書きが無い — ${fb}`);
+      if (/綴り o →/.test(fb)) errors.push(`[exception] ${word}: 答えと矛盾する規則をそのまま出している — ${fb}`);
+      if (!/o の内訳/.test(fb) || !/ʌ/.test(fb.split('内訳')[1] || '')) errors.push(`[exception] ${word}: 内訳に正解の音が無い — ${fb}`);
+      await page.screenshot({ path: '/tmp/shots/d-exception.png' });
+      seen = true; break;
+    }
+    const nb = page.locator('button.btn.primary.big:text-is("次へ")');
+    if (await nb.isVisible()) { await nb.click(); await page.waitForTimeout(150); }
+  }
+  if (!seen) errors.push('[exception] 50 問めくっても o→/ʌ/ の例外語が出なかった');
+});
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');
   await page.click('.seg button:text-is("2秒")'); await page.click('.seg button:has-text("20")'); await page.click('text=スタート'); await page.waitForSelector('.word');
