@@ -151,17 +151,16 @@ await run('abort', { width: 390, height: 844 }, async page => {
     const nb = page.locator('button.btn.primary.big:text-is("次へ")');
     if (await nb.isVisible()) { await nb.click(); await page.waitForTimeout(150); }
   }
-  const mid = await page.evaluate(() => ({ w: Object.keys(JSON.parse(localStorage.getItem('vd:words') || '{}')).length }));
+  const mid = await page.evaluate(() => ({ w: Object.keys((JSON.parse(localStorage.getItem('vd:mine') || '{}').words) || {}).length }));
   if (!mid.w) errors.push('[abort] 回答が記録されていない（前提が崩れている）');
   page.once('dialog', d => d.accept());
   await page.click('button:text-is("中止")');
   await page.waitForSelector('text=スタート');
-  const after = await page.evaluate(() => ({
-    w: Object.keys(JSON.parse(localStorage.getItem('vd:words') || '{}')).length,
-    log: JSON.parse(localStorage.getItem('vd:log') || '[]').length,
-    conf: Object.keys(JSON.parse(localStorage.getItem('vd:conf') || '{}')).length,
-    prog: Object.keys(JSON.parse(localStorage.getItem('vd:prog') || '{}')).length,
-  }));
+  const after = await page.evaluate(() => {
+    const m = JSON.parse(localStorage.getItem('vd:mine') || '{}');
+    return { w: Object.keys(m.words || {}).length, log: (m.log || []).length,
+             conf: Object.keys(m.conf || {}).length, prog: Object.keys(m.prog || {}).length };
+  });
   if (after.w || after.log || after.conf || after.prog) errors.push(`[abort] 中止後に記録が残っている: ${JSON.stringify(after)}`);
   if (await page.locator('button:text-is("ここで終了")').count()) errors.push('[abort] 「ここで終了」が残っている');
   await page.screenshot({ path: '/tmp/shots/d-abort.png' });
@@ -170,9 +169,9 @@ await run('reset', { width: 390, height: 844 }, async page => {
   // 設定の「記録のリセット」— 粒度ごとに消える範囲が違う
   await page.goto(BASE);
   await page.evaluate(() => {
-    localStorage.setItem('vd:words', JSON.stringify({ hot: { s: 3, c: 2, w: 1, lw: '2020-01-01', iv: 1, due: '2020-01-05' } }));
-    localStorage.setItem('vd:prog', JSON.stringify({ 'P1-1': { runs: [{ n: 20, c: 19 }], passed: 1 } }));
-    localStorage.setItem('vd:conf', JSON.stringify({ 'æ→ʌ': 3 }));
+    localStorage.setItem('vd:mine', JSON.stringify({
+      words: { hot: { s: 3, c: 2, w: 1, lw: '2020-01-01', ls: '2020-01-01', iv: 1, due: '2020-01-05' } },
+      log: [], prog: { 'P1-1': { runs: [{ n: 20, c: 19, ts: 1 }] } }, conf: { 'æ→ʌ': 3 } }));
   });
   await page.reload(); await page.waitForSelector('text=記録のリセット');
   const rows = await page.locator('.field:has-text("リセット")').count();
@@ -182,19 +181,21 @@ await run('reset', { width: 390, height: 844 }, async page => {
   page.once('dialog', d => d.accept());
   await page.click('.field:has-text("復習キューだけ") button:text-is("リセット")');
   await page.waitForTimeout(300);
-  const a = await page.evaluate(() => ({
-    due: JSON.parse(localStorage.getItem('vd:words')).hot.due,
-    s: JSON.parse(localStorage.getItem('vd:words')).hot.s,
-    prog: Object.keys(JSON.parse(localStorage.getItem('vd:prog') || '{}')).length,
-  }));
+  const a = await page.evaluate(() => {
+    const m = JSON.parse(localStorage.getItem('vd:mine'));
+    return { due: m.words.hot.due, s: m.words.hot.s, prog: Object.keys(m.prog || {}).length };
+  });
   if (a.due !== undefined) errors.push('[reset] 復習キューが消えていない');
   if (a.s !== 3 || a.prog !== 1) errors.push('[reset] 復習キューだけのはずが他も消えた');
   // すべて消す
   page.once('dialog', d => d.accept());
   await page.click('.field:has-text("すべての記録") button:text-is("リセット")');
   await page.waitForTimeout(300);
-  const b = await page.evaluate(() => ['vd:words', 'vd:log', 'vd:prog', 'vd:conf']
-    .map(k => Object.keys(JSON.parse(localStorage.getItem(k) || '{}')).length).reduce((x, y) => x + y, 0));
+  const b = await page.evaluate(() => {
+    const m = JSON.parse(localStorage.getItem('vd:mine') || '{}');
+    return Object.keys(m.words || {}).length + (m.log || []).length + Object.keys(m.prog || {}).length
+      + Object.keys(m.conf || {}).length + Object.keys(JSON.parse(localStorage.getItem('vd:peers') || '{}')).length;
+  });
   if (b) errors.push(`[reset] すべて消えていない: ${b}`);
 });
 await run('exception', { width: 390, height: 844 }, async page => {
@@ -228,6 +229,79 @@ await run('exception', { width: 390, height: 844 }, async page => {
     if (await nb.isVisible()) { await nb.click(); await page.waitForTimeout(150); }
   }
   if (!seen) errors.push('[exception] 50 問めくっても o→/ʌ/ の例外語が出なかった');
+});
+await run('merge', { width: 390, height: 844 }, async page => {
+  // 端末ごとの持ち分を合算して表示し、同じものを何度取り込んでも変わらない
+  const slot = (n, ts) => ({ words: { hot: { s: n, c: n, w: 0, lw: null, ls: '2026-09-13' } },
+    log: [{ d: '2026-09-13', ts, set: 'P1-1', n, c: n, conf: { 'æ→ʌ': n }, sec: 60 }],
+    prog: { 'P1-1': { runs: [{ n: 20, c: 20, ts }, { n: 20, c: 20, ts: ts + 1 }] } }, conf: { 'æ→ʌ': n } });
+  await page.goto(BASE);
+  await page.evaluate(s => {
+    localStorage.clear();
+    localStorage.setItem('vd:device', JSON.stringify('A'));
+    localStorage.setItem('vd:mine', JSON.stringify(s.a));
+    localStorage.setItem('vd:peers', JSON.stringify({ B: s.b }));
+  }, { a: slot(3, 1000), b: slot(4, 2000) });
+  await page.reload(); await page.waitForSelector('text=フォニックス・コース');
+  const txt = await page.textContent('main');
+  if (!/æ→ʌ|\/æ\/ → \/ʌ\//.test(txt)) errors.push('[merge] 混同が合算されていない');
+  // 今日の語数 = 3 + 4 = 7
+  const todayN = await page.evaluate(() => document.querySelectorAll('.stats .val')[0].textContent);
+  if (todayN !== '7') errors.push(`[merge] 今日の語数が合算されていない: ${todayN}`);
+  // 合格は合算した runs から導かれる（各端末 2 回ずつ = 4 回）
+  if (!/1 \/ 30 合格|✓/.test(txt)) errors.push('[merge] 合格が導かれていない');
+  // 同じ B をもう一度入れても変わらない
+  await page.evaluate(s => localStorage.setItem('vd:peers', JSON.stringify({ B: s.b })), { b: slot(4, 2000) });
+  await page.reload(); await page.waitForSelector('text=フォニックス・コース');
+  const again = await page.evaluate(() => document.querySelectorAll('.stats .val')[0].textContent);
+  if (again !== '7') errors.push(`[merge] 二度取り込むと値が変わる: ${again}`);
+  await page.screenshot({ path: '/tmp/shots/d-merge.png', fullPage: true });
+});
+await run('sync', { width: 390, height: 844 }, async page => {
+  // 同期: 2 台ぶんのブラウザで同じコードを使い、記録が合算されること
+  const code = 'e2e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  const setup = async (p2, dev, seed) => {
+    await p2.goto(BASE);
+    await p2.evaluate(([dev, seed, code]) => {
+      localStorage.clear();
+      localStorage.setItem('vd:device', JSON.stringify(dev));
+      localStorage.setItem('vd:mine', JSON.stringify(seed));
+      localStorage.setItem('vd:settings', JSON.stringify({ sync: code, count: 20, audio: false }));
+    }, [dev, seed, code]);
+    await p2.reload(); await p2.waitForSelector('text=フォニックス・コース');
+  };
+  const slot = (n, ts) => ({ words: { hot: { s: n, c: n, w: 0, lw: null, ls: '2026-09-13' } },
+    log: [{ d: '2026-09-13', ts, set: 'P1-1', n, c: n, conf: {}, sec: 60 }], prog: {}, conf: {} });
+  const today = () => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; };
+  const fix = s2 => { s2.log[0].d = today(); return s2; };
+
+  await setup(page, 'e2edevAAAA', fix(slot(3, 1000)));
+  await page.click('button:text-is("今すぐ同期")').catch(() => {});
+  await page.waitForTimeout(1500);
+
+  const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const p2 = await ctx2.newPage();
+  await setup(p2, 'e2edevBBBB', fix(slot(4, 2000)));
+  await p2.click('button:text-is("今すぐ同期")').catch(() => {});
+  await p2.waitForTimeout(1500);
+  const n2 = await p2.evaluate(() => document.querySelectorAll('.stats .val')[0].textContent);
+  if (n2 !== '7') errors.push(`[sync] B 側で合算されていない: ${n2}（3+4=7 のはず）`);
+  if (!/合算中: 2 台/.test(await p2.textContent('main'))) errors.push('[sync] 台数が出ていない');
+  await p2.screenshot({ path: '/tmp/shots/d-sync.png', fullPage: true });
+
+  // A 側に戻って同期すると、B の分が入る
+  await page.reload(); await page.waitForSelector('text=フォニックス・コース');
+  await page.click('button:text-is("今すぐ同期")'); await page.waitForTimeout(1500);
+  const n1 = await page.evaluate(() => document.querySelectorAll('.stats .val')[0].textContent);
+  if (n1 !== '7') errors.push(`[sync] A 側で合算されていない: ${n1}`);
+  // 何度同期しても増えない
+  await page.click('button:text-is("今すぐ同期")'); await page.waitForTimeout(1500);
+  const n3 = await page.evaluate(() => document.querySelectorAll('.stats .val')[0].textContent);
+  if (n3 !== '7') errors.push(`[sync] 繰り返し同期で値が変わる: ${n3}`);
+  // 同期オフの表記
+  if (!/同期オン/.test(await page.textContent('main'))) errors.push('[sync] 同期オンの表示が無い');
+  await ctx2.close();
+  await fetch(`https://eigomimi-sync.mahiro-original.workers.dev/${code}`, { method: 'DELETE' }).catch(() => {});
 });
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');

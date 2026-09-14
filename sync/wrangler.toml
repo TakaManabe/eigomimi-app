@@ -1,0 +1,11 @@
+name = "eigomimi-sync"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+workers_dev = true
+
+[observability]
+enabled = true
+
+[[kv_namespaces]]
+binding = "SYNC"
+id = "42cf2bb4db184b67ad13ccc87f1f79ed"

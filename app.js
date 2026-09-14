@@ -1,15 +1,17 @@
 // 母音ドリル — 単語を見て母音を即答する。データは localStorage、音声は端末の音声合成（任意）。
 import { allocate } from './order.js';
+import { mergeSlots, PASS_RATE, PASS_RUNS, PASS_MIN } from './merge.js';
 const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
 const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
 const ROUNDS = [5, 10, 20, 30];      // ミックス（カード）1 ラウンドの枚数
 const INTERVALS = [1, 3, 7, 14, 30];  // 誤答語を復習する間隔（日）
-const PASS_RATE = 0.9, PASS_RUNS = 2, PASS_MIN = 20;  // 合格: 20問以上を正答率90%で2回連続
 const MIX_RATE = 0.3;                // 合格後、既習語を混ぜる割合（累積復習）
 const FOCUS_RATE = 0.6;              // 英語耳 Lesson 別で、その Lesson の音に寄せる割合
 const STAGES = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
+const SYNC_URL = 'https://eigomimi-sync.mahiro-original.workers.dev';   // 端末間の同期（既定はオフ）
+const SYNC_GAP = 10000;              // 自動同期の最短間隔（ミリ秒）
 const wkey = w => w.k || w.word;   // 記録キー。同じ語でも赤字の位置が違えば別扱い
 
 // ---------- 小道具 ----------
@@ -41,18 +43,74 @@ function save(key, val) {
   try { localStorage.setItem(LS + key, JSON.stringify(val)); return true; }
   catch (e) { toast('保存できません（容量不足またはプライベートモード）', 'err'); console.warn(e); return false; }
 }
+// 記録は「この端末がやった分（MY）」と「他の端末からもらった分（PEER）」に分けて持ち、
+// 画面に出す S.words / S.log / S.prog / S.conf は両者を合算した読み取り専用のビューにする。
+// 書き込みは必ず MY にだけ行うので、同じデータを何度取り込んでも二重計上にならない。
+const emptySlot = () => ({ words: {}, log: [], prog: {}, conf: {} });
+let deviceId = load('device', null);
+if (!deviceId) { deviceId = 'd' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); save('device', deviceId); }
+
+let MY = emptySlot(), PEER = {};
 const S = {
-  words: load('words', {}),          // word -> {s: 出題, c: 正解, w: 誤答, lw: 最終誤答日}
-  log: load('log', []),              // {d, set, n, c, conf, sec}
-  settings: Object.assign({ count: 50, audio: true, voice: '', autoNext: true, limit: 3, cards: false, round: 10 }, load('settings', {})),
-  prog: load('prog', {}),            // stepId -> {runs: [{n, c, ts}], passed: ts}
-  conf: load('conf', {}),            // '正しい音→選んだ音' -> 回数
+  words: {}, log: [], prog: {}, conf: {},   // 合算ビュー（直接書かない）
+  settings: Object.assign({ count: 50, audio: true, voice: '', autoNext: true, limit: 3, cards: false, round: 10, sync: '' }, load('settings', {})),
 };
-const persistWords = () => save('words', S.words);
-const persistLog = () => { if (S.log.length > 1000) S.log = S.log.slice(-1000); save('log', S.log); };
+
+function recompute() {
+  const m = mergeSlots([MY, ...Object.values(PEER)]);
+  S.words = m.words; S.log = m.log; S.prog = m.prog; S.conf = m.conf;
+}
+// 旧形式（vd:words / vd:log / vd:prog / vd:conf）を、この端末の持ち分として取り込む
+function loadStore() {
+  const mine = load('mine', null);
+  if (mine) MY = Object.assign(emptySlot(), mine);
+  else {
+    const oldWords = load('words', null), oldLog = load('log', null), oldProg = load('prog', null), oldConf = load('conf', null);
+    MY = { words: oldWords || {}, log: oldLog || [], conf: oldConf || {},
+           prog: Object.fromEntries(Object.entries(oldProg || {}).map(([k, v]) => [k, { runs: v.runs || [] }])) };
+    if (oldWords || oldLog || oldProg || oldConf) {
+      save('mine', MY);
+      for (const k of ['words', 'log', 'prog', 'conf']) localStorage.removeItem(LS + k);
+    }
+  }
+  PEER = load('peers', {}) || {};
+  recompute();
+}
+const persistMine = () => { if (MY.log.length > 1000) MY.log = MY.log.slice(-1000); save('mine', MY); recompute(); };
+const persistPeers = () => { save('peers', PEER); recompute(); };
 const persistSettings = () => save('settings', S.settings);
-const persistProg = () => save('prog', S.prog);
-const persistConf = () => save('conf', S.conf);
+
+// ---------- 端末間の同期（任意・既定オフ）----------
+// 自分の持ち分を送り、全端末の持ち分を受け取って置き換えるだけ。
+// サーバー側にマージは無く、何度呼んでも結果は同じ。
+const newSyncCode = () => { const a = 'abcdefghijklmnopqrstuvwxyz0123456789'; return [...crypto.getRandomValues(new Uint8Array(24))].map(b => a[b % 36]).join(''); };
+let syncing = false, lastSync = 0;
+async function syncNow(manual) {
+  const code = S.settings.sync;
+  if (!code || syncing || !navigator.onLine) return false;
+  if (!manual && Date.now() - lastSync < SYNC_GAP) return false;
+  syncing = true;
+  try {
+    const r = await fetch(`${SYNC_URL}/${code}`, { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ device: deviceId, slot: MY }) });
+    const all = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(all.error || `HTTP ${r.status}`);
+    const next = {};
+    for (const [k, v] of Object.entries(all)) if (k !== deviceId && v && typeof v === 'object') next[k] = Object.assign(emptySlot(), v);
+    const changed = JSON.stringify(next) !== JSON.stringify(PEER);
+    PEER = next; persistPeers();
+    lastSync = Date.now(); S.settings.syncAt = lastSync; persistSettings();
+    if (manual) toast(`同期しました（${Object.keys(next).length + 1} 台）`, 'ok');
+    // 画面がホームのときだけ描き直す（ドリル中に消さない）
+    if ((changed || manual) && !location.hash.startsWith('#/s') && !location.hash.startsWith('#/d') && !location.hash.startsWith('#/r')) route();
+    return true;
+  } catch (e) {
+    if (manual) toast('同期できません: ' + e.message, 'err');
+    return false;
+  } finally { syncing = false; }
+}
+// 旧名は MY への書き込み後の再計算として残す（呼び出し箇所を変えずに済ませるため）
+const persistWords = persistMine, persistLog = persistMine, persistProg = persistMine, persistConf = persistMine;
 
 // ---------- データ ----------
 let DATA = null;
@@ -127,15 +185,13 @@ function ruleLines(w, chosen) {
   return out;
 }
 
-// 合格判定: 直近 PASS_RUNS 回が いずれも PASS_MIN 問以上・正答率 PASS_RATE 以上
+// この端末の持ち分に 1 回分を足す。合格は合算した runs から導かれる
 function recordRun(id, n, c) {
-  const p = S.prog[id] || (S.prog[id] = { runs: [] });
+  const p = MY.prog[id] || (MY.prog[id] = { runs: [] });
   p.runs.push({ n, c, ts: Date.now() });
-  if (p.runs.length > 20) p.runs = p.runs.slice(-20);
-  const last = p.runs.slice(-PASS_RUNS);
-  if (!p.passed && last.length === PASS_RUNS && last.every(r => r.n >= PASS_MIN && r.c / r.n >= PASS_RATE)) p.passed = Date.now();
-  persistProg();
-  return !!p.passed;
+  if (p.runs.length > 40) p.runs = p.runs.slice(-40);
+  persistMine();
+  return isPassed(id);
 }
 
 // ---------- 音声（合成音声のみ。発音判定はしない）----------
@@ -248,11 +304,22 @@ function renderHome(main) {
     const f = e.target.files[0]; if (!f) return;
     try {
       const obj = JSON.parse(await f.text());
-      if (obj.app !== 'vowel-drill' || typeof obj.words !== 'object' || !Array.isArray(obj.log)) throw new Error('形式が違います');
-      for (const [w, d] of Object.entries(obj.words)) { const cur = S.words[w] || { s: 0, c: 0, w: 0, lw: null }; S.words[w] = { s: cur.s + (d.s | 0), c: cur.c + (d.c | 0), w: cur.w + (d.w | 0), lw: [cur.lw, d.lw].filter(Boolean).sort().pop() || null }; }
-      S.log = [...S.log, ...obj.log.filter(l => l && l.d && l.set)].sort((a, b) => (a.ts || 0) - (b.ts || 0));
-      if (obj.prog && typeof obj.prog === 'object') for (const [k, v] of Object.entries(obj.prog)) if (!S.prog[k] || (v.passed && !S.prog[k].passed)) S.prog[k] = v;
-      persistWords(); persistLog(); persistProg(); toast('復元しました（既存データに追加）', 'ok'); route();
+      if (obj.app !== 'vowel-drill') throw new Error('形式が違います');
+      // 端末ごとのスロットを丸ごと置き換える。足し算ではないので、同じファイルを
+      // 何度復元しても結果は変わらない
+      const slots = obj.slots || (obj.words ? { [obj.device || 'restored']: { words: obj.words, log: obj.log || [], conf: obj.conf || {}, prog: Object.fromEntries(Object.entries(obj.prog || {}).map(([k, v]) => [k, { runs: v.runs || [] }])) } } : null);
+      if (!slots || typeof slots !== 'object') throw new Error('形式が違います');
+      let n = 0;
+      for (const [id, raw] of Object.entries(slots)) {
+        if (!raw || typeof raw !== 'object') continue;
+        const slot = Object.assign(emptySlot(), raw);
+        if (!Array.isArray(slot.log)) slot.log = [];
+        if (id === deviceId && !Object.keys(MY.words).length && !MY.log.length) MY = slot;
+        else PEER[id === deviceId ? `${id}-復元` : id] = slot;
+        n++;
+      }
+      persistPeers(); persistMine();
+      toast(`復元しました（${n} 台分）`, 'ok'); route();
     } catch (err) { toast('復元できません: ' + err.message, 'err'); }
     e.target.value = '';
   } });
@@ -268,26 +335,79 @@ function renderHome(main) {
         const a = h('a', { href: URL.createObjectURL(blob), download: `vowel-drill-${today()}.json` }); document.body.append(a); a.click(); a.remove();
       } }, 'バックアップ書き出し'),
       h('button', { class: 'btn small', onClick: () => file.click() }, '復元'), file),
+    syncCard(),
     h('h3', { style: 'margin-top:1rem' }, '記録のリセット'),
-    h('p', { class: 'small muted' }, '消した記録は元に戻せません。先にバックアップを書き出しておくと安全です。'),
+    h('p', { class: 'small muted' }, '消した記録は元に戻せません。先にバックアップを書き出しておくと安全です。',
+      S.settings.sync ? 'このリセットはこの端末の持ち分と手元の控えに対して行います。ほかの端末に残っている記録は、次の同期で戻ってきます（その端末でも消してください）。' : ''),
     ...RESETS.map(r => h('div', { class: 'field' },
       h('span', { class: 'small' }, r.label, h('div', { class: 'small muted' }, r.desc)),
       h('button', { class: 'btn small ghost err', onClick: () => {
         if (!confirm(`${r.label}\n\n${r.desc}\n\n元に戻せません。実行しますか？`)) return;
-        r.run(); toast(`${r.label}を実行しました`, 'ok'); route();
+        r.run(); persistPeers(); persistMine(); toast(`${r.label}を実行しました`, 'ok'); route();
       } }, 'リセット'))),
-    h('p', { class: 'small muted', style: 'margin-top:.8rem' }, `単語 ${DATA.words.length} 語 ／ 記録は端末内のみ（サーバー送信なし）。自動の発音判定は行いません。`)));
+    h('p', { class: 'small muted', style: 'margin-top:.8rem' }, `単語 ${DATA.words.length} 語 ／ `,
+      S.settings.sync ? '記録は同期用のサーバーにも置かれます（同期オン）。' : '記録は端末内のみ（サーバー送信なし）。',
+      '自動の発音判定は行いません。')));
 }
 // 記録のリセット。粒度を分けて、間違って全部消さずに済むようにする
+// 消すのはこの端末の持ち分と、手元にある他端末の控え。同期を使っている場合、
+// 他の端末に残っている記録は次の同期で戻ってくる（その端末側でも消す必要がある）
+const allSlots = () => [MY, ...Object.values(PEER)];
+
+// 同期の設定。既定はオフで、オンにした端末だけが記録を送る
+function syncCard() {
+  const on = !!S.settings.sync;
+  const box = h('div', {});
+  const redraw = () => { box.replaceChildren(...body()); };
+  const body = () => {
+    if (!on) return [
+      h('p', { class: 'small muted' }, '既定はオフです。オンにすると、この端末の記録を同期用のサーバーに置いて、ほかの端末と合算できます。端末ごとの持ち分を別々に持つので、何度同期しても二重に数えられることはありません。'),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn small primary', onClick: async () => {
+          if (!confirm('同期を始めると、この端末の学習記録がサーバーに置かれます。よろしいですか？')) return;
+          S.settings.sync = newSyncCode(); persistSettings();
+          if (await syncNow(true)) route(); else { S.settings.sync = ''; persistSettings(); }
+        } }, 'この端末で同期を始める'),
+        h('button', { class: 'btn small', onClick: async () => {
+          const code = (prompt('もう一方の端末に出ている同期コードを貼り付けてください') || '').trim().toLowerCase();
+          if (!code) return;
+          if (!/^[a-z0-9]{16,64}$/.test(code)) return toast('コードの形式が違います', 'err');
+          S.settings.sync = code; persistSettings();
+          if (await syncNow(true)) route(); else { S.settings.sync = ''; persistSettings(); }
+        } }, '別の端末のコードを入れる')),
+    ];
+    const at = S.settings.syncAt ? new Date(S.settings.syncAt) : null;
+    return [
+      h('p', { class: 'small' }, h('b', { class: 'ok' }, '同期オン'),
+        `　合算中: ${Object.keys(PEER).length + 1} 台`,
+        at ? `　最終同期 ${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}` : ''),
+      h('p', { class: 'small muted' }, 'ほかの端末では「別の端末のコードを入れる」から、このコードを貼り付けてください。'),
+      h('div', { class: 'field' },
+        h('code', { class: 'small', style: 'word-break:break-all' }, S.settings.sync),
+        h('button', { class: 'btn small', onClick: () => {
+          navigator.clipboard?.writeText(S.settings.sync).then(() => toast('コピーしました', 'ok'), () => toast('コピーできません', 'err'));
+        } }, 'コピー')),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn small primary', onClick: () => syncNow(true) }, '今すぐ同期'),
+        h('button', { class: 'btn small ghost err', onClick: () => {
+          if (!confirm('この端末の同期を止めます。記録は端末に残ります。サーバー上のデータは消えません。')) return;
+          S.settings.sync = ''; delete S.settings.syncAt; persistSettings(); route();
+        } }, '同期を止める')),
+      h('p', { class: 'small muted' }, '「コードを知っている人だけが読み書きできる」仕組みです。コードは他人に渡さないでください。'),
+    ];
+  };
+  redraw();
+  return h('div', {}, h('h3', { style: 'margin-top:1rem' }, '端末間の同期'), box);
+}
 const RESETS = [
   { id: 'due', label: '復習キューだけ', desc: '「今日の復習」の予定を空にします。正答率や合格はそのまま',
-    run: () => { for (const d of Object.values(S.words)) { delete d.due; delete d.iv; } persistWords(); } },
+    run: () => { for (const sl of allSlots()) for (const d of Object.values(sl.words)) { delete d.due; delete d.iv; } } },
   { id: 'prog', label: 'コースの合格だけ', desc: 'ステップの合格と直近の成績を消して、最初のステップからやり直します',
-    run: () => { S.prog = {}; persistProg(); } },
+    run: () => { for (const sl of allSlots()) sl.prog = {}; } },
   { id: 'conf', label: '混同の記録だけ', desc: '「正しい音 → 選んだ音」の集計を消します。ミックスの選択肢の寄せ方が初期化されます',
-    run: () => { S.conf = {}; persistConf(); } },
+    run: () => { for (const sl of allSlots()) sl.conf = {}; } },
   { id: 'all', label: 'すべての記録', desc: '単語ごとの成績・履歴・合格・復習キュー・混同のすべてを消します',
-    run: () => { S.words = {}; S.log = []; S.prog = {}; S.conf = {}; persistWords(); persistLog(); persistProg(); persistConf(); } },
+    run: () => { MY = emptySlot(); PEER = {}; } },
 ];
 const stat = (l, v, u) => h('div', {}, h('div', { class: 'val' }, String(v)), h('div', { class: 'small muted' }, l + (u ? `（${u}）` : '')));
 
@@ -342,20 +462,22 @@ function makeQueue(spec, weakOnly, count, reviewPool = reviewPoolFor(spec)) {
 // 中止したときに書き戻せるよう、変更前の値を 1 回だけ控える
 function snap(map, obj, key) { if (!map.has(key)) map.set(key, obj[key] === undefined ? undefined : (typeof obj[key] === 'object' ? { ...obj[key] } : obj[key])); }
 function rollback(snapWords, snapConf) {
-  for (const [k, v] of snapWords) { if (v === undefined) delete S.words[k]; else S.words[k] = v; }
-  for (const [k, v] of snapConf) { if (v === undefined) delete S.conf[k]; else S.conf[k] = v; }
+  for (const [k, v] of snapWords) { if (v === undefined) delete MY.words[k]; else MY.words[k] = v; }
+  for (const [k, v] of snapConf) { if (v === undefined) delete MY.conf[k]; else MY.conf[k] = v; }
   snapWords.clear(); snapConf.clear();
-  persistWords(); persistConf();
+  persistMine();
 }
 
 // 復習キュー: 間違えた語は翌日から 1→3→7→14→30 日
 function recordWord(w, ok, snapWords) {
-  if (snapWords) snap(snapWords, S.words, wkey(w));
-  const d = S.words[wkey(w)] || { s: 0, c: 0, w: 0, lw: null };
+  const k = wkey(w);
+  if (snapWords) snap(snapWords, MY.words, k);
+  const merged = S.words[k] || {};                     // 復習の進み具合は全端末の合算で判断する
+  const d = MY.words[k] || { s: 0, c: 0, w: 0, lw: null };
   d.s++; d.ls = today();
-  if (ok) { d.c++; if (d.due) { d.iv = Math.min((d.iv ?? 0) + 1, INTERVALS.length - 1); d.due = addDays(today(), INTERVALS[d.iv]); } }
+  if (ok) { d.c++; if (merged.due) { d.iv = Math.min((merged.iv ?? 0) + 1, INTERVALS.length - 1); d.due = addDays(today(), INTERVALS[d.iv]); } }
   else { d.w++; d.lw = today(); d.iv = 0; d.due = addDays(today(), INTERVALS[0]); }
-  S.words[wkey(w)] = d; persistWords();
+  MY.words[k] = d; persistMine();
 }
 
 // ---------- ドリルの対象 ----------
@@ -495,7 +617,7 @@ function renderDrill(main, spec, weakOnly) {
       fb.replaceChildren(...[h('span', { class: 'ok' }, `✓ ${ipa(cur.sound)}`), note].filter(Boolean));
     } else {
       streak = 0;
-      if (timedOut) timeouts++; else { const k = `${cur.sound}→${s}`; conf[k] = (conf[k] || 0) + 1; snap(snapConf, S.conf, k); S.conf[k] = (S.conf[k] || 0) + 1; persistConf(); }
+      if (timedOut) timeouts++; else { const k = `${cur.sound}→${s}`; conf[k] = (conf[k] || 0) + 1; snap(snapConf, MY.conf, k); MY.conf[k] = (MY.conf[k] || 0) + 1; persistMine(); }
       wrong.set(wkey(cur), cur);
       fb.replaceChildren(...[
         h('div', {}, h('span', { class: 'err' }, timedOut ? `⏱ 時間切れ — ${ipa(cur.sound)}` : `✗ 正解は ${ipa(cur.sound)}`), timedOut ? null : h('span', { class: 'small muted' }, `（${ipa(s)} と答えた）`)),
@@ -525,8 +647,9 @@ function renderDrill(main, spec, weakOnly) {
     const sec = Math.round((Date.now() - t0) / 1000);
     let justPassed = false;
     if (answered) {
-      S.log.push({ d: today(), ts: Date.now(), set: spec.id, n: answered, c: correct, conf, sec, to: timeouts, lim: S.settings.limit }); persistLog();
+      MY.log.push({ d: today(), ts: Date.now(), set: spec.id, n: answered, c: correct, conf, sec, to: timeouts, lim: S.settings.limit }); persistMine();
       if (spec.isStep) { const was = isPassed(spec.id); justPassed = recordRun(spec.id, answered, correct) && !was; }
+      syncNow();
     }
     const wl = [...wrong.values()];
     main.append(h('section', { class: 'card' },
@@ -629,7 +752,7 @@ function renderCards(main, spec, weakOnly, count, onBack) {
     else {
       streak = 0; retry.push(cur); wrong.set(wkey(cur), cur);
       if (timedOut) timeouts++;
-      else { const k = `${cur.sound}→${x}`; conf[k] = (conf[k] || 0) + 1; snap(snapConf, S.conf, k); S.conf[k] = (S.conf[k] || 0) + 1; persistConf(); }
+      else { const k = `${cur.sound}→${x}`; conf[k] = (conf[k] || 0) + 1; snap(snapConf, MY.conf, k); MY.conf[k] = (MY.conf[k] || 0) + 1; persistMine(); }
       why.replaceChildren(...whyLines(cur, timedOut ? null : x));
       why.hidden = false;
     }
@@ -679,8 +802,9 @@ function renderCards(main, spec, weakOnly, count, onBack) {
     const sec = Math.round((Date.now() - t0) / 1000);
     let justPassed = false;
     if (done) {
-      S.log.push({ d: today(), ts: Date.now(), set: spec.id, n: done, c: correct, conf, sec, to: timeouts, lim: S.settings.limit, mode: 'cards' }); persistLog();
+      MY.log.push({ d: today(), ts: Date.now(), set: spec.id, n: done, c: correct, conf, sec, to: timeouts, lim: S.settings.limit, mode: 'cards' }); persistMine();
       if (spec.isStep) { const was = isPassed(spec.id); justPassed = recordRun(spec.id, done, correct) && !was; }
+      syncNow();
     }
     const wl = [...wrong.values()];
     main.append(h('section', { class: 'card' },
@@ -724,7 +848,10 @@ async function boot() {
   addEventListener('online', upd); addEventListener('offline', upd);
   try { const r = await fetch('data/drill-words.json', { cache: 'no-cache' }); if (!r.ok) throw new Error(r.status); DATA = await r.json(); }
   catch { $('#main').replaceChildren(h('div', { class: 'card' }, h('h2', {}, '単語データを読み込めません'), h('p', { class: 'small muted' }, '初回はオンラインで開いてください。'))); return; }
+  loadStore();
   addEventListener('hashchange', route); route();
+  syncNow();
+  addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncNow(); });
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 boot();
