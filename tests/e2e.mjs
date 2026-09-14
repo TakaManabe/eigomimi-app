@@ -115,8 +115,10 @@ await run('cards', { width: 390, height: 844 }, async page => {
     if (await page.locator('.mk-why').isVisible()) {
       if (!shot) { await page.screenshot({ path: '/tmp/shots/d-cards-why.png' }); shot = true; }
       const w = await page.textContent('.mk-why');
-      if (!/綴り/.test(w) || !/口/.test(w)) errors.push(`[cards] 理由に両軸が出ていない: ${w}`);
-      if (!/→/.test(w)) errors.push(`[cards] 綴りの一行ルールが出ていない: ${w}`);
+      // 規則どおりの語は「綴り … → ルール」、例外語は「例外 … / ふつうは…」になる
+      if (!/綴り|例外/.test(w) || !/口/.test(w)) errors.push(`[cards] 理由に両軸が出ていない: ${w}`);
+      if (!/→|ふつうは/.test(w)) errors.push(`[cards] 一行ルールが出ていない: ${w}`);
+      if (!/の内訳/.test(w)) errors.push(`[cards] 綴りの内訳が出ていない: ${w}`);
       await page.click('.mk-next');
     } else { await page.keyboard.press('1'); }
     await page.waitForTimeout(300);
@@ -143,6 +145,7 @@ await run('abort', { width: 390, height: 844 }, async page => {
   // 中止すると、その回の記録が一切残らない
   await page.goto(BASE);
   await page.evaluate(() => { localStorage.clear(); });
+  await page.reload();
   await page.goto(BASE + '#/s/P1-1'); await page.waitForSelector('text=スタート');
   await page.click('.seg button:text-is("なし")'); await page.click('.seg button:has-text("20")');
   await page.click('text=スタート'); await page.waitForSelector('.word');
@@ -202,6 +205,7 @@ await run('exception', { width: 390, height: 844 }, async page => {
   // 例外語（o なのに /ʌ/: money, mother, love …）でルールと答えが矛盾しないこと
   await page.goto(BASE);
   await page.evaluate(() => { localStorage.clear(); localStorage.setItem('vd:settings', JSON.stringify({ count: 50, limit: 0, autoNext: false, cards: false, audio: false })); });
+  await page.reload();   // ハッシュ移動だけでは設定が読み直されない
   await page.goto(BASE + '#/s/P1-2'); await page.waitForSelector('text=スタート');
   await page.click('text=スタート'); await page.waitForSelector('.word');
   const fam = new Set(['money', 'mother', 'brother', 'other', 'another', 'nothing', 'love', 'come', 'some', 'done', 'none', 'cover', 'color', 'honey', 'oven', 'glove', 'above', 'dozen', 'front', 'son', 'ton', 'won', 'wonder', 'govern', 'sponge', 'stomach', 'onion', 'shove', 'Monday', 'month']);
@@ -232,8 +236,9 @@ await run('exception', { width: 390, height: 844 }, async page => {
 });
 await run('merge', { width: 390, height: 844 }, async page => {
   // 端末ごとの持ち分を合算して表示し、同じものを何度取り込んでも変わらない
-  const slot = (n, ts) => ({ words: { hot: { s: n, c: n, w: 0, lw: null, ls: '2026-09-13' } },
-    log: [{ d: '2026-09-13', ts, set: 'P1-1', n, c: n, conf: { 'æ→ʌ': n }, sec: 60 }],
+  const D = (() => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })();
+  const slot = (n, ts) => ({ words: { hot: { s: n, c: n, w: 0, lw: null, ls: D } },
+    log: [{ d: D, ts, set: 'P1-1', n, c: n, conf: { 'æ→ʌ': n }, sec: 60 }],
     prog: { 'P1-1': { runs: [{ n: 20, c: 20, ts }, { n: 20, c: 20, ts: ts + 1 }] } }, conf: { 'æ→ʌ': n } });
   await page.goto(BASE);
   await page.evaluate(s => {
@@ -270,8 +275,8 @@ await run('sync', { width: 390, height: 844 }, async page => {
     }, [dev, seed, code]);
     await p2.reload(); await p2.waitForSelector('text=フォニックス・コース');
   };
-  const slot = (n, ts) => ({ words: { hot: { s: n, c: n, w: 0, lw: null, ls: '2026-09-13' } },
-    log: [{ d: '2026-09-13', ts, set: 'P1-1', n, c: n, conf: {}, sec: 60 }], prog: {}, conf: {} });
+  const slot = (n, ts) => ({ words: { hot: { s: n, c: n, w: 0, lw: null, ls: today() } },
+    log: [{ d: today(), ts, set: 'P1-1', n, c: n, conf: {}, sec: 60 }], prog: {}, conf: {} });
   const today = () => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; };
   const fix = s2 => { s2.log[0].d = today(); return s2; };
 
@@ -302,6 +307,43 @@ await run('sync', { width: 390, height: 844 }, async page => {
   if (!/同期オン/.test(await page.textContent('main'))) errors.push('[sync] 同期オンの表示が無い');
   await ctx2.close();
   await fetch(`https://eigomimi-sync.mahiro-original.workers.dev/${code}`, { method: 'DELETE' }).catch(() => {});
+});
+await run('book', { width: 390, height: 844 }, async page => {
+  // 単語帳: 状態ごとの内訳と終了率
+  await page.goto(BASE);
+  await page.evaluate(() => {
+    const D = (() => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })();
+    const y = (() => { const t = new Date(Date.now() - 86400000); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })();
+    localStorage.clear();
+    localStorage.setItem('vd:mine', JSON.stringify({ words: {
+      hot: { s: 4, c: 4, w: 0, ls: D },                          // クリア
+      pot: { s: 5, c: 3, w: 2, lw: y, ls: y, iv: 0, due: y },    // 要復習
+      lot: { s: 1, c: 0, w: 1, lw: D, ls: D, iv: 0, due: '2099-01-01' },  // 練習中
+    }, log: [], prog: {}, conf: {} }));
+  });
+  await page.reload();   // ハッシュ移動だけだと再読込されず、種データが反映されない
+  await page.goto(BASE + '#/w/P1-2'); await page.waitForSelector('text=終了率');
+  const txt = await page.textContent('main');
+  if (!/クリア/.test(txt)) errors.push('[book] 状態の内訳が無い');
+  const rate = await page.evaluate(() => document.querySelectorAll('.stats .val')[0].textContent);
+  if (!/^\d+%$/.test(rate)) errors.push(`[book] 終了率が出ていない: ${rate}`);
+  if (!(await page.locator('.wbar > i').count())) errors.push('[book] 進捗バーが無い');
+  await page.screenshot({ path: '/tmp/shots/d-book.png', fullPage: true });
+  // 「要復習」で絞ると pot だけ
+  await page.click('.chip:has-text("要復習")'); await page.waitForTimeout(200);
+  const rows = await page.locator('.wrow .ww').allTextContents();
+  if (rows.join() !== 'pot') errors.push(`[book] 要復習の絞り込みがおかしい: ${rows}`);
+  // 「クリア」で絞ると hot だけ
+  await page.click('.chip:has-text("クリア")'); await page.waitForTimeout(200);
+  const rows2 = await page.locator('.wrow .ww').allTextContents();
+  if (rows2.join() !== 'hot') errors.push(`[book] クリアの絞り込みがおかしい: ${rows2}`);
+  // 「まだの語だけ」でドリルに入れる
+  await page.click('a:has-text("まだの語だけ")'); await page.waitForSelector('text=まだクリアしていない語だけ');
+  // ホームにも終了率が出る
+  await page.goto(BASE + '#/'); await page.waitForSelector('text=フォニックス・コース');
+  if (!/終了率/.test(await page.textContent('main'))) errors.push('[book] ホームに終了率が無い');
+  if (!(await page.locator('a[href="#/w/P1-1"]').count())) errors.push('[book] ホームに単語帳へのリンクが無い');
+  await page.screenshot({ path: '/tmp/shots/d-book-home.png', fullPage: true });
 });
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');

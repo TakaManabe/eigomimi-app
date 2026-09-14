@@ -14,6 +14,29 @@ const SYNC_URL = 'https://eigomimi-sync.mahiro-original.workers.dev';   // 端�
 const SYNC_GAP = 10000;              // 自動同期の最短間隔（ミリ秒）
 const wkey = w => w.k || w.word;   // 記録キー。同じ語でも赤字の位置が違えば別扱い
 
+// ---------- 単語ごとの状態（単語帳・終了率）----------
+// クリア = 2 回以上正解していて誤答が無いか、復習の間隔が 2 段階以上進んだ語
+const WSTATES = [
+  { id: 'clear', label: 'クリア', cls: 'clear' },
+  { id: 'due',   label: '要復習', cls: 'due' },
+  { id: 'learn', label: '練習中', cls: 'learn' },
+  { id: 'new',   label: '未出題', cls: 'new' },
+];
+function wordState(w) {
+  const d = S.words[wkey(w)];
+  if (!d || !d.s) return 'new';
+  if (d.due && d.due <= today()) return 'due';
+  if ((d.c >= 2 && !d.w) || (d.iv ?? -1) >= 2) return 'clear';
+  return 'learn';
+}
+function stepStats(words) {
+  const c = { clear: 0, due: 0, learn: 0, new: 0 };
+  for (const w of words) c[wordState(w)]++;
+  return { ...c, n: words.length, rate: words.length ? Math.round(c.clear / words.length * 100) : 0 };
+}
+const wbar = st => h('div', { class: 'wbar' }, ...WSTATES.map(s2 =>
+  st[s2.id] ? h('i', { class: 'sw-' + s2.cls, style: `flex:${st[s2.id]}` }) : null).filter(Boolean));
+
 // ---------- 小道具 ----------
 const $ = (sel, root = document) => root.querySelector(sel);
 function h(tag, attrs = {}, ...kids) {
@@ -251,11 +274,18 @@ function renderHome(main) {
     h('div', { class: 'progress' }, h('div', { style: `width:${Math.round(donePass / main0.length * 100)}%` }))));
   const stepRow = t => {
     const p = isPassed(t.id), isNext = nx && nx.id === t.id, rate = stepRate(t.id);
-    return h('div', { class: 'field' },
-      h('span', { class: 'small' + (p ? ' ok' : '') }, p ? '✓ ' : (isNext ? '▶ ' : '　'), t.title,
+    const st = stepStats(selectWords(t.sel));
+    return h('div', { class: 'field', style: 'align-items:flex-start' },
+      h('span', { class: 'small', style: 'flex:1;min-width:0' },
+        h('span', { class: p ? 'ok' : '' }, p ? '✓ ' : (isNext ? '▶ ' : '　'), t.title),
         h('span', { class: 'small muted' }, `　${t.n}語`, rate == null ? '' : `　直近 ${rate}%`),
-        t.hint ? h('div', { class: 'small muted' }, t.hint) : null),
-      h('a', { class: 'btn small' + (isNext ? ' primary' : ''), href: `#/s/${t.id}` }, p ? '復習' : '始める'));
+        t.hint ? h('div', { class: 'small muted' }, t.hint) : null,
+        wbar(st),
+        h('div', { class: 'small muted rate' }, `終了率 `, h('b', { class: st.rate >= 80 ? 'ok' : '' }, `${st.rate}%`),
+          `（クリア ${st.clear} / ${st.n}）`, st.due ? h('span', { class: 'err' }, `　要復習 ${st.due}`) : '')),
+      h('span', { class: 'row', style: 'flex-wrap:nowrap;gap:.3rem' },
+        h('a', { class: 'btn small ghost', href: `#/w/${t.id}` }, '単語帳'),
+        h('a', { class: 'btn small' + (isNext ? ' primary' : ''), href: `#/s/${t.id}` }, p ? '復習' : '始める')));
   };
   for (const stg of DATA.course.filter(c => !c.extra)) {
     main.append(h('section', { class: 'card' },
@@ -451,8 +481,9 @@ function reviewPoolFor(spec) {
   const inStep = new Set(spec.words.map(wkey));
   return DATA.words.filter(w => S.words[wkey(w)]?.s && !inStep.has(wkey(w)));
 }
-function makeQueue(spec, weakOnly, count, reviewPool = reviewPoolFor(spec)) {
-  let pool = weakOnly ? spec.words.filter(isWeak) : spec.words;
+const poolFilter = { weak: isWeak, todo: w => wordState(w) !== 'clear' };
+function makeQueue(spec, only, count, reviewPool = reviewPoolFor(spec)) {
+  let pool = poolFilter[only] ? spec.words.filter(poolFilter[only]) : spec.words;
   if (!pool.length) pool = spec.words;
   const n = count || pool.length;
   const k = reviewPool.length ? Math.round(n * MIX_RATE) : 0;
@@ -480,6 +511,49 @@ function recordWord(w, ok, snapWords) {
   MY.words[k] = d; persistMine();
 }
 
+// ---------- 単語帳 ----------
+function renderBook(main, stepId) {
+  const step = stepById(stepId);
+  if (!step) { main.append(h('p', {}, '見つかりません'), h('a', { class: 'btn', href: '#/' }, 'ホーム')); return; }
+  const words = selectWords(step.sel), st = stepStats(words);
+  let filter = st.due ? 'due' : 'all', limit = 300;
+
+  const list = h('div', { class: 'wlist' });
+  const more = h('div', { class: 'center', style: 'margin-top:.6rem' });
+  const chips = h('div', { class: 'chips' });
+  const draw = () => {
+    chips.replaceChildren(
+      h('button', { class: 'chip sel' + (filter === 'all' ? ' warn' : ''), onClick: () => { filter = 'all'; limit = 300; draw(); } }, `すべて ${st.n}`),
+      ...WSTATES.map(s2 => h('button', { class: 'chip sel' + (filter === s2.id ? ' warn' : ''), onClick: () => { filter = s2.id; limit = 300; draw(); } },
+        h('span', { class: 'badge ' + s2.cls }, s2.label), ` ${st[s2.id]}`)));
+    const shown = words.filter(w => filter === 'all' || wordState(w) === filter);
+    list.replaceChildren(...shown.slice(0, limit).map(w => {
+      const d = S.words[wkey(w)] || { s: 0, c: 0 }, s2 = WSTATES.find(x => x.id === wordState(w));
+      return h('button', { class: 'wrow', onClick: () => speak(w.word) },
+        h('span', { class: 'ww' }, hlWord(w)),
+        h('span', { class: 'ws' }, ipa(w.sound)),
+        h('span', { class: 'ws' }, d.s ? `${d.c}/${d.s}` : '—'),
+        h('span', { class: 'badge ' + s2.cls }, s2.label));
+    }));
+    more.replaceChildren(shown.length > limit
+      ? h('button', { class: 'btn small', onClick: () => { limit += 500; draw(); } }, `他 ${shown.length - limit} 語を表示`)
+      : (shown.length ? h('span', { class: 'small muted' }, `${shown.length} 語`) : h('p', { class: 'small muted' }, 'この状態の語はありません')));
+  };
+  draw();
+
+  main.append(h('section', { class: 'card' },
+    h('div', { class: 'row between' }, h('h2', {}, step.title), h('a', { class: 'small', href: '#/' }, '← ホーム')),
+    step.hint ? h('p', { class: 'small muted' }, step.hint) : null,
+    h('div', { class: 'stats' },
+      stat('終了率', st.rate + '%', ''), stat('クリア', `${st.clear}/${st.n}`, '語'), stat('要復習', st.due, '語')),
+    wbar(st),
+    h('p', { class: 'small muted' }, 'クリア = 2 回以上正解して誤答が無いか、復習の間隔が 2 段階以上進んだ語。タップで音声が鳴ります。'),
+    h('div', { class: 'row' },
+      h('a', { class: 'btn primary', href: `#/s/${stepId}` }, 'このステップをドリル'),
+      st.n - st.clear ? h('a', { class: 'btn', href: `#/s/${stepId}?todo=1` }, `まだの語だけ（${st.n - st.clear}）`) : null)));
+  main.append(h('section', { class: 'card' }, chips, list, more));
+}
+
 // ---------- ドリルの対象 ----------
 function specForStep(id) {
   const st = stepById(id); if (!st) return null;
@@ -501,7 +575,7 @@ function specForReview() {
 }
 
 // ---------- ドリル ----------
-function renderDrill(main, spec, weakOnly) {
+function renderDrill(main, spec, only) {
   if (!spec) { main.append(h('p', {}, '見つかりません'), h('a', { class: 'btn', href: '#/' }, 'ホーム')); return () => {}; }
   const all = spec.words;
   if (!all.length) { main.append(h('div', { class: 'card' }, h('h2', {}, spec.title), h('p', {}, '出題できる語がありません'), h('a', { class: 'btn', href: '#/' }, 'ホーム'))); return () => {}; }
@@ -532,12 +606,13 @@ function renderDrill(main, spec, weakOnly) {
     h('div', { class: 'field' }, h('span', { class: 'small' }, '不正解のあと'), seg([[true, '1.5秒で自動的に次へ'], [false, '「次へ」を押す']], S.settings.autoNext, v => { S.settings.autoNext = v; persistSettings(); })),
     h('div', { class: 'field' }, h('span', { class: 'small' }, '形式'), seg([[false, 'ふつう'], [true, 'ミックス（カード）']], !!S.settings.cards, v => { S.settings.cards = v; persistSettings(); roundRow.hidden = !v; whyRow.hidden = !v; })),
     roundRow, whyRow,
-    weakOnly ? h('p', { class: 'small err' }, `苦手な語だけ（${all.filter(isWeak).length} 語）`) : null,
+    only === 'weak' ? h('p', { class: 'small err' }, `苦手な語だけ（${all.filter(isWeak).length} 語）`) : null,
+    only === 'todo' ? h('p', { class: 'small warn err' }, `まだクリアしていない語だけ（${all.filter(poolFilter.todo).length} 語）`) : null,
     h('div', { class: 'row' }, h('button', { class: 'btn primary big', onClick: start }, 'スタート'), h('a', { class: 'btn ghost', href: '#/' }, '戻る')),
     h('p', { class: 'small muted' }, 'キーボード: 数字キーで回答、Space / Enter で次へ'));
   main.append(cfg);
 
-  const buildQueue = () => makeQueue(spec, weakOnly, count, reviewPool);
+  const buildQueue = () => makeQueue(spec, only, count, reviewPool);
   // 選択肢: 通常はステップの音すべて。音が 6 つ以上のときは正解＋紛らわしい 2 音の 3 択
   function choiceSounds(sound) {
     if (!spec.mix) return spec.sounds;
@@ -577,7 +652,7 @@ function renderDrill(main, spec, weakOnly) {
   window.addEventListener('keydown', onKey);
 
   function start() {
-    if (S.settings.cards) { cfg.hidden = true; cardsCleanup = renderCards(main, spec, weakOnly, count, () => { cfg.hidden = false; }); return; }
+    if (S.settings.cards) { cfg.hidden = true; cardsCleanup = renderCards(main, spec, only, count, () => { cfg.hidden = false; }); return; }
     queue = buildQueue(); if (!queue.length) return toast('出題できる語がありません');
     idx = answered = correct = streak = best = timeouts = 0; conf = {}; per = {}; wrong = new Map(); t0 = Date.now();
     cfg.hidden = true; stage.hidden = false; show();
@@ -662,6 +737,7 @@ function renderDrill(main, spec, weakOnly) {
       h('div', { class: 'row', style: 'margin-top:.6rem' },
         h('button', { class: 'btn primary', onClick: () => { main.lastChild.remove(); cfg.hidden = false; } }, 'もう一回'),
         wl.length ? h('a', { class: 'btn', href: location.hash.split('?')[0] + '?weak=1' }, '苦手だけ') : null,
+        spec.isStep ? h('a', { class: 'btn ghost', href: `#/w/${spec.id}` }, '単語帳') : null,
         h('a', { class: 'btn ghost', href: '#/' }, 'ホーム'))));
     window.scrollTo(0, 0);
   }
@@ -670,9 +746,9 @@ function renderDrill(main, spec, weakOnly) {
 // ---------- ミックス（カード）モード — mikan 風 ----------
 // 出題する語はフォニックス、選択肢は英語耳＋綴りの罠。1 ラウンドずつ進み、
 // 間違えたカードはそのラウンドの終わりにもう一周する。
-function renderCards(main, spec, weakOnly, count, onBack) {
+function renderCards(main, spec, only, count, onBack) {
   const size = S.settings.round || 10;
-  let queue = makeQueue(spec, weakOnly, count);
+  let queue = makeQueue(spec, only, count);
   if (!queue.length) { toast('出題できる語がありません'); onBack(); return null; }
 
   let round = 0, redo = 0, cards = [], ci = 0, retry = [];
@@ -837,10 +913,12 @@ function route() {
   const main = $('#main');
   if (cleanup) { try { cleanup(); } catch { /* ignore */ } cleanup = null; }
   main.replaceChildren(); window.scrollTo(0, 0);
-  const m = location.hash.match(/^#\/(d|s|r)(?:\/([^?]+))?(\?weak=1)?/);
+  const book = location.hash.match(/^#\/w\/([^?]+)/);
+  if (book) return renderBook(main, book[1]);
+  const m = location.hash.match(/^#\/(d|s|r)(?:\/([^?]+))?(?:\?(weak|todo)=1)?/);
   if (m) {
     const spec = m[1] === 's' ? specForStep(m[2]) : m[1] === 'r' ? specForReview() : specForSet(m[2]);
-    cleanup = renderDrill(main, spec, !!m[3]);
+    cleanup = renderDrill(main, spec, m[3] || '');
   } else renderHome(main);
 }
 async function boot() {

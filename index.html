@@ -81,6 +81,22 @@ main{max-width:640px;margin:0 auto;padding:.8rem}
 .mk-why{background:var(--bg);border-radius:12px;padding:.55rem .7rem;margin-top:.5rem;text-align:left}
 .mk-why b{color:var(--mk)}
 .mk-done{font-size:2.4rem}
+/* 単語帳 */
+.wbar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:var(--line);margin:.3rem 0}
+.wbar>i{display:block;min-width:0}
+.sw-clear{background:var(--ok)}.sw-due{background:var(--err)}.sw-learn{background:var(--warn)}.sw-new{background:var(--line)}
+.badge{display:inline-block;font-size:.68rem;font-weight:700;padding:.1rem .45rem;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+.badge.clear{background:#dcfce7;border-color:var(--ok);color:#14532d}
+.badge.due{background:#fee2e2;border-color:var(--err);color:#7f1d1d}
+.badge.learn{background:#fef3c7;border-color:var(--warn);color:#78350f}
+.badge.new{background:var(--bg);color:var(--muted)}
+@media(prefers-color-scheme:dark){.badge.clear{background:#052e1b;color:#86efac}.badge.due{background:#3f1010;color:#fca5a5}.badge.learn{background:#3a2a08;color:#fcd34d}}
+.wlist{display:flex;flex-direction:column}
+.wrow{display:flex;align-items:center;gap:.5rem;padding:.45rem .2rem;border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-top:0;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.wrow:last-child{border-bottom:0}
+.wrow .ww{font-size:1.05rem;font-weight:700;flex:1;min-width:0;overflow-wrap:anywhere}
+.wrow .ws{font-size:.85rem;color:var(--muted);white-space:nowrap}
+.rate{font-variant-numeric:tabular-nums}
 @media(min-width:640px){.word{font-size:3.4rem}}
 </style>
 </head>
