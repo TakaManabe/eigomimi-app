@@ -182,33 +182,59 @@ function mixChoices(w, poolSounds = [], n = 4) {
 }
 const eigoGroupsOf = snd => (DATA.eigoGroups || []).filter(g => g.sounds.includes(snd));
 const ruleOf = w => (DATA.rules || {})[`${w.st}|${w.g}`] || '';
-// その綴りが取る音の内訳。上位で切っても、その語の答えは必ず入れる
-function breakdown(w, n = 4) {
-  const all = DATA.gsounds[w.g] || [];
-  if (all.slice(0, n).some(([x]) => x === w.sound)) return all.slice(0, n);
-  const own = all.find(([x]) => x === w.sound);
-  return own ? [...all.slice(0, n - 1), own] : all.slice(0, n);
-}
 const mouthOf = snd => (DATA.mouth || {})[snd] || '';
-// 間違えたときの 2 行: フォニックスの規則と、英語耳の口の作り方（正解と、選んだ音の両方）
-function ruleLines(w, chosen) {
-  const out = [];
-  if (w.ex) {
-    // 綴りの規則で説明できない語。規則をそのまま出すと答えと矛盾するので、例外として見せる
-    const fam = (DATA.exGroups || {})[`${w.st}|${w.g}|${w.sound}`] || [];
-    out.push(h('div', { class: 'small' }, h('b', { class: 'err' }, '例外 '), `${w.g} なのに ${ipa(w.sound)}`,
-      fam.length > 1 ? h('span', { class: 'muted' }, `　仲間: ${fam.slice(0, 6).join(' ')}${fam.length > 6 ? ' …' : ''}`) : null));
-    out.push(h('div', { class: 'small muted' }, `ふつうは… ${ruleOf(w)}`));
-  } else {
-    out.push(h('div', { class: 'small' }, h('b', {}, '綴り '), `${w.g} → `, ruleOf(w)));
-  }
-  const mouth = [h('span', {}, h('b', {}, ipa(w.sound)), ' ', mouthOf(w.sound))];
-  if (chosen && chosen !== w.sound && mouthOf(chosen)) mouth.push(h('span', { class: 'muted' }, `　／ ${ipa(chosen)} ${mouthOf(chosen)}`));
-  out.push(h('div', { class: 'small' }, h('b', {}, '口 '), ...mouth));
-  const bd = breakdown(w);
-  if (bd.length > 1) out.push(h('div', { class: 'small muted' }, `${w.g} の内訳: `,
-    ...bd.map(([snd, n], i) => h('span', snd === w.sound ? { class: 'err' } : {}, `${i ? '・' : ''}${ipa(snd)} ${n}`))));
-  return out;
+// 間違えたときの説明。その綴りが何通りに読まれるかを表にして、正解の行と、
+// 選んでしまった音の行を色で示す。口の作り方はその 2 行だけに付ける。
+const exWordsFor = (g, snd, n = 2) => {
+  const all = DATA.words.filter(w => w.g === g && w.sound === snd);
+  const plain = all.filter(w => !w.ex && !w.note && w.word.length <= 6);
+  return (plain.length ? plain : all).slice(0, n).map(w => w.word).join(' ');
+};
+// その綴りがその音になるのは、どの音節タイプのときか（表の「いつ」の列）
+const STAGE_SHORT = { P1: '閉音節', P2: 'マジックe', P3: 'チーム', P4: 'r音', P5: '二重母音', P6: '弱音節' };
+function condFor(g, snd) {
+  const c = {};
+  for (const w of DATA.words) if (w.g === g && w.sound === snd) c[w.st] = (c[w.st] || 0) + 1;
+  const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0];
+  return top ? STAGE_SHORT[top[0]] || '' : '';
+}
+const WHY_ROWS = 5;
+function whyTable(w, chosen) {
+  const all = DATA.gsounds[w.g] || [];
+  // 選んだ音がその綴りに存在しないこともある（a は /ɪ/ にはならない）。
+  // その場合も 0 語の行として出し、「この綴りではその音にならない」と見せる
+  const chosenRow = chosen && chosen !== w.sound
+    ? (all.find(([x]) => x === chosen) || [chosen, 0]) : null;
+  const rows = [
+    ...all.filter(([x]) => x === w.sound),
+    ...(chosenRow ? [chosenRow] : []),
+    ...all.filter(([x]) => x !== w.sound && x !== chosen),
+  ];
+  const hidden = Math.max(0, rows.length - WHY_ROWS);
+  const tr = ([snd, n]) => {
+    const kind = snd === w.sound ? 'hit' : (snd === chosen ? 'miss' : '');
+    const out = [h('tr', { class: kind },
+      h('td', { class: 'm' }, snd === w.sound ? '✓' : (snd === chosen ? '✗' : '')),
+      h('td', { class: 'ipa' }, ipa(snd)),
+      h('td', { class: 'n' }, n ? `${n}語` : '—'),
+      n ? h('td', { class: 'ex' }, h('b', { class: 'cond' }, condFor(w.g, snd)), ' ', exWordsFor(w.g, snd))
+        : h('td', { class: 'ex' }, `「${w.g}」がこの音になることはない`))];
+    if (kind) out.push(h('tr', { class: kind + ' mouth' }, h('td', {}), h('td', { colspan: 3 }, mouthOf(snd))));
+    return out;
+  };
+  const fam = w.ex ? ((DATA.exGroups || {})[`${w.st}|${w.g}|${w.sound}`] || []) : [];
+  return h('div', {},
+    h('div', { class: 'why-h' },
+      h('span', {}, `「${w.g}」の読み方 ${all.length} 通り`),
+      w.ex ? h('span', { class: 'badge due' }, '例外')
+           : h('span', { class: 'small muted' }, chosen ? `${ipa(chosen)} と答えた` : '時間切れ')),
+    h('table', { class: 'why' }, ...rows.slice(0, WHY_ROWS).flatMap(tr),
+      hidden ? h('tr', {}, h('td', {}), h('td', { colspan: 3, class: 'ex' }, `ほか ${hidden} 通り`)) : null),
+    h('div', { class: 'why-rule' }, w.ex
+      ? [h('b', {}, `${w.word} は規則の例外`), `　「${w.g}」はふつう ${ruleOf(w)}`,
+         fam.length > 1 ? h('div', {}, `同じ例外: ${fam.slice(0, 8).join(' ')}${fam.length > 8 ? ' …' : ''}`) : null]
+      : [h('b', {}, '規則'), `　${ruleOf(w)}`]),
+    w.note ? h('div', { class: 'why-rule' }, h('b', {}, '注'), `　${w.note}`) : null);
 }
 
 // この端末の持ち分に 1 回分を足す。合格は合算した runs から導かれる
@@ -592,8 +618,9 @@ function renderDrill(main, spec, only) {
   const reviewPool = passed ? DATA.words.filter(w => S.words[wkey(w)]?.s && !stepSet.has(wkey(w))) : [];
   const exMap = {};
   for (const snd of new Set(DATA.words.map(w => w.sound)))
-    exMap[snd] = spec.examples?.[snd] || (all.filter(w => w.sound === snd && !w.note).slice(0, 2).map(w => w.word).join(' / ')
-                 || DATA.words.filter(w => w.sound === snd && !w.note).slice(0, 2).map(w => w.word).join(' / '));
+    exMap[snd] = spec.examples?.[snd]
+      || [all, DATA.words].map(src => src.filter(w => w.sound === snd && !w.note && !w.ex).slice(0, 2).map(w => w.word).join(' / ')).find(Boolean)
+      || DATA.words.filter(w => w.sound === snd).slice(0, 2).map(w => w.word).join(' / ');
 
   const roundRow = h('div', { class: 'field', hidden: !S.settings.cards },
     h('span', { class: 'small' }, '1 ラウンドの枚数（区切り）'),
@@ -704,7 +731,7 @@ function renderDrill(main, spec, only) {
       wrong.set(wkey(cur), cur);
       fb.replaceChildren(...[
         h('div', {}, h('span', { class: 'err' }, timedOut ? `⏱ 時間切れ — ${ipa(cur.sound)}` : `✗ 正解は ${ipa(cur.sound)}`), timedOut ? null : h('span', { class: 'small muted' }, `（${ipa(s)} と答えた）`)),
-        h('div', { class: 'mk-why' }, ...ruleLines(cur, timedOut ? null : s)), note].filter(Boolean));
+        h('div', { class: 'mk-why' }, whyTable(cur, timedOut ? null : s))].filter(Boolean));
       queue.splice(Math.min(queue.length, idx + RETRY_GAP[0] + Math.floor(Math.random() * (RETRY_GAP[1] - RETRY_GAP[0] + 1))), 0, cur);
     }
     recordWord(cur, ok, snapWords);
@@ -848,13 +875,7 @@ function renderCards(main, spec, only, count, onBack) {
     else { nextBtn.hidden = false; nextBtn.focus(); if (S.settings.autoNext) timer = setTimeout(show, 2200); }
   }
   // 間違えた理由を両軸で見せる: 綴りの罠 と 英語耳の罠
-  function whyLines(w, chosen) {
-    return [
-      h('div', { class: 'small' }, h('b', {}, '正解 '), ipa(w.sound), chosen ? h('span', { class: 'muted' }, `　（${ipa(chosen)} と答えた）`) : h('span', { class: 'muted' }, '　（時間切れ）')),
-      ...ruleLines(w, chosen),
-      w.note ? h('div', { class: 'small muted' }, '注: ' + w.note) : null,
-    ].filter(Boolean);
-  }
+  const whyLines = (w, chosen) => [whyTable(w, chosen)];
   function roundEnd() {
     const n = cards.length, c = cards.filter(w => !retry.includes(w)).length;
     card.className = 'mk-card';
@@ -904,7 +925,7 @@ function renderCards(main, spec, only, count, onBack) {
         h('a', { class: 'btn ghost', href: '#/' }, 'ホーム'))));
     window.scrollTo(0, 0);
   }
-  const exampleFor = snd => ((DATA.words.find(w => w.sound === snd && !w.note && w.word.length <= 5)
+  const exampleFor = snd => ((DATA.words.find(w => w.sound === snd && !w.note && !w.ex && w.word.length <= 5)
     || DATA.words.find(w => w.sound === snd)) || {}).word || '';
   nextRound();
   return () => { alive = false; clearTimeout(timer); clearTimeout(limitT); window.removeEventListener('keydown', onKey); };

@@ -115,10 +115,12 @@ await run('cards', { width: 390, height: 844 }, async page => {
     if (await page.locator('.mk-why').isVisible()) {
       if (!shot) { await page.screenshot({ path: '/tmp/shots/d-cards-why.png' }); shot = true; }
       const w = await page.textContent('.mk-why');
-      // 規則どおりの語は「綴り … → ルール」、例外語は「例外 … / ふつうは…」になる
-      if (!/綴り|例外/.test(w) || !/口/.test(w)) errors.push(`[cards] 理由に両軸が出ていない: ${w}`);
-      if (!/→|ふつうは/.test(w)) errors.push(`[cards] 一行ルールが出ていない: ${w}`);
-      if (!/の内訳/.test(w)) errors.push(`[cards] 綴りの内訳が出ていない: ${w}`);
+      // 表になっていること: 見出し・正解行・選んだ行・規則（または例外）
+      if (!/の読み方 \d+ 通り/.test(w)) errors.push(`[cards] 表の見出しが無い: ${w}`);
+      if (!/規則|例外/.test(w)) errors.push(`[cards] 規則も例外も出ていない: ${w}`);
+      if (!(await page.locator('.mk-why table.why tr.hit').count())) errors.push('[cards] 正解の行が色分けされていない');
+      if (!(await page.locator('.mk-why table.why tr.miss').count())) errors.push('[cards] 選んだ音の行が色分けされていない');
+      if (!(await page.locator('.mk-why table.why tr.hit.mouth').count())) errors.push('[cards] 口の作り方が出ていない');
       await page.click('.mk-next');
     } else { await page.keyboard.press('1'); }
     await page.waitForTimeout(300);
@@ -223,9 +225,11 @@ await run('exception', { width: 390, height: 844 }, async page => {
     if (hit) {
       const fb = await page.textContent('.fb');
       if (!/例外/.test(fb)) errors.push(`[exception] ${word}: 例外の表示が無い — ${fb}`);
-      if (!/ふつうは/.test(fb)) errors.push(`[exception] ${word}: 通常ルールの但し書きが無い — ${fb}`);
-      if (/綴り o →/.test(fb)) errors.push(`[exception] ${word}: 答えと矛盾する規則をそのまま出している — ${fb}`);
-      if (!/o の内訳/.test(fb) || !/ʌ/.test(fb.split('内訳')[1] || '')) errors.push(`[exception] ${word}: 内訳に正解の音が無い — ${fb}`);
+      if (!/はふつう/.test(fb)) errors.push(`[exception] ${word}: 通常ルールの但し書きが無い — ${fb}`);
+      if (!/同じ例外/.test(fb)) errors.push(`[exception] ${word}: 同じ例外の仲間が出ていない — ${fb}`);
+      // 表に正解 /ʌ/ の行があること
+      const hit = await page.locator('.fb table.why tr.hit .ipa').first().textContent();
+      if (hit !== '/ʌ/') errors.push(`[exception] ${word}: 正解の行が /ʌ/ でない — ${hit}`);
       await page.screenshot({ path: '/tmp/shots/d-exception.png' });
       seen = true; break;
     }

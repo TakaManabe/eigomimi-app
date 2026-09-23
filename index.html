@@ -81,6 +81,25 @@ main{max-width:640px;margin:0 auto;padding:.8rem}
 .mk-why{background:var(--bg);border-radius:12px;padding:.55rem .7rem;margin-top:.5rem;text-align:left}
 .mk-why b{color:var(--mk)}
 .mk-done{font-size:2.4rem}
+/* 間違えたときの説明（綴りの読み方の表） */
+.why{width:100%;border-collapse:collapse;font-size:.85rem;margin:.15rem 0 .35rem}
+.why td{padding:.24rem .3rem;border-bottom:1px solid var(--line);vertical-align:top}
+.why tr:last-child td{border-bottom:0}
+.why .m{width:1.3em;font-weight:800;text-align:center}
+.why .ipa{font-weight:800;white-space:nowrap}
+.why .n{text-align:right;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.why .ex{color:var(--muted);overflow-wrap:anywhere}
+.why .cond{color:var(--text);font-weight:700;white-space:nowrap}
+.why tr.hit{background:#dcfce7}.why tr.hit .m,.why tr.hit .ipa{color:#14532d}
+.why tr.miss{background:#fee2e2}.why tr.miss .m,.why tr.miss .ipa{color:#7f1d1d}
+.why .mouth td{padding-top:0;font-size:.8rem;border-bottom:0}
+.why tr.hit.mouth{background:#dcfce7}.why tr.miss.mouth{background:#fee2e2}
+@media(prefers-color-scheme:dark){
+ .why tr.hit,.why tr.hit.mouth{background:#052e1b}.why tr.hit .m,.why tr.hit .ipa{color:#86efac}
+ .why tr.miss,.why tr.miss.mouth{background:#3f1010}.why tr.miss .m,.why tr.miss .ipa{color:#fca5a5}}
+.why-h{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;font-size:.85rem;font-weight:700}
+.why-rule{font-size:.8rem;color:var(--muted);margin-top:.15rem}
+.why-rule b{color:var(--text)}
 /* 単語帳 */
 .wbar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:var(--line);margin:.3rem 0}
 .wbar>i{display:block;min-width:0}
