@@ -200,3 +200,18 @@ test('例外は全体のごく一部にとどまる', () => {
   assert.ok(drill.words.some(w => w.word === 'many' && w.ex), 'many が例外になっていない');
   assert.ok(!drill.words.some(w => w.word === 'care' && w.ex), 'care は規則どおりなのに例外');
 });
+
+// ---------- 版の表示 ----------
+test('app.js の APP_VERSION と sw.js の VERSION が揃っている', () => {
+  const app = readFileSync(new URL('../app.js', import.meta.url), 'utf8');
+  const sw = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
+  const a = app.match(/APP_VERSION = '([^']+)'/), s = sw.match(/VERSION = 'drill-([^']+)'/);
+  assert.ok(a && s, '版の定義が見つからない');
+  assert.equal(a[1], s[1], `app.js=${a[1]} sw.js=${s[1]} がずれている（デプロイしても古い版が残る原因になる）`);
+});
+test('service worker が配信ファイルを取りこぼしていない', () => {
+  const sw = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
+  const listed = new Set([...sw.matchAll(/'\.\/([^']*)'/g)].map(m => m[1]));
+  for (const f of ['index.html', 'app.js', 'order.js', 'merge.js', 'data/drill-words.json', 'manifest.webmanifest'])
+    assert.ok(listed.has(f), `${f} が sw.js の FILES に無い`);
+});

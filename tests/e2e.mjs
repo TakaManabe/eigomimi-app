@@ -386,6 +386,25 @@ await run('speak', { width: 390, height: 844 }, async page => {
   if (!after.includes(w2)) errors.push(`[speak] 回答後に鳴っていない: ${w2} / ${JSON.stringify(after)}`);
   await page.screenshot({ path: '/tmp/shots/d-speak.png' });
 });
+await run('version', { width: 390, height: 844 }, async page => {
+  // 端末に古い版が残らないこと: 版の表示と、更新確認のボタン
+  await page.goto(BASE); await page.waitForSelector('text=この端末の版');
+  const txt = await page.textContent('main');
+  const m = txt.match(/v\d+\.\d+\.\d+/);
+  if (!m) errors.push('[version] 版が表示されていない');
+  const sw = await (await fetch(BASE + 'sw.js')).text();
+  const swv = sw.match(/VERSION = 'drill-(v[\d.]+)'/);
+  if (!swv || !m || swv[1] !== m[0]) errors.push(`[version] 画面 ${m && m[0]} と sw.js ${swv && swv[1]} がずれている`);
+  // service worker が updateViaCache なしで登録されていないこと
+  const reg = await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+    const r = await navigator.serviceWorker.getRegistration();
+    return r ? r.updateViaCache : null;
+  });
+  if (reg !== 'none') errors.push(`[version] updateViaCache が ${reg}（none でないと古い sw.js を掴む）`);
+  await page.click('button:text-is("更新を確認")');
+  await page.waitForSelector('#toast.show');
+});
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');
   await page.click('.seg button:text-is("2秒")'); await page.click('.seg button:has-text("20")'); await page.click('text=スタート'); await page.waitForSelector('.word');

@@ -4,6 +4,7 @@ import { mergeSlots, PASS_RATE, PASS_RUNS, PASS_MIN } from './merge.js';
 const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
+const APP_VERSION = 'v0.3.4';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
 const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
 const SPEAKS = [['q', '出題時'], ['a', '回答後'], ['off', 'なし']];   // 音声を鳴らすタイミング
 const ROUNDS = [5, 10, 20, 30];      // ミックス（カード）1 ラウンドの枚数
@@ -407,6 +408,9 @@ function renderHome(main) {
         if (!confirm(`${r.label}\n\n${r.desc}\n\n元に戻せません。実行しますか？`)) return;
         r.run(); persistPeers(); persistMine(); toast(`${r.label}を実行しました`, 'ok'); route();
       } }, 'リセット'))),
+    h('div', { class: 'field', style: 'margin-top:1rem' },
+      h('span', { class: 'small' }, 'この端末の版', h('div', { class: 'small muted' }, APP_VERSION)),
+      h('button', { class: 'btn small', onClick: checkUpdate }, '更新を確認')),
     h('p', { class: 'small muted', style: 'margin-top:.8rem' }, `単語 ${DATA.words.length} 語 ／ `,
       S.settings.sync ? '記録は同期用のサーバーにも置かれます（同期オン）。' : '記録は端末内のみ（サーバー送信なし）。',
       '自動の発音判定は行いません。')));
@@ -960,6 +964,37 @@ async function boot() {
   addEventListener('hashchange', route); route();
   syncNow();
   addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncNow(); });
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  setupUpdates();
+}
+
+// 端末に古い版が残り続けないようにする。
+// updateViaCache:'none' で sw.js 自体を HTTP キャッシュから読まず、
+// 新しい版が有効になったら 1 回だけ再読込する。
+let swReg = null, reloading = false;
+function setupUpdates() {
+  if (!('serviceWorker' in navigator)) return;
+  // 初回インストールでも controllerchange は起きる。既に動いていた版がある
+  // ときだけ再読込する（そうしないと初回に無用な再読込が入る）
+  const had = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!had || reloading) return; reloading = true; location.reload();
+  });
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+    swReg = reg;
+    reg.update().catch(() => {});
+    setInterval(() => reg.update().catch(() => {}), 30 * 60 * 1000);
+    addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+  }).catch(() => {});
+}
+async function checkUpdate() {
+  if (!swReg) return toast('この環境では更新確認ができません', 'err');
+  toast('更新を確認しています…');
+  try {
+    await swReg.update();
+    // 新しい版が待機していれば、そのまま有効化させる（controllerchange で再読込）
+    if (swReg.waiting) { swReg.waiting.postMessage({ type: 'skipWaiting' }); return; }
+    if (swReg.installing) return;
+    toast('最新の版です', 'ok');
+  } catch { toast('更新を確認できません', 'err'); }
 }
 boot();

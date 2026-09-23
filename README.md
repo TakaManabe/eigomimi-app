@@ -218,6 +218,18 @@ npm run test:e2e              # 別ターミナルでサーバーを起動した
 ## 公開
 
 `main` に push すると GitHub Actions がテストを実行し、GitHub Pages にデプロイします（Settings → Pages → Source: GitHub Actions）。
-更新は `sw.js` の `VERSION` を変えると確実にキャッシュが入れ替わります。
+
+### 端末に古い版が残らないようにする
+
+内容を変えたら **`sw.js` の `VERSION` と `app.js` の `APP_VERSION` を両方上げます**（ずれていると `npm test` が落ちます）。
+
+GitHub Pages は全ファイルに `Cache-Control: max-age=600` を付けるため、放っておくと端末が最大 10 分（ホーム画面に追加した PWA ではさらに長く）古い版を掴み続けます。対策:
+
+- Service Worker を `updateViaCache: 'none'` で登録し、`sw.js` 自体を HTTP キャッシュから読まない
+- 起動時・アプリに戻ったとき・30 分ごとに `registration.update()` を呼ぶ
+- 新しい版が有効になったら 1 回だけ自動で再読込する（初回インストール時は再読込しない）
+- 設定に **この端末の版** を表示し、「更新を確認」ボタンで待機中の版をすぐ有効化できる
+
+うまく入れ替わらないときは、設定の「更新を確認」を押すか、ホーム画面の PWA を一度閉じてから開き直してください。
 
 以前のフル機能版（10 ステップの練習フロー・録音比較・復習間隔・聞き分けクイズ・分類ゲーム）は git 履歴のタグ `full-app` に残しています。
