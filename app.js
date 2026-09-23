@@ -5,6 +5,7 @@ const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
 const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
+const SPEAKS = [['q', '出題時'], ['a', '回答後'], ['off', 'なし']];   // 音声を鳴らすタイミング
 const ROUNDS = [5, 10, 20, 30];      // ミックス（カード）1 ラウンドの枚数
 const INTERVALS = [1, 3, 7, 14, 30];  // 誤答語を復習する間隔（日）
 const MIX_RATE = 0.3;                // 合格後、既習語を混ぜる割合（累積復習）
@@ -76,7 +77,7 @@ if (!deviceId) { deviceId = 'd' + Math.random().toString(36).slice(2, 10) + Date
 let MY = emptySlot(), PEER = {};
 const S = {
   words: {}, log: [], prog: {}, conf: {},   // 合算ビュー（直接書かない）
-  settings: Object.assign({ count: 50, audio: true, voice: '', autoNext: true, limit: 3, cards: false, round: 10, sync: '' }, load('settings', {})),
+  settings: Object.assign({ count: 50, audio: true, voice: '', autoNext: true, limit: 3, cards: false, round: 10, sync: '', speak: '' }, load('settings', {})),
 };
 
 function recompute() {
@@ -101,6 +102,8 @@ function loadStore() {
 }
 const persistMine = () => { if (MY.log.length > 1000) MY.log = MY.log.slice(-1000); save('mine', MY); recompute(); };
 const persistPeers = () => { save('peers', PEER); recompute(); };
+// 旧設定（audio の真偽）から、鳴らすタイミングの設定へ移す。既定は「出題時」
+if (!S.settings.speak) { S.settings.speak = S.settings.audio === false ? 'off' : 'q'; delete S.settings.audio; save('settings', S.settings); }
 const persistSettings = () => save('settings', S.settings);
 
 // ---------- 端末間の同期（任意・既定オフ）----------
@@ -218,8 +221,9 @@ function recordRun(id, n, c) {
 }
 
 // ---------- 音声（合成音声のみ。発音判定はしない）----------
+const speakAt = when => S.settings.speak === when;
 function speak(text) {
-  if (!S.settings.audio || !('speechSynthesis' in window)) return;
+  if (S.settings.speak === 'off' || !('speechSynthesis' in window)) return;
   try {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = 0.95;
@@ -357,8 +361,10 @@ function renderHome(main) {
     h('h3', {}, '混同しやすい綴り→音（正しい音 → 選んだ音）'),
     confTop.length ? h('div', { class: 'chips' }, ...confTop.map(([k, v]) => { const [f, to] = k.split('→'); return h('span', { class: 'chip warn' }, `${ipa(f)} → ${ipa(to)} ×${v}`); })) : h('p', { class: 'small muted' }, 'まだ記録がありません'),
     h('div', { class: 'row', style: 'margin-top:.6rem' },
-      h('button', { class: 'btn small' + (S.settings.audio ? ' primary' : ''), onClick: e => { S.settings.audio = !S.settings.audio; persistSettings(); e.target.classList.toggle('primary', S.settings.audio); e.target.textContent = S.settings.audio ? '回答後に音声: あり' : '回答後に音声: なし'; } }, S.settings.audio ? '回答後に音声: あり' : '回答後に音声: なし'),
       voiceSel),
+    h('div', { class: 'field' }, h('span', { class: 'small' }, '音声を鳴らす'),
+      seg(SPEAKS, S.settings.speak, v => { S.settings.speak = v; persistSettings(); })),
+    h('p', { class: 'small muted' }, '「出題時」は単語が出た瞬間に読み上げます（既定）。綴りを見ながら音も聞くので、英語耳の音と綴りが結びつきます。綴りだけで答える練習をしたいときは「回答後」にしてください。単語帳や結果画面のタップはどの設定でも鳴ります。'),
     h('div', { class: 'row', style: 'margin-top:.6rem' },
       h('button', { class: 'btn small', onClick: () => {
         const blob = new Blob([JSON.stringify({ app: 'vowel-drill', schema: 1, exportedAt: new Date().toISOString(), words: S.words, log: S.log, prog: S.prog }, null, 1)], { type: 'application/json' });
@@ -604,6 +610,7 @@ function renderDrill(main, spec, only) {
     h('div', { class: 'field' }, h('span', { class: 'small' }, '1 セッションの枚数'), seg(COUNTS.map(c => [c, c || '無制限']), count, v => { count = v; S.settings.count = v; persistSettings(); })),
     h('div', { class: 'field' }, h('span', { class: 'small' }, '回答の制限時間'), seg(LIMITS.map(l => [l, l ? `${l}秒` : 'なし']), S.settings.limit, v => { S.settings.limit = v; persistSettings(); })),
     h('div', { class: 'field' }, h('span', { class: 'small' }, '不正解のあと'), seg([[true, '1.5秒で自動的に次へ'], [false, '「次へ」を押す']], S.settings.autoNext, v => { S.settings.autoNext = v; persistSettings(); })),
+    h('div', { class: 'field' }, h('span', { class: 'small' }, '音声を鳴らす'), seg(SPEAKS, S.settings.speak, v => { S.settings.speak = v; persistSettings(); })),
     h('div', { class: 'field' }, h('span', { class: 'small' }, '形式'), seg([[false, 'ふつう'], [true, 'ミックス（カード）']], !!S.settings.cards, v => { S.settings.cards = v; persistSettings(); roundRow.hidden = !v; whyRow.hidden = !v; })),
     roundRow, whyRow,
     only === 'weak' ? h('p', { class: 'small err' }, `苦手な語だけ（${all.filter(isWeak).length} 語）`) : null,
@@ -673,6 +680,7 @@ function renderDrill(main, spec, only) {
       limitT = setTimeout(() => answer(null), lim * 1000);
     }
     fb.replaceChildren(); nextBtn.hidden = true;
+    if (speakAt('q')) speak(cur.word);
     status.replaceChildren(h('span', {}, `${answered + 1}${count ? ' / ' + count : ''}`), h('span', {}, `正解 ${correct}　連続 ${streak}`));
     bar.firstChild.style.width = (count ? Math.min(100, answered / count * 100) : 0) + '%';
   }
@@ -700,7 +708,7 @@ function renderDrill(main, spec, only) {
       queue.splice(Math.min(queue.length, idx + RETRY_GAP[0] + Math.floor(Math.random() * (RETRY_GAP[1] - RETRY_GAP[0] + 1))), 0, cur);
     }
     recordWord(cur, ok, snapWords);
-    speak(cur.word);
+    if (speakAt('a')) speak(cur.word);
     idx++;
     if (ok) timer = setTimeout(show, 550);
     else { nextBtn.hidden = false; nextBtn.focus(); if (S.settings.autoNext) timer = setTimeout(show, 1500); }
@@ -806,6 +814,7 @@ function renderCards(main, spec, only, count, onBack) {
     streakEl.textContent = streak ? `🔥 ${streak}` : '';
     const p = Math.round(ci / cards.length * 100);
     ring.style.setProperty('--p', p); ring.firstChild.textContent = p + '%';
+    if (speakAt('q')) speak(cur.word);
     const lim = S.settings.limit;
     tbar.hidden = !lim;
     if (lim) {
@@ -833,7 +842,7 @@ function renderCards(main, spec, only, count, onBack) {
       why.hidden = false;
     }
     recordWord(cur, ok, snapWords);
-    speak(cur.word);
+    if (speakAt('a')) speak(cur.word);
     ci++;
     if (ok) timer = setTimeout(show, 420);
     else { nextBtn.hidden = false; nextBtn.focus(); if (S.settings.autoNext) timer = setTimeout(show, 2200); }

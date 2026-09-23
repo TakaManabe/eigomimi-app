@@ -204,7 +204,7 @@ await run('reset', { width: 390, height: 844 }, async page => {
 await run('exception', { width: 390, height: 844 }, async page => {
   // 例外語（o なのに /ʌ/: money, mother, love …）でルールと答えが矛盾しないこと
   await page.goto(BASE);
-  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('vd:settings', JSON.stringify({ count: 50, limit: 0, autoNext: false, cards: false, audio: false })); });
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('vd:settings', JSON.stringify({ count: 50, limit: 0, autoNext: false, cards: false, speak: 'off' })); });
   await page.reload();   // ハッシュ移動だけでは設定が読み直されない
   await page.goto(BASE + '#/s/P1-2'); await page.waitForSelector('text=スタート');
   await page.click('text=スタート'); await page.waitForSelector('.word');
@@ -271,7 +271,7 @@ await run('sync', { width: 390, height: 844 }, async page => {
       localStorage.clear();
       localStorage.setItem('vd:device', JSON.stringify(dev));
       localStorage.setItem('vd:mine', JSON.stringify(seed));
-      localStorage.setItem('vd:settings', JSON.stringify({ sync: code, count: 20, audio: false }));
+      localStorage.setItem('vd:settings', JSON.stringify({ sync: code, count: 20, speak: 'off' }));
     }, [dev, seed, code]);
     await p2.reload(); await p2.waitForSelector('text=フォニックス・コース');
   };
@@ -344,6 +344,43 @@ await run('book', { width: 390, height: 844 }, async page => {
   if (!/終了率/.test(await page.textContent('main'))) errors.push('[book] ホームに終了率が無い');
   if (!(await page.locator('a[href="#/w/P1-1"]').count())) errors.push('[book] ホームに単語帳へのリンクが無い');
   await page.screenshot({ path: '/tmp/shots/d-book-home.png', fullPage: true });
+});
+await run('speak', { width: 390, height: 844 }, async page => {
+  // 音声を鳴らすタイミング: 既定は「出題時」
+  await page.goto(BASE);
+  await page.evaluate(() => localStorage.clear());
+  await page.reload(); await page.waitForSelector('text=フォニックス・コース');
+  const def = await page.evaluate(() => JSON.parse(localStorage.getItem('vd:settings') || '{}').speak);
+  if (def !== 'q') errors.push(`[speak] 既定が出題時でない: ${def}`);
+  if (!(await page.locator('.field:has-text("音声を鳴らす") .seg button.on:text-is("出題時")').count()))
+    errors.push('[speak] 設定画面で「出題時」が選ばれていない');
+  // 発話の呼び出しを記録する
+  await page.addInitScript(() => {
+    window.__spoken = [];
+    const orig = speechSynthesis.speak.bind(speechSynthesis);
+    speechSynthesis.speak = u => { window.__spoken.push(u.text); try { orig(u); } catch { /* ignore */ } };
+  });
+  await page.goto(BASE + '#/s/P1-1'); await page.reload(); await page.waitForSelector('text=スタート');
+  await page.click('.seg button:text-is("なし")').catch(() => {});        // 制限時間なし
+  await page.click('text=スタート'); await page.waitForSelector('.word');
+  await page.waitForTimeout(400);
+  const w1 = (await page.textContent('.word')).trim();
+  const spokenBefore = await page.evaluate(() => window.__spoken.slice());
+  if (!spokenBefore.includes(w1)) errors.push(`[speak] 出題時に鳴っていない: ${w1} / ${JSON.stringify(spokenBefore)}`);
+  // 「回答後」に切り替えると出題時には鳴らない
+  await page.goto(BASE + '#/'); await page.waitForSelector('text=音声を鳴らす');
+  await page.click('.field:has-text("音声を鳴らす") .seg button:text-is("回答後")');
+  await page.goto(BASE + '#/s/P1-1'); await page.reload(); await page.waitForSelector('text=スタート');
+  await page.evaluate(() => { window.__spoken = []; });
+  await page.click('text=スタート'); await page.waitForSelector('.word');
+  await page.waitForTimeout(400);
+  const w2 = (await page.textContent('.word')).trim();
+  const mid = await page.evaluate(() => window.__spoken.slice());
+  if (mid.includes(w2)) errors.push(`[speak] 「回答後」なのに出題時に鳴った: ${w2}`);
+  await page.keyboard.press('1'); await page.waitForTimeout(400);
+  const after = await page.evaluate(() => window.__spoken.slice());
+  if (!after.includes(w2)) errors.push(`[speak] 回答後に鳴っていない: ${w2} / ${JSON.stringify(after)}`);
+  await page.screenshot({ path: '/tmp/shots/d-speak.png' });
 });
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');
