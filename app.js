@@ -4,7 +4,7 @@ import { mergeSlots, PASS_RATE, PASS_RUNS, PASS_MIN } from './merge.js';
 const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
-const APP_VERSION = 'v0.4.2';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
+const APP_VERSION = 'v0.4.3';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
 const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
 const SPEAKS = [['q', '出題時'], ['a', '回答後'], ['off', 'なし']];   // 音声を鳴らすタイミング
 const ROUNDS = [5, 10, 20, 30];      // ミックス（カード）1 ラウンドの枚数
@@ -225,7 +225,7 @@ function openPattern(id, onOpen) {
       h('div', { class: 'chips' }, ...ws.slice(0, 30).map(w => h('button', { class: 'chip sel', onClick: () => speak(w.word) }, hlWord(w))),
         ws.length > 30 ? h('span', { class: 'small muted' }, `ほか ${ws.length - 30} 語`) : null),
       h('div', { class: 'row', style: 'margin-top:.6rem' },
-        h('a', { class: 'btn small', href: `#/p?at=${id}`, onClick: closeModal }, '一覧で見る（ドリルは終了）'),
+        h('a', { class: 'btn small', href: `#/p?at=${id}`, target: '_blank', rel: 'noopener' }, '一覧で見る ↗'),
         h('button', { class: 'btn small primary', onClick: closeModal }, '戻る'))));
   document.body.append(modalEl); modalOpen = true;
 }

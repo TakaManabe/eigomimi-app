@@ -239,6 +239,12 @@ await run('exception', { width: 390, height: 844 }, async page => {
       const sheet = await page.textContent('.modal .sheet');
       if (!/E1/.test(sheet) || !/money|mother/.test(sheet)) errors.push(`[exception] シートの中身がおかしい: ${sheet.slice(0, 100)}`);
       await page.screenshot({ path: '/tmp/shots/d-sheet.png' });
+      // 「一覧で見る」は新しいタブ（ドリルを壊さない）
+      const link = page.locator('.modal a:has-text("一覧で見る")');
+      if ((await link.getAttribute('target')) !== '_blank') errors.push('[exception] 一覧で見るが新しいタブでない');
+      const [tab] = await Promise.all([page.context().waitForEvent('page'), link.click()]);
+      await tab.waitForSelector('#e1[open]'); await tab.close();
+      if ((await page.textContent('.word')).trim() !== word) errors.push('[exception] 一覧を開いたら元のドリルが壊れた');
       await page.keyboard.press('Escape'); await page.waitForTimeout(150);
       if (await page.locator('.modal').count()) errors.push('[exception] Escape でシートが閉じない');
       if ((await page.textContent('.word')).trim() !== word) errors.push('[exception] シートを閉じたらドリルが壊れた');
