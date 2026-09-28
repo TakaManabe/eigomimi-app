@@ -117,12 +117,13 @@ await run('cards', { width: 390, height: 844 }, async page => {
       if (!shot) { await page.screenshot({ path: '/tmp/shots/d-cards-why.png' }); shot = true; }
       const w = await page.textContent('.mk-why');
       // 表になっていること: 見出し・正解行・選んだ行・規則（または例外）
-      if (!/の読み方 \d+ 通り/.test(w)) errors.push(`[cards] 表の見出しが無い: ${w}`);
+      if (!/\d+ 通りの読み方/.test(w)) errors.push(`[cards] 表の見出しが無い: ${w}`);
+      if (!(await page.locator('.mk-why .why-g').count())) errors.push('[cards] 綴りのタイトル表示が無い');
       if (!/規則|例外/.test(w)) errors.push(`[cards] 規則も例外も出ていない: ${w}`);
       if (!(await page.locator('.mk-why table.why tr.hit').count())) errors.push('[cards] 正解の行が色分けされていない');
       if (!(await page.locator('.mk-why table.why tr.miss').count())) errors.push('[cards] 選んだ音の行が色分けされていない');
       if (!(await page.locator('.mk-why table.why tr.hit.mouth').count())) errors.push('[cards] 口の作り方が出ていない');
-      if (!(await page.locator('.mk-why table.why tr.hit .pn a.pnum').count())) errors.push('[cards] 正解の行にパターン番号が無い');
+      if (!(await page.locator('.mk-why table.why tr.hit .pn .pnum').count())) errors.push('[cards] 正解の行にパターン番号が無い');
       if (!/正解/.test(await page.textContent('.mk-why .why-nums'))) errors.push('[cards] 正解の番号行が無い');
       await page.click('.mk-next');
     } else { await page.keyboard.press('1'); }
@@ -231,7 +232,17 @@ await run('exception', { width: 390, height: 844 }, async page => {
       if (!/はふつう/.test(fb)) errors.push(`[exception] ${word}: 通常ルールの但し書きが無い — ${fb}`);
       if (!/同じ例外/.test(fb)) errors.push(`[exception] ${word}: 同じ例外の仲間が出ていない — ${fb}`);
       if (!/正解\s*E1/.test(fb.replace(/\s+/g, ' '))) errors.push(`[exception] ${word}: 正解の例外番号 E1 が出ていない — ${fb.slice(0, 120)}`);
-      if (!(await page.locator('.fb .why-nums a.pnum.ex').count())) errors.push(`[exception] 例外番号のバッジが無い`);
+      if (!(await page.locator('.fb .why-nums .pnum.ex').count())) errors.push(`[exception] 例外番号のバッジが無い`);
+      // 番号を押すとシートが開き、閉じるとドリルがそのまま続く
+      await page.locator('.fb .why-nums .pnum.ex').first().click();
+      await page.waitForSelector('.modal .sheet');
+      const sheet = await page.textContent('.modal .sheet');
+      if (!/E1/.test(sheet) || !/money|mother/.test(sheet)) errors.push(`[exception] シートの中身がおかしい: ${sheet.slice(0, 100)}`);
+      await page.screenshot({ path: '/tmp/shots/d-sheet.png' });
+      await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+      if (await page.locator('.modal').count()) errors.push('[exception] Escape でシートが閉じない');
+      if ((await page.textContent('.word')).trim() !== word) errors.push('[exception] シートを閉じたらドリルが壊れた');
+      if (!/5 \/ 50|\d+ \/ 50/.test(await page.textContent('main'))) errors.push('[exception] 進捗が消えた');
       // 表に正解 /ʌ/ の行があること
       const hit = await page.locator('.fb table.why tr.hit .ipa').first().textContent();
       if (hit !== '/ʌ/') errors.push(`[exception] ${word}: 正解の行が /ʌ/ でない — ${hit}`);
@@ -496,6 +507,11 @@ await run('patterns', { width: 390, height: 844 }, async page => {
   if (!(await page.locator('#e1 a:has-text("ドリル")').count())) errors.push('[patterns] ドリルへのリンクが無い');
   // ホームに入口
   await page.goto(BASE + '#/'); await page.waitForSelector('a[href="#/p"]');
+  // 3 文字の番号（E31）がバッジからはみ出さない
+  await page.goto(BASE + '#/p?at=e31'); await page.waitForSelector('#e31[open]');
+  const box = await page.locator('#e31 .pnum').first().boundingBox();
+  const inner = await page.locator('#e31 .pnum').first().evaluate(el => { const r = document.createRange(); r.selectNodeContents(el); const b = r.getBoundingClientRect(); return { w: b.width, x: b.x }; });
+  if (!box || inner.w > box.width + 0.5 || inner.x < box.x - 0.5) errors.push(`[patterns] E31 の文字がバッジからはみ出す: badge=${JSON.stringify(box)} text=${JSON.stringify(inner)}`);
 });
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');

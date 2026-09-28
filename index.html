@@ -97,14 +97,16 @@ main{max-width:640px;margin:0 auto;padding:.8rem}
 @media(prefers-color-scheme:dark){
  .why tr.hit,.why tr.hit.mouth{background:#052e1b}.why tr.hit .m,.why tr.hit .ipa{color:#86efac}
  .why tr.miss,.why tr.miss.mouth{background:#3f1010}.why tr.miss .m,.why tr.miss .ipa{color:#fca5a5}}
-.why-h{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;font-size:.85rem;font-weight:700}
+.why-h{display:flex;justify-content:space-between;align-items:center;gap:.5rem;font-size:.85rem;font-weight:700;margin-bottom:.15rem}
+.why-g{display:inline-block;padding:.02em .55em .08em;border-radius:9px;background:var(--primary);color:#fff;font-size:1.35rem;font-weight:900;letter-spacing:.02em;line-height:1.35;vertical-align:middle}
+.why-t{margin-left:.5rem;font-weight:700;vertical-align:middle}
 .why-rule{font-size:.8rem;color:var(--muted);margin-top:.15rem}
 .why-rule b{color:var(--text)}
 /* パターン番号と一覧 */
-.pnum{display:inline-flex;align-items:center;justify-content:center;min-width:1.7em;height:1.5em;padding:0 .35em;border-radius:6px;background:var(--primary);color:#fff;font-weight:800;font-size:.72rem;text-decoration:none;font-variant-numeric:tabular-nums;vertical-align:middle}
+.pnum{display:inline-flex;align-items:center;justify-content:center;min-width:1.7em;height:1.5em;padding:0 .4em;border-radius:6px;background:var(--primary);color:#fff;font-weight:800;font-size:.72rem;text-decoration:none;font-variant-numeric:tabular-nums;vertical-align:middle;white-space:nowrap;line-height:1;cursor:pointer}
 .pnum.ex{background:var(--err)}
 .pnum.big{min-width:2.1em;height:1.8em;font-size:.85rem}
-.why .pn{width:2.4em;padding-left:.1rem;padding-right:.1rem}
+.why .pn{width:1%;white-space:nowrap;padding-left:.1rem;padding-right:.15rem}
 .why-nums{font-size:.85rem;margin:.2rem 0 .3rem;line-height:1.8}
 .why-nums>span{display:block}
 .why-nums .ok,.why-nums .err{font-weight:700}
@@ -120,6 +122,9 @@ main{max-width:640px;margin:0 auto;padding:.8rem}
 .prow .pcount{color:var(--muted);font-size:.8rem;white-space:nowrap}
 .prow .pbody{padding:.4rem 0 .3rem 2.3rem}
 @media(max-width:420px){.prow .pbody{padding-left:.2rem}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--card);color:var(--text);width:100%;max-width:640px;max-height:80vh;overflow:auto;border-radius:18px 18px 0 0;padding:1rem 1rem calc(1rem + var(--sb));box-shadow:0 -6px 24px rgba(0,0,0,.2)}
+.sheet .pg{font-size:1.2rem}
 /* 単語帳 */
 .wbar{display:flex;height:7px;border-radius:4px;overflow:hidden;background:var(--line);margin:.3rem 0}
 .wbar>i{display:block;min-width:0}

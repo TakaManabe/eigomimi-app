@@ -4,7 +4,7 @@ import { mergeSlots, PASS_RATE, PASS_RUNS, PASS_MIN } from './merge.js';
 const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
-const APP_VERSION = 'v0.4.0';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
+const APP_VERSION = 'v0.4.2';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
 const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
 const SPEAKS = [['q', '出題時'], ['a', '回答後'], ['off', 'なし']];   // 音声を鳴らすタイミング
 const ROUNDS = [5, 10, 20, 30];      // ミックス（カード）1 ラウンドの枚数
@@ -198,7 +198,38 @@ function buildPatIndex() {
 const patOf = (g, snd) => PAT_BY_GS[`${g}|${snd}`] || null;
 const patLabel = id => { const p2 = PAT[id]; return p2 ? (p2.kind === 'p' ? `パターン ${p2.n}` : `例外 ${p2.n}`) : ''; };
 const patShort = id => { const p2 = PAT[id]; return p2 ? (p2.kind === 'p' ? `${p2.n}` : `E${p2.n}`) : ''; };
-const patBadge = (id, extra = '') => id ? h('a', { class: 'pnum ' + (PAT[id]?.kind === 'e' ? 'ex' : '') + ' ' + extra, href: `#/p?at=${id}`, title: patLabel(id) }, patShort(id)) : null;
+const patBadge = (id, extra = '', onOpen = null) => id
+  ? h('button', { class: 'pnum ' + (PAT[id]?.kind === 'e' ? 'ex' : '') + ' ' + extra, title: patLabel(id), type: 'button',
+      onClick: e => { e.preventDefault(); e.stopPropagation(); openPattern(id, onOpen); } }, patShort(id))
+  : null;
+
+// パターンの詳細シート。ドリルの途中でも画面を壊さずに見られる（ページ遷移しない）
+let modalEl = null, modalOpen = false;
+function closeModal() { if (modalEl) modalEl.remove(); modalEl = null; modalOpen = false; }
+function openPattern(id, onOpen) {
+  const p2 = PAT[id]; if (!p2) return;
+  if (onOpen) onOpen();
+  closeModal();
+  const ws = DATA.words.filter(w => w.pat === id), st = stepStats(ws);
+  const gs = Array.isArray(p2.g) ? p2.g.join(' / ') : p2.g;
+  modalEl = h('div', { class: 'modal', onClick: e => { if (e.target === modalEl) closeModal(); } },
+    h('div', { class: 'sheet' },
+      h('div', { class: 'row between' },
+        h('span', {}, h('span', { class: 'pnum big' + (p2.kind === 'e' ? ' ex' : '') }, patShort(id)), '　',
+          h('b', { class: 'pg' }, gs), ' → ', h('b', { class: 'pg' }, ipa(p2.sound))),
+        h('button', { class: 'btn small ghost', onClick: closeModal }, '閉じる')),
+      h('p', {}, p2.kind === 'p' ? p2.cond : h('span', {}, h('b', { class: 'err' }, '例外　'), p2.note)),
+      h('div', { class: 'small muted' }, h('b', {}, '口 '), mouthOf(p2.sound)),
+      wbar(st),
+      h('div', { class: 'small muted' }, `終了率 ${st.rate}%　クリア ${st.clear}　要復習 ${st.due}　未出題 ${st.new}　全 ${ws.length} 語`),
+      h('div', { class: 'chips' }, ...ws.slice(0, 30).map(w => h('button', { class: 'chip sel', onClick: () => speak(w.word) }, hlWord(w))),
+        ws.length > 30 ? h('span', { class: 'small muted' }, `ほか ${ws.length - 30} 語`) : null),
+      h('div', { class: 'row', style: 'margin-top:.6rem' },
+        h('a', { class: 'btn small', href: `#/p?at=${id}`, onClick: closeModal }, '一覧で見る（ドリルは終了）'),
+        h('button', { class: 'btn small primary', onClick: closeModal }, '戻る'))));
+  document.body.append(modalEl); modalOpen = true;
+}
+addEventListener('keydown', e => { if (modalOpen && e.key === 'Escape') closeModal(); }, true);
 // 間違えたときの説明。その綴りが何通りに読まれるかを表にして、正解の行と、
 // 選んでしまった音の行を色で示す。口の作り方はその 2 行だけに付ける。
 const exWordsFor = (g, snd, n = 2) => {
@@ -230,7 +261,7 @@ function replayRow(w, chosen, stopAuto) {
 }
 
 const WHY_ROWS = 5;
-function whyTable(w, chosen) {
+function whyTable(w, chosen, stopAuto = null) {
   const all = DATA.gsounds[w.g] || [];
   // 選んだ音がその綴りに存在しないこともある（a は /ɪ/ にはならない）。
   // その場合も 0 語の行として出し、「この綴りではその音にならない」と見せる
@@ -248,7 +279,7 @@ function whyTable(w, chosen) {
     const cond = p2 ? (p2.kind === 'p' ? p2.cond : '例外') : condFor(w.g, snd);
     const out = [h('tr', { class: kind },
       h('td', { class: 'm' }, snd === w.sound ? '✓' : (snd === chosen ? '✗' : '')),
-      h('td', { class: 'pn' }, patBadge(id)),
+      h('td', { class: 'pn' }, patBadge(id, '', stopAuto)),
       h('td', { class: 'ipa' }, ipa(snd)),
       h('td', { class: 'n' }, n ? `${n}語` : '—'),
       n ? h('td', { class: 'ex' }, h('b', { class: 'cond' }, cond), ' ', exWordsFor(w.g, snd))
@@ -260,12 +291,12 @@ function whyTable(w, chosen) {
   const fam = w.ex ? ((DATA.exGroups || {})[`${w.st}|${w.g}|${w.sound}`] || []) : [];
   return h('div', {},
     h('div', { class: 'why-h' },
-      h('span', {}, `「${w.g}」の読み方 ${all.length} 通り`),
+      h('span', {}, h('span', { class: 'why-g' }, w.g), h('span', { class: 'why-t' }, `${all.length} 通りの読み方`)),
       w.ex ? h('span', { class: 'badge due' }, '例外')
            : h('span', { class: 'small muted' }, chosen ? `${ipa(chosen)} と答えた` : '時間切れ')),
     h('div', { class: 'why-nums' },
-      h('span', { class: 'ok' }, '正解 ', patBadge(myId, 'big'), ' ', PAT[myId]?.kind === 'p' ? PAT[myId].cond : (PAT[myId]?.note || '')),
-      chosenId ? h('span', { class: 'err' }, 'あなた ', patBadge(chosenId, 'big'), ' ', PAT[chosenId]?.kind === 'p' ? PAT[chosenId].cond : (PAT[chosenId]?.note || ''))
+      h('span', { class: 'ok' }, '正解 ', patBadge(myId, 'big', stopAuto), ' ', PAT[myId]?.kind === 'p' ? PAT[myId].cond : (PAT[myId]?.note || '')),
+      chosenId ? h('span', { class: 'err' }, 'あなた ', patBadge(chosenId, 'big', stopAuto), ' ', PAT[chosenId]?.kind === 'p' ? PAT[chosenId].cond : (PAT[chosenId]?.note || ''))
                : (chosen && chosen !== w.sound ? h('span', { class: 'err' }, `あなた ${ipa(chosen)}（この綴りにはない）`) : null)),
     h('table', { class: 'why' }, ...rows.slice(0, WHY_ROWS).flatMap(tr),
       hidden ? h('tr', {}, h('td', {}), h('td', { colspan: 4, class: 'ex' }, `ほか ${hidden} 通り`)) : null),
@@ -788,7 +819,7 @@ function renderDrill(main, spec, only) {
       h('button', { class: 'btn choice', dataset: { s }, onClick: () => answer(s) }, h('b', {}, ipa(s)), h('span', { class: 'small' }, exMap[s] || ''))));
   }
   const onKey = e => {
-    if (stage.hidden) return;
+    if (stage.hidden || modalOpen) return;
     const i = Number(e.key) - 1;
     if (i >= 0 && i < curChoices.length) { e.preventDefault(); answer(curChoices[i]); }
     else if ((e.key === 'r' || e.key === 'R') && locked && cur) { e.preventDefault(); stopAuto(); speak(cur.word); }
@@ -842,7 +873,7 @@ function renderDrill(main, spec, only) {
       wrong.set(wkey(cur), cur);
       fb.replaceChildren(...[
         h('div', {}, h('span', { class: 'err' }, timedOut ? `⏱ 時間切れ — ${ipa(cur.sound)}` : `✗ 正解は ${ipa(cur.sound)}`), timedOut ? null : h('span', { class: 'small muted' }, `（${ipa(s)} と答えた）`)),
-        h('div', { class: 'mk-why' }, whyTable(cur, timedOut ? null : s)),
+        h('div', { class: 'mk-why' }, whyTable(cur, timedOut ? null : s, stopAuto)),
         replayRow(cur, timedOut ? null : s, stopAuto)].filter(Boolean));
       queue.splice(Math.min(queue.length, idx + RETRY_GAP[0] + Math.floor(Math.random() * (RETRY_GAP[1] - RETRY_GAP[0] + 1))), 0, cur);
     }
@@ -926,6 +957,7 @@ function renderCards(main, spec, only, count, onBack) {
   main.append(stage);
 
   const onKey = e => {
+    if (modalOpen) return;
     const i = Number(e.key) - 1;
     if (i >= 0 && i < curChoices.length && !locked) { e.preventDefault(); answer(curChoices[i]); }
     else if ((e.key === 'r' || e.key === 'R') && locked && cur) { e.preventDefault(); stopAuto(); speak(cur.word); }
@@ -992,7 +1024,7 @@ function renderCards(main, spec, only, count, onBack) {
     else { nextBtn.hidden = false; nextBtn.focus(); if (S.settings.autoNext) timer = setTimeout(show, 2200); }
   }
   // 間違えた理由を両軸で見せる: 綴りの罠 と 英語耳の罠
-  const whyLines = (w, chosen) => [whyTable(w, chosen)];
+  const whyLines = (w, chosen) => [whyTable(w, chosen, stopAuto)];
   function roundEnd() {
     const n = cards.length, c = cards.filter(w => !retry.includes(w)).length;
     card.className = 'mk-card';
@@ -1057,6 +1089,7 @@ function seg(options, value, onChange) {
 // ---------- ルーティング ----------
 let cleanup = null;
 function route() {
+  closeModal();
   const main = $('#main');
   if (cleanup) { try { cleanup(); } catch { /* ignore */ } cleanup = null; }
   main.replaceChildren(); window.scrollTo(0, 0);
