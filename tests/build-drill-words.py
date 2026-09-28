@@ -269,7 +269,7 @@ addw('i', """valley monkey donkey turkey hockey journey chimney honey money_""".
 
 # ---------- 強調範囲（その音に対応する綴り）の推定 ----------
 import re
-PATTERNS = {
+HL_PATTERNS = {
  'ɑ': [r'(?<=[wW])a(?=[a-z])', r'(?<=qu)a', r'ya', r'al(?=m\b)', r'o', r'a'],
  'æ': [r'au', r'a'],
  'ʌ': [r'u', r'oo', r'ou', r'oe', r'o'],
@@ -300,7 +300,7 @@ OVERRIDE = {
 }
 def highlight(word, sound):
     if word in OVERRIDE: return list(OVERRIDE[word])
-    for pat in PATTERNS.get(sound, []):
+    for pat in HL_PATTERNS.get(sound, []):
         m = re.search(pat, word, re.I)
         if m: return [m.start(), m.end()]
     return None
@@ -324,9 +324,9 @@ def stage(g, sound):
     if sound in R_SOUNDS: return 'P4'          # r 性母音
     if sound in SHORT: return 'P1'             # 閉音節の短母音（綴り例外もここ）
     if sound in LONG:
-        if g.endswith('_e'): return 'P2'       # マジック e
-        if (g, sound) in OPEN_LONG: return 'P2'  # 開音節
-        return 'P3'                            # 母音チーム
+        if g.endswith('_e') and len(g) == 3: return 'P2'   # マジック e（a_e i_e o_e u_e e_e y_e）
+        if (g, sound) in OPEN_LONG: return 'P2'            # 開音節
+        return 'P3'                                        # 母音チーム（ea_e, ie_e なども）
     return 'P5'                                # aʊ ɔɪ ʊ ɔː
 
 # ---------- CMU 発音辞書との照合 ----------
@@ -697,7 +697,7 @@ MOUTH = {
  'ɑr': '「アー」のあと舌を丸める',            'ɔr': '「オー」のあと舌を丸める',
  'ɪr': '「イァ」のあと舌を丸める',            'er': '「エァ」のあと舌を丸める',
 }
-# 'ステージ|綴り' が優先、無ければ '綴り'、それも無ければ SRULE（ステージ共通）
+# 段階ごとの一般則。その綴りにパターンが 1 つも無いとき（例外だけの綴り）に使う
 SRULE = {
  'P1': '子音で閉じた音節の母音は短く読む',
  'P2': '母音で終わる音節と、語末に e がある語は母音字を名前読み',
@@ -706,105 +706,175 @@ SRULE = {
  'P5': '二重母音。語中か語末かで綴りを使い分ける',
  'P6': '強勢の無い音節は弱く曖昧になる',
 }
-GRULE = {
- 'P1|a': '閉じた a は /æ/。w・qu の後は /ɑ/',
- 'P1|i': '閉じた i は /ɪ/。開けば /aɪ/',
- 'P1|o': '閉じた o は /ɑ/。開けば /oʊ/',
- 'P1|u': '閉じた u は /ʌ/。o や ou の綴りでも /ʌ/ になる',
- 'P1|e': '閉じた e は /e/。開けば /iː/',
- 'P1|ea': 'ea でも短く /e/ になる語がある（bread, head）',
- 'P2|a_e': '最後の e は読まない。a を名前読みで /eɪ/',
- 'P2|i_e': '最後の e は読まない。i を名前読みで /aɪ/',
- 'P2|o_e': '最後の e は読まない。o を名前読みで /oʊ/',
- 'P2|u_e': '最後の e は読まない。u を名前読みで /uː/',
- 'P2|a': '母音で終わる音節の a は名前読み /eɪ/',
- 'P2|i': '母音で終わる音節の i は名前読み /aɪ/',
- 'P2|o': '母音で終わる音節の o は名前読み /oʊ/',
- 'P2|e': '母音で終わる音節の e は名前読み /iː/',
- 'P2|y': '1 音節語の語末 y は /aɪ/（by, my）',
- 'P3|ee': 'ee はほぼ必ず /iː/',
- 'P3|ea': 'ea は /iː/ が基本。短い /e/ の語もある',
- 'P3|ai': 'ai は /eɪ/。語中に使う',
- 'P3|ay': 'ay は /eɪ/。語末に使う',
- 'P3|oa': 'oa は /oʊ/',
- 'P3|ow': '語末や -ow で終わると /oʊ/（snow）',
- 'P3|igh': 'igh は /aɪ/。gh は読まない',
- 'P3|oo': 'oo は /uː/ が基本。短い /ʊ/ もある（book）',
- 'P3|ew': 'ew は /uː/。語末に使う',
- 'P3|ue': 'ue は /uː/。語末に使う',
- 'P3|ie': 'ie は /iː/ が多い。1 音節語では /aɪ/（pie）',
- 'P4|ar': 'ar は /ɑr/。w の後は /ɔr/（war, warm）',
- 'P4|or': 'or は /ɔr/。w の後だけ /ɝː/（work）',
- 'P4|er': 'er / ir / ur は 3 つとも同じ /ɝː/',
- 'P4|ir': 'er / ir / ur は 3 つとも同じ /ɝː/',
- 'P4|ur': 'er / ir / ur は 3 つとも同じ /ɝː/',
- 'P4|ear': 'ear は /ɪr/ が多い。/ɝː/ や /er/ もある',
- 'P4|air': 'air / are は /er/',
- 'P4|are': 'air / are は /er/',
- 'P4|eer': 'eer / ere は /ɪr/',
- 'P4|ere': 'eer / ere は /ɪr/',
- 'P4|ore': 'ore は /ɔr/',
- 'P5|ou': 'ou は /aʊ/。語中に使う',
- 'P5|ow': '語中や -own 以外の ow は /aʊ/（how, down）',
- 'P5|oi': 'oi は /ɔɪ/。語中に使う',
- 'P5|oy': 'oy は /ɔɪ/。語末に使う',
- 'P5|oo': 'oo が短いと /ʊ/（book, good）',
- 'P5|aw': 'aw は /ɔː/。語末に使う',
- 'P5|au': 'au は /ɔː/。語中に使う',
- 'P5|al': 'al の l の前は /ɔː/（talk, ball）',
- 'P5|o': 'o でも /ɔː/ になる語がある（dog, off）',
- 'P5|a': 'w の後の a は /ɑ/ か /ɔː/（want, wall）',
- 'P5|u': 'l や sh の後の u は /ʊ/（full, push）',
- 'P5|ough': 'ough は不規則。語ごとに覚える',
- 'P5|augh': 'augh は /ɔː/（caught, taught）',
- 'P6|a': '弱い音節の a は /ə/。語頭の a- も（sofa, about）',
- 'P6|o': '-on の o は弱く /ə/（lemon, button）',
- 'P6|e': '-en の e は弱く /ə/（kitten, listen）',
- 'P6|ai': '-ain は弱く /ə/（mountain, captain）',
- 'P6|ou': '-ous は弱く /ə/（famous, nervous）',
- 'P6|le': '子音 + le の母音は /ə/（table, apple）',
- 'P6|i': '-il / -ible の i は弱く /ə/（pencil）',
- 'P6|er': '語末の -er は弱い r の音 /ɚ/（butter）',
- 'P6|or': '語末の -or / -ar も /ɚ/（doctor, dollar）',
- 'P6|ar': '語末の -ar は /ɚ/（sugar, dollar）',
- 'P6|y': '2 音節以上の語末 y は軽い /i/（happy）',
- 'P6|ey': '語末の -ey も軽い /i/（money, valley）',
-}
 
+# ---------- パターン表（番号つき）----------
+# 綴り→音の規則を 1 行 1 パターンで持つ。番号は固定（並びを変えても振り直さない）。
+# 末尾の黙字 e が音に関係しない綴り（ur_e = ur、oi_e = oi）は同じパターンにまとめる。
+# (番号, 段階, 綴りの列, 音, いつその音になるか, 例語のヒント)
+PATTERNS = [
+ # 第1章 閉音節
+ ( 1, 'P1', ['a'],            'æ',  '閉音節',                    'bat cat hat'),
+ ( 2, 'P1', ['i'],            'ɪ',  '閉音節',                    'sit bit hit'),
+ ( 3, 'P1', ['o'],            'ɑ',  '閉音節',                    'hot pot lot'),
+ ( 4, 'P1', ['u'],            'ʌ',  '閉音節',                    'cut but nut'),
+ ( 5, 'P1', ['e'],            'e',  '閉音節',                    'set bet get'),
+ ( 6, 'P1', ['a'],            'ɑ',  'w・qu の後',                'want watch squat'),
+ ( 7, 'P1', ['ea'],           'e',  '短い ea',                   'bread head dead'),
+ ( 8, 'P1', ['y'],            'ɪ',  '語中の y（i の代わり）',     'gym myth system'),
+ ( 9, 'P1', ['ui'],           'ɪ',  'qu の後の i',               'quit quick build'),
+ # 第2章 開音節とマジック e
+ (10, 'P2', ['a_e'],          'eɪ', 'マジック e',                'made cake name'),
+ (11, 'P2', ['i_e'],          'aɪ', 'マジック e',                'ride time like'),
+ (12, 'P2', ['o_e'],          'oʊ', 'マジック e',                'bone home note'),
+ (13, 'P2', ['u_e'],          'uː', 'マジック e',                'rule tune June'),
+ (14, 'P2', ['e_e'],          'iː', 'マジック e',                'these theme'),
+ (15, 'P2', ['y_e'],          'aɪ', 'マジック e（y は i）',       'style type'),
+ (16, 'P2', ['a'],            'eɪ', '開音節',                    'able baby paper'),
+ (17, 'P2', ['i'],            'aɪ', '開音節・-ind -ild',          'mind kind child'),
+ (18, 'P2', ['o'],            'oʊ', '開音節・-old',               'no go cold'),
+ (19, 'P2', ['e'],            'iː', '開音節',                    'even evening'),
+ (20, 'P2', ['u'],            'uː', '開音節',                    'flu duty ruby'),
+ (21, 'P2', ['y'],            'aɪ', '1 音節語の語末',             'my by why'),
+ # 第3章 母音チーム
+ (22, 'P3', ['ee', 'ee_e'],   'iː', 'ee',                        'see feet sleeve'),
+ (23, 'P3', ['ea', 'ea_e'],   'iː', 'ea',                        'seat leave please'),
+ (24, 'P3', ['ai'],           'eɪ', '語中の ai',                  'rain main pain'),
+ (25, 'P3', ['ay'],           'eɪ', '語末の ay',                  'day may pay'),
+ (26, 'P3', ['oa'],           'oʊ', 'oa',                        'boat coat road'),
+ (27, 'P3', ['ow'],           'oʊ', '語末・-own の ow',           'know show grow'),
+ (28, 'P3', ['igh'],          'aɪ', 'igh（gh は黙字）',           'light night right'),
+ (29, 'P3', ['ie', 'ie_e'],   'iː', 'ie',                        'field chief believe'),
+ (30, 'P3', ['ie'],           'aɪ', '1 音節語の語末 ie',          'tie lie pie'),
+ (31, 'P3', ['oo', 'oo_e'],   'uː', '長い oo',                    'pool food loose'),
+ (32, 'P3', ['ew'],           'uː', 'ew',                        'crew grew threw'),
+ (33, 'P3', ['ue'],           'uː', 'ue',                        'blue true glue'),
+ (34, 'P3', ['ui', 'ui_e'],   'uː', 'ui',                        'suit fruit juice'),
+ (35, 'P3', ['ou'],           'uː', 'ou（フランス語由来）',        'soup group youth'),
+ (36, 'P3', ['oe'],           'oʊ', '語末の oe',                  'toe hoe foe'),
+ (37, 'P3', ['eigh'],         'eɪ', 'eigh',                      'eight weight'),
+ (38, 'P3', ['ey'],           'eɪ', '強い ey',                    'they grey obey'),
+ (39, 'P3', ['ei'],           'eɪ', 'ei',                        'vein veil'),
+ # 第4章 r 性母音
+ (40, 'P4', ['ar', 'ar_e'],   'ɑr', 'ar',                        'car far large'),
+ (41, 'P4', ['or', 'ore', 'or_e', 'oor', 'our_e'], 'ɔr', 'or・ore・oor', 'for more door'),
+ (42, 'P4', ['er', 'ir', 'ur', 'er_e', 'ur_e'], 'ɝː', 'er・ir・ur（3 つとも同じ音）', 'her bird hurt'),
+ (43, 'P4', ['ear'],          'ɝː', '子音の前の ear',             'learn earth search'),
+ (44, 'P4', ['or', 'or_e'],   'ɝː', 'w の後の or',                'word work world'),
+ (45, 'P4', ['ear'],          'ɪr', 'ear',                       'ear near fear'),
+ (46, 'P4', ['eer', 'ere', 'ier_e'], 'ɪr', 'eer・ere',            'beer deer here'),
+ (47, 'P4', ['air', 'are', 'err', 'er'], 'er', 'air・are、母音の前の er', 'air care berry very'),
+ (48, 'P4', ['ear'],          'er', 'ear（少数派）',               'bear pear wear'),
+ (49, 'P4', ['ar'],           'ɔr', 'w の後の ar',                'war warm warn'),
+ # 第5章 二重母音とその他
+ (50, 'P5', ['ou', 'ou_e'],   'aʊ', 'ou',                        'out loud house'),
+ (51, 'P5', ['ow'],           'aʊ', 'ow',                        'now how cow'),
+ (52, 'P5', ['oi', 'oi_e'],   'ɔɪ', '語中の oi',                  'oil boil noise'),
+ (53, 'P5', ['oy'],           'ɔɪ', '語末の oy',                  'boy toy joy'),
+ (54, 'P5', ['oo'],           'ʊ',  '短い oo',                    'book look good'),
+ (55, 'P5', ['u'],            'ʊ',  'l・sh・p の後の u',           'pull push put'),
+ (56, 'P5', ['aw'],           'ɔː', 'aw',                        'law saw draw'),
+ (57, 'P5', ['au', 'au_e'],   'ɔː', 'au',                        'author cause pause'),
+ (58, 'P5', ['a'],            'ɔː', 'l の前の a',                 'talk walk ball'),
+ (59, 'P5', ['o'],            'ɔː', 'CLOTH 語（o でも /ɔː/）',    'boss loss dog off'),
+ (60, 'P5', ['ough'],         'ɔː', 'ough',                      'thought bought'),
+ (61, 'P5', ['augh'],         'ɔː', 'augh',                      'caught taught'),
+ # 第6章 弱音節
+ (62, 'P6', ['a'],            'ə',  '弱い音節の a',               'sofa about'),
+ (63, 'P6', ['e'],            'ə',  '-en の e',                   'kitten listen'),
+ (64, 'P6', ['le'],           'ə',  '子音 + le',                  'table apple'),
+ (65, 'P6', ['o'],            'ə',  '-on の o',                   'lemon wagon'),
+ (66, 'P6', ['ou'],           'ə',  '-ous',                      'famous nervous'),
+ (67, 'P6', ['ai'],           'ə',  '-ain',                      'mountain captain'),
+ (68, 'P6', ['i'],            'ə',  '-il の i',                   'pencil evil'),
+ (69, 'P6', ['er'],           'ɚ',  '語末の -er',                 'hammer butter'),
+ (70, 'P6', ['or', 'ar'],     'ɚ',  '語末の -or・-ar',            'doctor dollar'),
+ (71, 'P6', ['y'],            'i',  '2 音節以上の語末 y',          'happy city'),
+ (72, 'P6', ['ey'],           'i',  '語末の -ey',                 'valley monkey'),
+]
+
+# ---------- 例外表（番号つき）----------
+# パターン表のどれにも当てはまらない (段階, 綴り, 音) の組。同じ組の語をまとめて 1 番号。
+# (例外番号, 段階, 綴り, 音, ひとこと)
+EXCEPTIONS = [
+ ( 1, 'P1', 'o',    'ʌ',  'o なのに短い /ʌ/。u で書くべき音'),
+ ( 2, 'P1', 'o_e',  'ʌ',  'o_e なのに /ʌ/（マジック e が効かない）'),
+ ( 3, 'P2', 'o_e',  'uː', 'o_e なのに /uː/'),
+ ( 4, 'P3', 'o',    'uː', 'o なのに /uː/'),
+ ( 5, 'P5', 'o',    'ʊ',  'o なのに /ʊ/'),
+ ( 6, 'P5', 'ou',   'ʊ',  'ou なのに /ʊ/（助動詞 3 つ）'),
+ ( 7, 'P3', 'ea',   'eɪ', 'ea なのに /eɪ/'),
+ ( 8, 'P4', 'er',   'ɪr', '母音の前の er が /ɪr/'),
+ ( 9, 'P1', 'a',    'e',  'a なのに /e/'),
+ (10, 'P4', 'ere',  'er', 'ere なのに /er/（here とは違う）'),
+ (11, 'P6', 'a',    'ɚ',  '語頭の a + r が /ɚ/'),
+ (12, 'P1', 'oo',   'ʌ',  'oo なのに /ʌ/'),
+ (13, 'P1', 'al',   'ɑ',  'l を読まない al'),
+ (14, 'P1', 'au',   'æ',  'au なのに /æ/'),
+ (15, 'P3', 'oe',   'uː', 'oe なのに /uː/'),
+ (16, 'P1', 'u',    'ɪ',  'u なのに /ɪ/'),
+ (17, 'P1', 'o',    'ɪ',  'o なのに /ɪ/（women）'),
+ (18, 'P1', 'e',    'ɪ',  'e なのに /ɪ/'),
+ (19, 'P3', 'ai',   'aɪ', 'ai なのに /aɪ/'),
+ (20, 'P4', 'ear',  'ɑr', 'ear なのに /ɑr/'),
+ (21, 'P1', 'ya',   'ɑ',  'ch を読まない yacht'),
+ (22, 'P1', 'oe',   'ʌ',  'oe なのに /ʌ/（does）'),
+ (23, 'P1', 'i_e',  'ɪ',  'i_e なのに短い /ɪ/（give）'),
+ (24, 'P1', 'ai',   'e',  'ai なのに /e/（said）'),
+ (25, 'P1', 'ie',   'e',  'ie なのに /e/（friend）'),
+ (26, 'P3', 'ei_e', 'iː', 'c の後の ei は /iː/'),
+ (27, 'P3', 'ey',   'iː', 'ey なのに /iː/（key）'),
+ (28, 'P3', 'wo',   'uː', 'w を読まない two'),
+ (29, 'P3', 'uy',   'aɪ', 'uy（buy）'),
+ (30, 'P3', 'eye',  'aɪ', 'eye'),
+ (31, 'P3', 'ou',   'oʊ', 'ou なのに /oʊ/（soul）'),
+ (32, 'P4', 'eir',  'ɪr', 'eir が /ɪr/（weird）'),
+ (33, 'P4', 'eir',  'er', 'eir が /er/（their）'),
+ (34, 'P5', 'o_e',  'ɔː', 'o_e なのに /ɔː/（gone）'),
+ (35, 'P3', 'ou_e', 'uː', 'ou_e が /uː/（troupe）'),
+]
+
+def classify(entries):
+    """全語にパターン番号か例外番号を付ける。どちらにも当てはまらなければ止める"""
+    pmap = {}
+    for num, st, gs, snd, cond, hint in PATTERNS:
+        for g in gs:
+            key = (st, g, snd)
+            assert key not in pmap, f'パターン表で {key} が重複'
+            pmap[key] = num
+    emap = {}
+    for num, st, g, snd, note in EXCEPTIONS:
+        key = (st, g, snd)
+        assert key not in emap and key not in pmap, f'例外表で {key} が重複、またはパターン表と衝突'
+        emap[key] = num
+    used_p, used_e, unknown = collections.Counter(), collections.Counter(), collections.defaultdict(list)
+    for e in entries:
+        key = (e['st'], e['g'], e['sound'])
+        if key in pmap: e['pat'] = f'p{pmap[key]}'; e.pop('ex', None); used_p[pmap[key]] += 1
+        elif key in emap: e['pat'] = f'e{emap[key]}'; e['ex'] = 1; used_e[emap[key]] += 1
+        else: unknown[key].append(e['word'])
+    assert not unknown, '番号の無い組（パターン表か例外表に足すこと）:\n  ' + '\n  '.join(f'{k}: {" ".join(v[:6])}' for k, v in unknown.items())
+    dead_p = [n for n, *_ in PATTERNS if not used_p[n]]
+    dead_e = [n for n, *_ in EXCEPTIONS if not used_e[n]]
+    assert not dead_p and not dead_e, f'語が 1 つも無い番号: パターン {dead_p} 例外 {dead_e}'
+    nums = [n for n, *_ in PATTERNS]; assert len(nums) == len(set(nums)), 'パターン番号が重複'
+    nums = [n for n, *_ in EXCEPTIONS]; assert len(nums) == len(set(nums)), '例外番号が重複'
+    print(f'パターン {len(PATTERNS)} 個（{sum(used_p.values())} 語）、例外 {len(EXCEPTIONS)} 個（{sum(used_e.values())} 語 / {sum(used_e.values()) / len(entries) * 100:.1f}%）')
+    pats = [{"id": f'p{n}', "n": n, "st": st, "g": gs, "sound": snd, "cond": cond, "hint": hint, "count": used_p[n]}
+            for n, st, gs, snd, cond, hint in PATTERNS]
+    exs = [{"id": f'e{n}', "n": n, "st": st, "g": g, "sound": snd, "note": note, "count": used_e[n],
+            "words": sorted([e['word'] for e in entries if e.get('pat') == f'e{n}'], key=str.lower)}
+           for n, st, g, snd, note in EXCEPTIONS]
+    return pats, exs
+
+# 段階×綴りの一行ルールは、パターン表から作る（文章を別に持って食い違わせない）
 def rule_for(st, g):
-    return GRULE.get(f'{st}|{g}') or GRULE.get(g) or SRULE[st]
-
-def covered_sounds(rule):
-    """ルール文が名前を挙げている音。'air / are は /er/' の区切りの / は拾わない"""
-    names = sorted(MOUTH, key=len, reverse=True)
-    return set(re.findall(r'/(' + '|'.join(re.escape(x) for x in names) + r')/', rule))
-
-def mark_exceptions(entries):
-    """その綴りのルールが説明していない語に ex を立て、例外どうしをまとめる"""
-    groups = collections.defaultdict(list)
-    for e in entries:
-        cov = covered_sounds(rule_for(e['st'], e['g']))
-        if cov and e['sound'] not in cov:
-            e['ex'] = 1
-            groups[f"{e['st']}|{e['g']}|{e['sound']}"].append(e['word'])
-    # 「綴り o だが /ʌ/」のような注記は、例外の表示と同じことを言うので落とす
-    for e in entries:
-        if e.get('ex') and re.fullmatch(r'綴り \S+ だが /\S+/', e.get('note') or ''): del e['note']
-    n = sum(len(v) for v in groups.values())
-    print(f'規則の例外: {n} 語（{n / len(entries) * 100:.1f}%）、{len(groups)} グループ')
-    # ルールが答えと食い違ったまま放置されていないか
-    for e in entries:
-        cov = covered_sounds(rule_for(e['st'], e['g']))
-        assert not cov or e['sound'] in cov or e.get('ex'), f'{e["word"]} のルールが答えと矛盾'
-    return {k: sorted(v, key=str.lower) for k, v in groups.items()}
+    parts = [f'{cond} → /{snd}/' for n, s2, gs, snd, cond, hint in PATTERNS if s2 == st and g in gs]
+    return '、'.join(parts) if parts else SRULE[st]
 
 def check_rules(entries):
     miss = sorted({s for e in entries for s in [e['sound']] if s not in MOUTH})
     assert not miss, f'口の作り方が無い音: {miss}'
-    c = collections.Counter((e['st'], e['g']) for e in entries)
-    vague = sorted([f'{st}|{g}({n}語)' for (st, g), n in c.items() if n >= 20 and f'{st}|{g}' not in GRULE])
-    assert not vague, f'20 語以上あるのに専用ルールが無い綴り: {vague}'
-    print(f'一行ルール: 口の作り方 {len(MOUTH)} 音、綴りの規則 {len(GRULE)} 種（+ ステージ共通 {len(SRULE)}）')
+    print(f'口の作り方 {len(MOUTH)} 音')
 
 # ---------- 集約 ----------
 sets = [
@@ -863,12 +933,16 @@ EIGO = build_eigo()
 LESSON_DATA = build_lessons()
 GSOUNDS = build_gsounds(words)
 check_rules(words)
-EXGROUPS = mark_exceptions(words)
+PATTERN_DATA, EXCEPTION_DATA = classify(words)
+for e in words:   # 「綴り o だが /ʌ/」のような注記は例外の表示と重なるので落とす
+    if e.get('ex') and re.fullmatch(r'綴り \S+ だが /\S+/', e.get('note') or ''): del e['note']
+EXGROUPS = {f"{x['st']}|{x['g']}|{x['sound']}": x['words'] for x in EXCEPTION_DATA}
 COURSE = build_course(words)
 RULES = {f'{st}|{g}': rule_for(st, g) for st, g in {(e['st'], e['g']) for e in words}}
 print("フォニックス・コース:")
 check_course(COURSE, words)
-out = {"version": 7, "course": COURSE, "neighbors": NEIGHBORS, "exGroups": EXGROUPS,
+out = {"version": 8, "course": COURSE, "neighbors": NEIGHBORS, "exGroups": EXGROUPS,
+       "patterns": PATTERN_DATA, "exceptions": EXCEPTION_DATA,
        "lessons": LESSON_DATA, "noLesson": NO_LESSON,
        "mouth": MOUTH, "rules": RULES,
        "eigo": EIGO, "eigoGroups": EIGO_GROUPS, "gsounds": GSOUNDS,

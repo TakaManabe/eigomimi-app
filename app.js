@@ -4,7 +4,7 @@ import { mergeSlots, PASS_RATE, PASS_RUNS, PASS_MIN } from './merge.js';
 const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
-const APP_VERSION = 'v0.3.6';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
+const APP_VERSION = 'v0.4.0';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
 const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
 const SPEAKS = [['q', '出題時'], ['a', '回答後'], ['off', 'なし']];   // 音声を鳴らすタイミング
 const ROUNDS = [5, 10, 20, 30];      // ミックス（カード）1 ラウンドの枚数
@@ -184,6 +184,21 @@ function mixChoices(w, poolSounds = [], n = 4) {
 const eigoGroupsOf = snd => (DATA.eigoGroups || []).filter(g => g.sounds.includes(snd));
 const ruleOf = w => (DATA.rules || {})[`${w.st}|${w.g}`] || '';
 const mouthOf = snd => (DATA.mouth || {})[snd] || '';
+
+// ---------- パターン番号 ----------
+// 各語は pat（'p12' = パターン 12、'e3' = 例外 3）を持つ。(綴り, 音) から番号を引けるようにする
+let PAT = null;   // id -> {kind:'p'|'e', n, ...}
+let PAT_BY_GS = null;   // '綴り|音' -> id
+function buildPatIndex() {
+  PAT = {}; PAT_BY_GS = {};
+  for (const p2 of DATA.patterns || []) PAT[p2.id] = { kind: 'p', ...p2 };
+  for (const e of DATA.exceptions || []) PAT[e.id] = { kind: 'e', ...e };
+  for (const w of DATA.words) if (w.pat && !PAT_BY_GS[`${w.g}|${w.sound}`]) PAT_BY_GS[`${w.g}|${w.sound}`] = w.pat;
+}
+const patOf = (g, snd) => PAT_BY_GS[`${g}|${snd}`] || null;
+const patLabel = id => { const p2 = PAT[id]; return p2 ? (p2.kind === 'p' ? `パターン ${p2.n}` : `例外 ${p2.n}`) : ''; };
+const patShort = id => { const p2 = PAT[id]; return p2 ? (p2.kind === 'p' ? `${p2.n}` : `E${p2.n}`) : ''; };
+const patBadge = (id, extra = '') => id ? h('a', { class: 'pnum ' + (PAT[id]?.kind === 'e' ? 'ex' : '') + ' ' + extra, href: `#/p?at=${id}`, title: patLabel(id) }, patShort(id)) : null;
 // 間違えたときの説明。その綴りが何通りに読まれるかを表にして、正解の行と、
 // 選んでしまった音の行を色で示す。口の作り方はその 2 行だけに付ける。
 const exWordsFor = (g, snd, n = 2) => {
@@ -229,23 +244,31 @@ function whyTable(w, chosen) {
   const hidden = Math.max(0, rows.length - WHY_ROWS);
   const tr = ([snd, n]) => {
     const kind = snd === w.sound ? 'hit' : (snd === chosen ? 'miss' : '');
+    const id = patOf(w.g, snd), p2 = id ? PAT[id] : null;
+    const cond = p2 ? (p2.kind === 'p' ? p2.cond : '例外') : condFor(w.g, snd);
     const out = [h('tr', { class: kind },
       h('td', { class: 'm' }, snd === w.sound ? '✓' : (snd === chosen ? '✗' : '')),
+      h('td', { class: 'pn' }, patBadge(id)),
       h('td', { class: 'ipa' }, ipa(snd)),
       h('td', { class: 'n' }, n ? `${n}語` : '—'),
-      n ? h('td', { class: 'ex' }, h('b', { class: 'cond' }, condFor(w.g, snd)), ' ', exWordsFor(w.g, snd))
+      n ? h('td', { class: 'ex' }, h('b', { class: 'cond' }, cond), ' ', exWordsFor(w.g, snd))
         : h('td', { class: 'ex' }, `「${w.g}」がこの音になることはない`))];
-    if (kind) out.push(h('tr', { class: kind + ' mouth' }, h('td', {}), h('td', { colspan: 3 }, mouthOf(snd))));
+    if (kind) out.push(h('tr', { class: kind + ' mouth' }, h('td', {}), h('td', { colspan: 4 }, mouthOf(snd))));
     return out;
   };
+  const myId = w.pat, chosenId = chosen && chosen !== w.sound ? patOf(w.g, chosen) : null;
   const fam = w.ex ? ((DATA.exGroups || {})[`${w.st}|${w.g}|${w.sound}`] || []) : [];
   return h('div', {},
     h('div', { class: 'why-h' },
       h('span', {}, `「${w.g}」の読み方 ${all.length} 通り`),
       w.ex ? h('span', { class: 'badge due' }, '例外')
            : h('span', { class: 'small muted' }, chosen ? `${ipa(chosen)} と答えた` : '時間切れ')),
+    h('div', { class: 'why-nums' },
+      h('span', { class: 'ok' }, '正解 ', patBadge(myId, 'big'), ' ', PAT[myId]?.kind === 'p' ? PAT[myId].cond : (PAT[myId]?.note || '')),
+      chosenId ? h('span', { class: 'err' }, 'あなた ', patBadge(chosenId, 'big'), ' ', PAT[chosenId]?.kind === 'p' ? PAT[chosenId].cond : (PAT[chosenId]?.note || ''))
+               : (chosen && chosen !== w.sound ? h('span', { class: 'err' }, `あなた ${ipa(chosen)}（この綴りにはない）`) : null)),
     h('table', { class: 'why' }, ...rows.slice(0, WHY_ROWS).flatMap(tr),
-      hidden ? h('tr', {}, h('td', {}), h('td', { colspan: 3, class: 'ex' }, `ほか ${hidden} 通り`)) : null),
+      hidden ? h('tr', {}, h('td', {}), h('td', { colspan: 4, class: 'ex' }, `ほか ${hidden} 通り`)) : null),
     h('div', { class: 'why-rule' }, w.ex
       ? [h('b', {}, `${w.word} は規則の例外`), `　「${w.g}」はふつう ${ruleOf(w)}`,
          fam.length > 1 ? h('div', {}, `同じ例外: ${fam.slice(0, 8).join(' ')}${fam.length > 8 ? ' …' : ''}`) : null]
@@ -302,6 +325,12 @@ function renderHome(main) {
         h('div', { class: 'small' }, w.n || ''), h('div', { class: 'small muted' }, w.d.slice(5).replace('-', '/'))))),
       h('p', { class: 'small muted' }, '単語を見て母音を即答。速さより「迷わず正しく」。間違えた語は同じ回の後半と次回以降に優先して出ます。答えを見たら声に出す。')),
   );
+  // パターン一覧への入口
+  main.append(h('section', { class: 'card' },
+    h('div', { class: 'row between' }, h('h2', {}, 'パターン一覧'),
+      h('a', { class: 'btn small', href: '#/p' }, '一気見')),
+    h('p', { class: 'small muted' }, `綴り→音の規則 ${(DATA.patterns || []).length} 個と例外 ${(DATA.exceptions || []).length} 個を番号つきで。間違えたときに出る番号の元です。`)));
+
   // 今日の復習
   const due = dueWords();
   main.append(h('section', { class: 'card' },
@@ -562,6 +591,67 @@ function recordWord(w, ok, snapWords) {
   MY.words[k] = d; persistMine();
 }
 
+// ---------- パターン一覧 ----------
+// 綴り→音の規則を番号順に全部並べる。各パターンの語で終了率も出す
+function renderPatterns(main, at) {
+  const stageOf = st => (DATA.course.find(c => c.id === st) || {}).title || st;
+  const pats = DATA.patterns || [], exs = DATA.exceptions || [];
+  const wordsOf = id => DATA.words.filter(w => w.pat === id);
+  let filter = 'all';
+  const body = h('div', {});
+  const draw = () => {
+    body.replaceChildren();
+    const groups = filter === 'ex' ? [] : STAGES.filter(st => filter === 'all' || filter === st);
+    for (const st of groups) {
+      const rows = pats.filter(p2 => p2.st === st);
+      if (!rows.length) continue;
+      body.append(h('section', { class: 'card' }, h('h3', {}, stageOf(st)), ...rows.map(p2 => patRow(p2, 'p'))));
+    }
+    if (filter === 'all' || filter === 'ex') {
+      body.append(h('section', { class: 'card' },
+        h('h3', {}, `例外 ${exs.length} 個（${exs.reduce((a, x) => a + x.count, 0)} 語）`),
+        h('p', { class: 'small muted' }, 'どのパターンにも当てはまらない読み方。同じ (綴り, 音) の語を 1 つの番号にまとめてあります。'),
+        ...exs.map(e => patRow(e, 'e'))));
+    }
+  };
+  const patRow = (p2, kind) => {
+    const ws = wordsOf(p2.id), st = stepStats(ws), open = at === p2.id;
+    const gs = kind === 'p' ? p2.g.map(g => g.replace('_e', '_e')).join(' / ') : p2.g;
+    const det = h('details', { id: p2.id, class: 'prow' + (open ? ' at' : ''), open: open || null },
+      h('summary', {},
+        h('span', { class: 'pnum ' + (kind === 'e' ? 'ex' : '') + ' big' }, kind === 'p' ? p2.n : `E${p2.n}`),
+        h('span', { class: 'pg' }, gs), h('span', { class: 'parrow' }, '→'),
+        h('span', { class: 'pipa' }, ipa(p2.sound)),
+        h('span', { class: 'pcond' }, kind === 'p' ? p2.cond : p2.note),
+        h('span', { class: 'pcount' }, `${p2.count}語`)),
+      h('div', { class: 'pbody' },
+        wbar(st),
+        h('div', { class: 'small muted' }, `終了率 ${st.rate}%　クリア ${st.clear}　要復習 ${st.due}　未出題 ${st.new}`),
+        h('div', { class: 'small muted' }, h('b', {}, '口 '), mouthOf(p2.sound)),
+        h('div', { class: 'chips' }, ...ws.slice(0, 40).map(w => h('button', { class: 'chip sel', onClick: () => speak(w.word) }, hlWord(w))),
+          ws.length > 40 ? h('span', { class: 'small muted' }, `ほか ${ws.length - 40} 語`) : null),
+        h('div', { class: 'row' }, ...drillLinksFor(p2))));
+    return det;
+  };
+  // このパターンを含む本コースのステップと、綴りの罠ステップへ
+  const drillLinksFor = p2 => {
+    const gs = Array.isArray(p2.g) ? p2.g : [p2.g];
+    const steps = DATA.course.filter(c => !c.extra).flatMap(c => c.steps).filter(t => t.sel.st?.[0] === p2.st && gs.some(g => t.sel.g?.includes(g)));
+    const traps = DATA.course.filter(c => c.id === 'T').flatMap(c => c.steps).filter(t => gs.some(g => t.sel.g?.includes(g)));
+    return [...steps.map(t => h('a', { class: 'btn small', href: `#/s/${t.id}` }, `ドリル: ${t.title}`)),
+            ...traps.map(t => h('a', { class: 'btn small ghost', href: `#/s/${t.id}` }, `罠: ${t.title}`))];
+  };
+  const chips = h('div', { class: 'chips' },
+    ...[['all', 'すべて'], ...STAGES.map(st => [st, st.replace('P', '第') + '章']), ['ex', '例外']].map(([k, label]) =>
+      h('button', { class: 'chip sel' + (filter === k ? ' warn' : ''), onClick: () => { filter = k; draw(); } }, label)));
+  main.append(h('section', { class: 'card' },
+    h('div', { class: 'row between' }, h('h2', {}, 'パターン一覧'), h('a', { class: 'small', href: '#/' }, '← ホーム')),
+    h('p', { class: 'small muted' }, `綴りから音を読む規則を ${pats.length} 個、規則に当てはまらない例外を ${exs.length} 個、番号で管理しています。間違えたときに出る番号はここの番号です。番号は固定で、語を足しても変わりません。`),
+    chips), body);
+  draw();
+  if (at) requestAnimationFrame(() => document.getElementById(at)?.scrollIntoView({ block: 'start' }));
+}
+
 // ---------- 単語帳 ----------
 function renderBook(main, stepId) {
   const step = stepById(stepId);
@@ -582,6 +672,7 @@ function renderBook(main, stepId) {
       const d = S.words[wkey(w)] || { s: 0, c: 0 }, s2 = WSTATES.find(x => x.id === wordState(w));
       return h('button', { class: 'wrow', onClick: () => speak(w.word) },
         h('span', { class: 'ww' }, hlWord(w)),
+        patBadge(w.pat),
         h('span', { class: 'ws' }, ipa(w.sound)),
         h('span', { class: 'ws' }, d.s ? `${d.c}/${d.s}` : '—'),
         h('span', { class: 'badge ' + s2.cls }, s2.label));
@@ -971,6 +1062,8 @@ function route() {
   main.replaceChildren(); window.scrollTo(0, 0);
   const book = location.hash.match(/^#\/w\/([^?]+)/);
   if (book) return renderBook(main, book[1]);
+  const pat = location.hash.match(/^#\/p(?:\?at=([a-z0-9]+))?$/);
+  if (pat) return renderPatterns(main, pat[1] || '');
   const m = location.hash.match(/^#\/(d|s|r)(?:\/([^?]+))?(?:\?(weak|todo)=1)?/);
   if (m) {
     const spec = m[1] === 's' ? specForStep(m[2]) : m[1] === 'r' ? specForReview() : specForSet(m[2]);
@@ -982,6 +1075,7 @@ async function boot() {
   addEventListener('online', upd); addEventListener('offline', upd);
   try { const r = await fetch('data/drill-words.json', { cache: 'no-cache' }); if (!r.ok) throw new Error(r.status); DATA = await r.json(); }
   catch { $('#main').replaceChildren(h('div', { class: 'card' }, h('h2', {}, '単語データを読み込めません'), h('p', { class: 'small muted' }, '初回はオンラインで開いてください。'))); return; }
+  buildPatIndex();
   loadStore();
   addEventListener('hashchange', route); route();
   syncNow();

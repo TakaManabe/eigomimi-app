@@ -131,23 +131,57 @@ test('全ステップの選択肢が 3 つ以上作れる', () => {
     assert.ok(step.mix ? step.sounds.length >= 3 : step.sounds.length >= 2, step.id);
 });
 
-// ---------- 一行ルール ----------
-test('全語に「綴りの規則」と「口の作り方」の一行が用意されている', () => {
+// ---------- パターン番号 ----------
+test('全語にパターン番号か例外番号が付いている', () => {
+  const ids = new Set([...drill.patterns.map(p => p.id), ...drill.exceptions.map(e => e.id)]);
+  for (const w of drill.words) {
+    assert.ok(w.pat && ids.has(w.pat), `${w.word} の番号 ${w.pat} が表に無い`);
+    assert.equal(!!w.ex, w.pat.startsWith('e'), `${w.word}: ex と番号の種類が食い違う`);
+    assert.ok(drill.mouth[w.sound], `${w.sound} の口の作り方が無い`);
+  }
+});
+test('パターン表と例外表の番号は一意で、語数が実データと一致する', () => {
+  const count = {};
+  for (const w of drill.words) count[w.pat] = (count[w.pat] || 0) + 1;
+  const seen = new Set();
+  for (const p of drill.patterns) {
+    assert.ok(!seen.has(p.n), `パターン番号 ${p.n} が重複`); seen.add(p.n);
+    assert.equal(count[p.id], p.count, `パターン ${p.n} の語数`);
+    assert.ok(p.count >= 1 && p.cond && Array.isArray(p.g) && p.g.length, `パターン ${p.n}`);
+    for (const w of drill.words.filter(w => w.pat === p.id)) {
+      assert.equal(w.st, p.st, `${w.word} の段階がパターン ${p.n} と違う`);
+      assert.ok(p.g.includes(w.g) && w.sound === p.sound, `${w.word} がパターン ${p.n} に合わない`);
+    }
+  }
+  const seenE = new Set();
+  for (const e of drill.exceptions) {
+    assert.ok(!seenE.has(e.n), `例外番号 ${e.n} が重複`); seenE.add(e.n);
+    assert.equal(count[e.id], e.count, `例外 ${e.n} の語数`);
+    assert.deepEqual([...e.words].sort(), drill.words.filter(w => w.pat === e.id).map(w => w.word).sort(), `例外 ${e.n} の語`);
+    assert.ok(e.note, `例外 ${e.n} にひとことが無い`);
+  }
+});
+test('(綴り, 音) から番号が一意に引ける', () => {
+  const m = new Map();
+  for (const w of drill.words) {
+    const k = `${w.g}|${w.sound}`;
+    if (m.has(k)) assert.equal(m.get(k), w.pat, `${k} が ${m.get(k)} と ${w.pat} の両方`);
+    m.set(k, w.pat);
+  }
+});
+test('例外は全体のごく一部で、有名どころが入っている', () => {
+  const n = drill.words.filter(w => w.ex).length;
+  assert.ok(n / drill.words.length < 0.08, `例外が ${(n / drill.words.length * 100).toFixed(1)}%`);
+  const ex = w => drill.words.find(x => x.word === w)?.ex;
+  for (const w of ['many', 'busy', 'women', 'great', 'two', 'eye', 'friend', 'love']) assert.ok(ex(w), `${w} が例外でない`);
+  for (const w of ['care', 'nurse', 'leave', 'noise', 'house']) assert.ok(!ex(w), `${w} が例外扱い（黙字 e をまとめ損ねている）`);
+});
+test('段階×綴りの一行ルールはパターン表から作られている', () => {
   for (const w of drill.words) {
     const r = drill.rules[`${w.st}|${w.g}`];
     assert.ok(r && r.length >= 4, `${w.word} (${w.st}|${w.g}) のルールが無い`);
-    assert.ok(r.length <= 40, `${w.word} のルールが長すぎる: ${r}`);
-    assert.ok(drill.mouth[w.sound], `${w.sound} の口の作り方が無い`);
-    assert.ok(drill.mouth[w.sound].length <= 24, `${w.sound} の口の作り方が長すぎる`);
+    if (!w.ex) assert.ok(r.includes(`/${w.sound}/`), `${w.word}: ルール「${r}」に /${w.sound}/ が無い`);
   }
-});
-test('20 語以上の綴りには専用ルールがある（ステージ共通の文言で済ませない）', () => {
-  const c = new Map(), generic = new Set(Object.values({
-    P1: '子音で閉じた音節の母音は短く読む', P2: '母音で終わる音節と、語末に e がある語は母音字を名前読み',
-    P3: '母音字が並ぶと 2 字で 1 つの母音', P4: '母音 + r は r に引かれて別の音になる',
-    P5: '二重母音。語中か語末かで綴りを使い分ける', P6: '強勢の無い音節は弱く曖昧になる' }));
-  for (const w of drill.words) { const k = `${w.st}|${w.g}`; c.set(k, (c.get(k) || 0) + 1); }
-  for (const [k, n] of c) if (n >= 20) assert.ok(!generic.has(drill.rules[k]), `${k}（${n}語）が共通文言のまま`);
 });
 
 // ---------- 英語耳 Lesson との対応 ----------

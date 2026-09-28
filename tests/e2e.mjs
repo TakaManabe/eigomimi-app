@@ -122,6 +122,8 @@ await run('cards', { width: 390, height: 844 }, async page => {
       if (!(await page.locator('.mk-why table.why tr.hit').count())) errors.push('[cards] 正解の行が色分けされていない');
       if (!(await page.locator('.mk-why table.why tr.miss').count())) errors.push('[cards] 選んだ音の行が色分けされていない');
       if (!(await page.locator('.mk-why table.why tr.hit.mouth').count())) errors.push('[cards] 口の作り方が出ていない');
+      if (!(await page.locator('.mk-why table.why tr.hit .pn a.pnum').count())) errors.push('[cards] 正解の行にパターン番号が無い');
+      if (!/正解/.test(await page.textContent('.mk-why .why-nums'))) errors.push('[cards] 正解の番号行が無い');
       await page.click('.mk-next');
     } else { await page.keyboard.press('1'); }
     await page.waitForTimeout(300);
@@ -228,6 +230,8 @@ await run('exception', { width: 390, height: 844 }, async page => {
       if (!/例外/.test(fb)) errors.push(`[exception] ${word}: 例外の表示が無い — ${fb}`);
       if (!/はふつう/.test(fb)) errors.push(`[exception] ${word}: 通常ルールの但し書きが無い — ${fb}`);
       if (!/同じ例外/.test(fb)) errors.push(`[exception] ${word}: 同じ例外の仲間が出ていない — ${fb}`);
+      if (!/正解\s*E1/.test(fb.replace(/\s+/g, ' '))) errors.push(`[exception] ${word}: 正解の例外番号 E1 が出ていない — ${fb.slice(0, 120)}`);
+      if (!(await page.locator('.fb .why-nums a.pnum.ex').count())) errors.push(`[exception] 例外番号のバッジが無い`);
       // 表に正解 /ʌ/ の行があること
       const hit = await page.locator('.fb table.why tr.hit .ipa').first().textContent();
       if (hit !== '/ʌ/') errors.push(`[exception] ${word}: 正解の行が /ʌ/ でない — ${hit}`);
@@ -470,6 +474,28 @@ await run('replay', { width: 390, height: 844 }, async page => {
     const nb = page.locator('button.btn.primary.big:text-is("次へ")');
     if (await nb.isVisible()) { await nb.click(); await page.waitForTimeout(150); }
   }
+});
+await run('patterns', { width: 390, height: 844 }, async page => {
+  // パターン一覧: 全パターンと例外が番号つきで出て、番号から飛べる
+  await page.goto(BASE + '#/p'); await page.reload(); await page.waitForSelector('text=パターン一覧');
+  const n = await page.locator('.prow').count();
+  const data = await (await fetch(BASE + 'data/drill-words.json')).json();
+  const want = data.patterns.length + data.exceptions.length;
+  if (n !== want) errors.push(`[patterns] 行数 ${n} が表の ${want} と違う`);
+  const first = await page.locator('.prow summary').first().textContent();
+  if (!/^\s*1\s*a\s*→/.test(first.replace(/\s+/g, ' '))) errors.push(`[patterns] 1 番が a → … でない: ${first}`);
+  if (!(await page.locator('.prow .pnum.ex').count())) errors.push('[patterns] 例外の番号が無い');
+  // 例外で絞る
+  await page.click('.chip:text-is("例外")'); await page.waitForTimeout(200);
+  if ((await page.locator('.prow').count()) !== data.exceptions.length) errors.push('[patterns] 例外の絞り込みがおかしい');
+  await page.screenshot({ path: '/tmp/shots/d-patterns.png', fullPage: true });
+  // 番号リンクで該当パターンが開く
+  await page.goto(BASE + '#/p?at=e1'); await page.waitForSelector('#e1[open]');
+  const e1 = await page.textContent('#e1');
+  if (!/money|mother/.test(e1)) errors.push('[patterns] 例外 1 の語が出ていない');
+  if (!(await page.locator('#e1 a:has-text("ドリル")').count())) errors.push('[patterns] ドリルへのリンクが無い');
+  // ホームに入口
+  await page.goto(BASE + '#/'); await page.waitForSelector('a[href="#/p"]');
 });
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');
