@@ -419,6 +419,58 @@ await run('special', { width: 390, height: 844 }, async page => {
   if (labels.sort().join() !== ['/oʊ/', '/ɔː/'].sort().join()) errors.push(`[special] 選択肢が 2 音でない: ${labels}`);
   await page.screenshot({ path: '/tmp/shots/d-special.png' });
 });
+await run('replay', { width: 390, height: 844 }, async page => {
+  // 間違えたときに聞き直せること。押すと自動送りが止まる
+  await page.addInitScript(() => {
+    window.__spoken = [];
+    const orig = speechSynthesis.speak.bind(speechSynthesis);
+    speechSynthesis.speak = u => { window.__spoken.push(u.text); try { orig(u); } catch { /* ignore */ } };
+  });
+  await page.goto(BASE);
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('vd:settings', JSON.stringify({ count: 20, limit: 0, autoNext: true, cards: false, speak: 'a' })); });
+  await page.reload();
+  await page.goto(BASE + '#/s/S2'); await page.waitForSelector('text=スタート');   // [oʊ] と [ɔː] の 2 択
+  await page.click('text=スタート'); await page.waitForSelector('.word');
+  let hit = false;
+  for (let i = 0; i < 25 && !hit; i++) {
+    const word = (await page.textContent('.word')).trim();
+    await page.keyboard.press('1'); await page.waitForTimeout(250);
+    const fb = await page.textContent('.fb');
+    if (/正解は/.test(fb)) {
+      const btns = page.locator('.fb button:has-text("🔊")');
+      const n = await btns.count();
+      if (n < 2) errors.push(`[replay] 聞き直しのボタンが ${n} 個（正解の語と選んだ音の例語で 2 個のはず）`);
+      if (!(await btns.first().textContent()).includes(word)) errors.push('[replay] 1 つ目が出題語でない');
+      await page.evaluate(() => { window.__spoken = []; });
+      await btns.first().click();
+      await page.waitForTimeout(200);
+      const spoken = await page.evaluate(() => window.__spoken.slice());
+      if (!spoken.includes(word)) errors.push(`[replay] 押しても鳴らない: ${JSON.stringify(spoken)}`);
+      // 自動送り（1.5 秒）が止まっていること
+      await page.waitForTimeout(2000);
+      if ((await page.textContent('.word')).trim() !== word) errors.push('[replay] 聞き直し中に次へ進んでしまった');
+      await page.screenshot({ path: '/tmp/shots/d-replay.png' });
+      hit = true; break;
+    }
+    const nb = page.locator('button.btn.primary.big:text-is("次へ")');
+    if (await nb.isVisible()) { await nb.click(); await page.waitForTimeout(150); }
+  }
+  if (!hit) errors.push('[replay] 25 問で 1 度も間違えなかった');
+  // 音声「なし」のときはボタンを出さない
+  await page.goto(BASE + '#/');
+  await page.evaluate(() => { const s2 = JSON.parse(localStorage.getItem('vd:settings')); s2.speak = 'off'; localStorage.setItem('vd:settings', JSON.stringify(s2)); });
+  await page.goto(BASE + '#/s/S2'); await page.reload(); await page.waitForSelector('text=スタート');
+  await page.click('text=スタート'); await page.waitForSelector('.word');
+  for (let i = 0; i < 25; i++) {
+    await page.keyboard.press('1'); await page.waitForTimeout(220);
+    if (/正解は/.test(await page.textContent('.fb'))) {
+      if (await page.locator('.fb button:has-text("🔊")').count()) errors.push('[replay] 音声なしなのにボタンが出ている');
+      break;
+    }
+    const nb = page.locator('button.btn.primary.big:text-is("次へ")');
+    if (await nb.isVisible()) { await nb.click(); await page.waitForTimeout(150); }
+  }
+});
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');
   await page.click('.seg button:text-is("2秒")'); await page.click('.seg button:has-text("20")'); await page.click('text=スタート'); await page.waitForSelector('.word');

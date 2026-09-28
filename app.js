@@ -4,7 +4,7 @@ import { mergeSlots, PASS_RATE, PASS_RUNS, PASS_MIN } from './merge.js';
 const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
-const APP_VERSION = 'v0.3.5';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
+const APP_VERSION = 'v0.3.6';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
 const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
 const SPEAKS = [['q', '出題時'], ['a', '回答後'], ['off', 'なし']];   // 音声を鳴らすタイミング
 const ROUNDS = [5, 10, 20, 30];      // ミックス（カード）1 ラウンドの枚数
@@ -199,6 +199,21 @@ function condFor(g, snd) {
   const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0];
   return top ? STAGE_SHORT[top[0]] || '' : '';
 }
+// 間違えたときの聞き直し。正解の語と、選んだ音の例語を続けて鳴らせるようにする
+const sampleFor = (snd, g) => {
+  const pick = list => (list.find(w => !w.ex && !w.note && w.word.length <= 6) || list[0] || {}).word;
+  return pick(DATA.words.filter(w => w.g === g && w.sound === snd)) || pick(DATA.words.filter(w => w.sound === snd)) || '';
+};
+function replayRow(w, chosen, stopAuto) {
+  if (S.settings.speak === 'off') return null;
+  const go = word => { stopAuto(); speak(word); };
+  const other = chosen && chosen !== w.sound ? sampleFor(chosen, w.g) : '';
+  return h('div', { class: 'row', style: 'margin-top:.4rem;gap:.4rem' },
+    h('button', { class: 'btn small primary', onClick: () => go(w.word) }, `🔊 ${w.word}`, h('span', { class: 'small' }, `　${ipa(w.sound)}`)),
+    other ? h('button', { class: 'btn small', onClick: () => go(other) }, `🔊 ${other}`, h('span', { class: 'small' }, `　${ipa(chosen)}`)) : null,
+    h('span', { class: 'small muted' }, 'R キー'));
+}
+
 const WHY_ROWS = 5;
 function whyTable(w, chosen) {
   const all = DATA.gsounds[w.g] || [];
@@ -685,6 +700,7 @@ function renderDrill(main, spec, only) {
     if (stage.hidden) return;
     const i = Number(e.key) - 1;
     if (i >= 0 && i < curChoices.length) { e.preventDefault(); answer(curChoices[i]); }
+    else if ((e.key === 'r' || e.key === 'R') && locked && cur) { e.preventDefault(); stopAuto(); speak(cur.word); }
     else if ((e.code === 'Space' || e.key === 'Enter') && !nextBtn.hidden) { e.preventDefault(); next(); }
   };
   window.addEventListener('keydown', onKey);
@@ -735,7 +751,8 @@ function renderDrill(main, spec, only) {
       wrong.set(wkey(cur), cur);
       fb.replaceChildren(...[
         h('div', {}, h('span', { class: 'err' }, timedOut ? `⏱ 時間切れ — ${ipa(cur.sound)}` : `✗ 正解は ${ipa(cur.sound)}`), timedOut ? null : h('span', { class: 'small muted' }, `（${ipa(s)} と答えた）`)),
-        h('div', { class: 'mk-why' }, whyTable(cur, timedOut ? null : s))].filter(Boolean));
+        h('div', { class: 'mk-why' }, whyTable(cur, timedOut ? null : s)),
+        replayRow(cur, timedOut ? null : s, stopAuto)].filter(Boolean));
       queue.splice(Math.min(queue.length, idx + RETRY_GAP[0] + Math.floor(Math.random() * (RETRY_GAP[1] - RETRY_GAP[0] + 1))), 0, cur);
     }
     recordWord(cur, ok, snapWords);
@@ -745,6 +762,8 @@ function renderDrill(main, spec, only) {
     else { nextBtn.hidden = false; nextBtn.focus(); if (S.settings.autoNext) timer = setTimeout(show, 1500); }
   }
   function next() { clearTimeout(timer); show(); }
+  // 聞き直しを押したら自動送りを止める（聞いている途中で次に行かないように）
+  function stopAuto() { clearTimeout(timer); timer = null; nextBtn.hidden = false; }
   // 中止: この回に付けた記録をすべて取り消して設定画面に戻る
   function abort() {
     if (answered && !confirm('中止すると、この回の記録は残りません。中止しますか？')) return;
@@ -818,10 +837,13 @@ function renderCards(main, spec, only, count, onBack) {
   const onKey = e => {
     const i = Number(e.key) - 1;
     if (i >= 0 && i < curChoices.length && !locked) { e.preventDefault(); answer(curChoices[i]); }
+    else if ((e.key === 'r' || e.key === 'R') && locked && cur) { e.preventDefault(); stopAuto(); speak(cur.word); }
     else if ((e.code === 'Space' || e.key === 'Enter') && !nextBtn.hidden) { e.preventDefault(); nextBtn.click(); }
   };
   window.addEventListener('keydown', onKey);
 
+  // 聞き直しを押したら自動送りを止める
+  function stopAuto() { clearTimeout(timer); timer = null; nextBtn.hidden = false; }
   function nextRound() {
     if (retry.length) { cards = shuffle(retry); retry = []; redo++; }
     else { if (!queue.length) return finish(); cards = queue.splice(0, size); round++; redo = 0; }
@@ -869,7 +891,7 @@ function renderCards(main, spec, only, count, onBack) {
       streak = 0; retry.push(cur); wrong.set(wkey(cur), cur);
       if (timedOut) timeouts++;
       else { const k = `${cur.sound}→${x}`; conf[k] = (conf[k] || 0) + 1; snap(snapConf, MY.conf, k); MY.conf[k] = (MY.conf[k] || 0) + 1; persistMine(); }
-      why.replaceChildren(...whyLines(cur, timedOut ? null : x));
+      why.replaceChildren(...whyLines(cur, timedOut ? null : x).concat(replayRow(cur, timedOut ? null : x, stopAuto) || []));
       why.hidden = false;
     }
     recordWord(cur, ok, snapWords);
