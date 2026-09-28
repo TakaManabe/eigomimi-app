@@ -478,6 +478,9 @@ EIGO_GROUPS = [
  {"id": "v06", "title": "唇の丸め", "sounds": ['ɔː', 'ɑ']},
  {"id": "v07", "title": "r の前の母音", "sounds": ['ɝː', 'ɑr', 'ɔr', 'ɚ']},
  {"id": "v08", "title": "ear / air / are", "sounds": ['ɪr', 'er', 'ɑr']},
+ # 特別講義 p.75 が対にしている組。Lesson では v05 と v06 に分かれてしまうので、
+ # 選択肢を作るときはここで結びつける
+ {"id": "v09", "title": "オウとオー（特別講義 p.75）", "sounds": ['oʊ', 'ɔː']},
 ]
 
 def build_eigo():
@@ -515,6 +518,13 @@ LESSONS = [
  (24, '[ɔɚ]',           '[ɔ] から [ɚ] へなめらかに移行する',       80, ['ɔr']),
  (25, '[ə]',            '地味だけど一番よく出てくる、弱くあいまいな音', 83, ['ə']),
 ]
+# 特別講義（目次 p.011）のうち母音にかかわるもの。Lesson をまたいだ区別を扱う
+SPECIALS = [
+ ('S1', '[ɑ] [æ] [ʌ] などの区別',   68, ['ɑ', 'æ', 'ʌ'],                        'body / bat / but。日本語ではどれも「ア」'),
+ ('S2', '[oʊ] と [ɔː] の区別',       75, ['oʊ', 'ɔː'],                           'オウ（動く）とオー（動かない）。日本語ではどちらも「オー」'),
+ ('S3', '「ア」「オ」系のまとめ',      81, ['ɑ', 'æ', 'ʌ', 'ə', 'ɔː', 'oʊ', 'aʊ'], 'ア系とオ系をまとめて。第3章の総仕上げ'),
+]
+
 # 本書の母音編に対応する Lesson が無い音（ドリルには入っている）
 NO_LESSON = {'ɪr': 'ear 型。母音編に単独の Lesson は無い（第4章 R編で扱う）',
              'er': 'air / are 型。母音編に単独の Lesson は無い（第4章 R編で扱う）'}
@@ -529,6 +539,10 @@ def build_lessons():
         out.append({"n": n, "ipa": ipa, "title": title, "page": page,
                     "focus": focus, "sounds": sorted(set(focus) | set(partners))})
     return out
+
+def special_steps():
+    return [{"id": sid, "title": f'特別講義 {title}', "hint": f'{hint}（p.{page}）',
+             "focus": sounds, "sel": {"sounds": sounds}} for sid, title, page, sounds, hint in SPECIALS]
 
 def lesson_steps(lessons):
     steps = []
@@ -617,7 +631,7 @@ def build_course(entries):
       ]},
       {"id": "L", "title": "英語耳 Lesson 別（第3章 母音編）", "extra": True,
        "hint": "本の Lesson を音声で練習し終えたら、ここでその音の語を大量にこなす。出題の 6 割がその Lesson の音",
-       "steps": lesson_steps(LESSON_DATA)},
+       "steps": lesson_steps(LESSON_DATA) + special_steps()},
       {"id": "T", "title": "一綴り多音の罠（進捗には数えません）", "hint": "同じ綴りで音が割れる語だけを集めた識別ドリル", "extra": True, "steps": traps},
     ]
     return course + extra

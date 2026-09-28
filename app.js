@@ -4,7 +4,7 @@ import { mergeSlots, PASS_RATE, PASS_RUNS, PASS_MIN } from './merge.js';
 const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
-const APP_VERSION = 'v0.3.4';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
+const APP_VERSION = 'v0.3.5';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
 const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
 const SPEAKS = [['q', '出題時'], ['a', '回答後'], ['off', 'なし']];   // 音声を鳴らすタイミング
 const ROUNDS = [5, 10, 20, 30];      // ミックス（カード）1 ラウンドの枚数

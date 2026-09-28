@@ -164,7 +164,8 @@ test('第3章 母音編の Lesson 13〜25 が全部あり、音が本の目次�
 test('Lesson 別ステップは対象の音を十分に含む', () => {
   const stage = drill.course.find(c => c.id === 'L');
   assert.ok(stage && stage.extra, 'Lesson 別コースが無い');
-  assert.equal(stage.steps.length, 13);
+  const lessons = stage.steps.filter(s => /^L\d+$/.test(s.id));
+  assert.equal(lessons.length, 13, 'Lesson 13〜25 の 13 ステップ');
   for (const step of stage.steps) {
     const ws = selectWords(step.sel);
     const own = ws.filter(w => step.focus.includes(w.sound)).length;
@@ -214,4 +215,20 @@ test('service worker が配信ファイルを取りこぼしていない', () =>
   const listed = new Set([...sw.matchAll(/'\.\/([^']*)'/g)].map(m => m[1]));
   for (const f of ['index.html', 'app.js', 'order.js', 'merge.js', 'data/drill-words.json', 'manifest.webmanifest'])
     assert.ok(listed.has(f), `${f} が sw.js の FILES に無い`);
+});
+
+// ---------- 特別講義（Lesson をまたぐ区別）----------
+test('特別講義の対比ドリルがある', () => {
+  const stage = drill.course.find(c => c.id === 'L');
+  const ids = stage.steps.map(s => s.id);
+  for (const id of ['S1', 'S2', 'S3']) assert.ok(ids.includes(id), `${id} が無い`);
+  const s2 = stage.steps.find(s => s.id === 'S2');
+  assert.deepEqual([...s2.sounds].sort(), ['oʊ', 'ɔː'].sort(), 'S2 は [oʊ] と [ɔː] の 2 音');
+  assert.ok(s2.n >= 150, `S2 が ${s2.n} 語`);
+  assert.ok(/p\.75/.test(s2.hint), 'ページ番号が無い');
+});
+test('[oʊ] と [ɔː] は選択肢づくりで結びついている', () => {
+  // Lesson では v05 と v06 に分かれるので、特別講義の組を eigo に足してある
+  assert.ok(drill.eigo['oʊ'].includes('ɔː'), 'oʊ の仲間に ɔː が無い');
+  assert.ok(drill.eigo['ɔː'].includes('oʊ'), 'ɔː の仲間に oʊ が無い');
 });

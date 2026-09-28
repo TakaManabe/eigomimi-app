@@ -56,6 +56,7 @@ const flow = async (page, tag) => {
   // 英語耳 Lesson 別
   await page.click('summary:has-text("英語耳 Lesson 別")');
   await page.waitForSelector('a[href="#/s/L13"]');
+  await page.waitForSelector('a[href="#/s/S2"]');   // 特別講義 [oʊ] と [ɔː] の区別
   const lt = await page.textContent('main');
   if (!/Lesson 25/.test(lt) || !/p\.83/.test(lt)) errors.push(`[${tag}] Lesson 一覧が不足`);
 };
@@ -404,6 +405,19 @@ await run('version', { width: 390, height: 844 }, async page => {
   if (reg !== 'none') errors.push(`[version] updateViaCache が ${reg}（none でないと古い sw.js を掴む）`);
   await page.click('button:text-is("更新を確認")');
   await page.waitForSelector('#toast.show');
+});
+await run('special', { width: 390, height: 844 }, async page => {
+  // 特別講義 [oʊ] と [ɔː] の区別: Lesson をまたぐ対比が引けること
+  await page.goto(BASE + '#/s/S2'); await page.reload(); await page.waitForSelector('text=スタート');
+  const t = await page.textContent('main');
+  if (!/p\.75/.test(t)) errors.push('[special] ページ番号が出ていない');
+  if (!/\/oʊ\/ \d+語/.test(t) || !/\/ɔː\/ \d+語/.test(t)) errors.push(`[special] 2 音の語数が出ていない: ${t.slice(0, 200)}`);
+  await page.click('.seg button:text-is("なし")');
+  await page.click('.seg button:has-text("20")');
+  await page.click('text=スタート'); await page.waitForSelector('.word');
+  const labels = await page.locator('.choice b').allTextContents();
+  if (labels.sort().join() !== ['/oʊ/', '/ɔː/'].sort().join()) errors.push(`[special] 選択肢が 2 音でない: ${labels}`);
+  await page.screenshot({ path: '/tmp/shots/d-special.png' });
 });
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');
