@@ -519,6 +519,49 @@ await run('patterns', { width: 390, height: 844 }, async page => {
   const inner = await page.locator('#e31 .pnum').first().evaluate(el => { const r = document.createRange(); r.selectNodeContents(el); const b = r.getBoundingClientRect(); return { w: b.width, x: b.x }; });
   if (!box || inner.w > box.width + 0.5 || inner.x < box.x - 0.5) errors.push(`[patterns] E31 の文字がバッジからはみ出す: badge=${JSON.stringify(box)} text=${JSON.stringify(inner)}`);
 });
+await run('hide', { width: 390, height: 844 }, async page => {
+  // 単語を隠す: 出題時は綴りが見えず音だけ、答えると綴りが赤字つきで出る
+  await page.addInitScript(() => {
+    window.__spoken = [];
+    const orig = speechSynthesis.speak.bind(speechSynthesis);
+    speechSynthesis.speak = u => { window.__spoken.push(u.text); try { orig(u); } catch { /* ignore */ } };
+  });
+  await page.goto(BASE);
+  await page.evaluate(() => { localStorage.clear(); localStorage.setItem('vd:settings', JSON.stringify({ count: 20, limit: 0, autoNext: false, cards: false, speak: 'a', showWord: false })); });
+  await page.reload(); await page.goto(BASE + '#/s/P1-1'); await page.waitForSelector('text=スタート');
+  if (!(await page.locator('.seg button.on:has-text("隠す")').count())) errors.push('[hide] 設定が反映されていない');
+  await page.click('text=スタート'); await page.waitForSelector('.word');
+  await page.waitForTimeout(300);
+  const before = (await page.textContent('.word')).trim();
+  const spoken = await page.evaluate(() => window.__spoken.slice());
+  if (!/もう一度/.test(before)) errors.push(`[hide] 出題時に綴りが見えている: ${before}`);
+  if (!spoken.length) errors.push('[hide] 隠しているのに出題時に音が鳴っていない（音声設定が回答後でも鳴るべき）');
+  const word = spoken[spoken.length - 1];
+  if (before.includes(word)) errors.push(`[hide] 出題時に単語そのものが表示されている: ${before}`);
+  await page.screenshot({ path: '/tmp/shots/d-hide-q.png' });
+  // 「もう一度」で鳴る
+  await page.evaluate(() => { window.__spoken = []; });
+  await page.click('.word button:has-text("もう一度")'); await page.waitForTimeout(200);
+  if (!(await page.evaluate(() => window.__spoken.length > 0))) errors.push('[hide] もう一度が鳴らない');
+  // 答えると綴りが出る（赤字つき）
+  await page.keyboard.press('1'); await page.waitForTimeout(250);
+  const after = (await page.textContent('.word')).trim();
+  if (after !== word) errors.push(`[hide] 回答後に綴りが出ていない: ${after} != ${word}`);
+  if (!(await page.locator('.word .hl').count())) errors.push('[hide] 回答後の綴りに赤字が無い');
+  await page.screenshot({ path: '/tmp/shots/d-hide-a.png' });
+  // カード形式でも隠れる
+  await page.goto(BASE + '#/s/P1-1'); await page.reload(); await page.waitForSelector('text=スタート');
+  await page.click('.seg button:has-text("ミックス")'); await page.click('text=スタート'); await page.waitForSelector('.mk-card');
+  if (!/もう一度/.test(await page.textContent('.mk-card'))) errors.push('[hide] カード形式で綴りが見えている');
+  if ((await page.textContent('.mk-tag')).trim() !== '？') errors.push('[hide] カードの綴りタグが隠れていない');
+  await page.keyboard.press('1'); await page.waitForTimeout(250);
+  if (!(await page.locator('.mk-card .word .hl').count()) && !(await page.locator('.mk-card.ok').count())) errors.push('[hide] カードで回答後に綴りが出ていない');
+  // 音声「なし」にすると「見せる」に戻る
+  await page.goto(BASE + '#/'); await page.waitForSelector('text=出題時に単語を');
+  await page.click('.field:has-text("音声を鳴らす") .seg button:text-is("なし")'); await page.waitForTimeout(300);
+  const st = await page.evaluate(() => JSON.parse(localStorage.getItem('vd:settings')));
+  if (st.showWord !== true) errors.push('[hide] 音声なしなのに隠す設定が残っている');
+});
 await run('timeout', { width: 390, height: 844 }, async page => {
   await page.goto(BASE + '#/s/P5-1'); await page.waitForSelector('text=スタート');
   await page.click('.seg button:text-is("2秒")'); await page.click('.seg button:has-text("20")'); await page.click('text=スタート'); await page.waitForSelector('.word');

@@ -4,9 +4,10 @@ import { mergeSlots, PASS_RATE, PASS_RUNS, PASS_MIN } from './merge.js';
 const COUNTS = [20, 50, 100, 0];   // 0 = 無制限
 const RETRY_GAP = [4, 7];          // 誤答語を再出題するまでの間隔（問）
 const LS = 'vd:';
-const APP_VERSION = 'v0.4.3';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
+const APP_VERSION = 'v0.5.0';        // sw.js の VERSION と揃える（tests/data.test.js が検査）
 const LIMITS = [0, 2, 3, 5];         // 回答の制限秒（0 = なし）
 const SPEAKS = [['q', '出題時'], ['a', '回答後'], ['off', 'なし']];   // 音声を鳴らすタイミング
+const SHOWS = [[true, '見せる'], [false, '隠す（音だけ）']];          // 出題時に単語を見せるか
 const ROUNDS = [5, 10, 20, 30];      // ミックス（カード）1 ラウンドの枚数
 const INTERVALS = [1, 3, 7, 14, 30];  // 誤答語を復習する間隔（日）
 const MIX_RATE = 0.3;                // 合格後、既習語を混ぜる割合（累積復習）
@@ -78,7 +79,7 @@ if (!deviceId) { deviceId = 'd' + Math.random().toString(36).slice(2, 10) + Date
 let MY = emptySlot(), PEER = {};
 const S = {
   words: {}, log: [], prog: {}, conf: {},   // 合算ビュー（直接書かない）
-  settings: Object.assign({ count: 50, audio: true, voice: '', autoNext: true, limit: 3, cards: false, round: 10, sync: '', speak: '' }, load('settings', {})),
+  settings: Object.assign({ count: 50, audio: true, voice: '', autoNext: true, limit: 3, cards: false, round: 10, sync: '', speak: '', showWord: true }, load('settings', {})),
 };
 
 function recompute() {
@@ -318,6 +319,17 @@ function recordRun(id, n, c) {
 
 // ---------- 音声（合成音声のみ。発音判定はしない）----------
 const speakAt = when => S.settings.speak === when;
+// 単語を隠す設定。音声「なし」のまま隠すと何も出なくなるので、そのときは出題時に戻す
+function setShowWord(v, redraw) {
+  S.settings.showWord = v;
+  if (!v && S.settings.speak === 'off') { S.settings.speak = 'q'; toast('音声を「出題時」にしました（隠すには音が必要）'); }
+  persistSettings(); if (redraw) redraw();
+}
+// 単語を隠す回は、音声が出題時に鳴らないと成立しない
+const hideWord = () => S.settings.showWord === false && S.settings.speak !== 'off';
+const hiddenWordEl = w => h('span', { class: 'hidden-word' },
+  h('button', { class: 'btn small', type: 'button', onClick: () => speak(w.word) }, '🔊 もう一度'),
+  h('span', { class: 'small muted' }, `　${w.word.length} 文字`));
 function speak(text) {
   if (S.settings.speak === 'off' || !('speechSynthesis' in window)) return;
   try {
@@ -465,7 +477,10 @@ function renderHome(main) {
     h('div', { class: 'row', style: 'margin-top:.6rem' },
       voiceSel),
     h('div', { class: 'field' }, h('span', { class: 'small' }, '音声を鳴らす'),
-      seg(SPEAKS, S.settings.speak, v => { S.settings.speak = v; persistSettings(); })),
+      seg(SPEAKS, S.settings.speak, v => { S.settings.speak = v; if (v === 'off' && S.settings.showWord === false) { S.settings.showWord = true; toast('単語を見せる設定に戻しました（音なしでは隠せません）'); } persistSettings(); route(); })),
+    h('div', { class: 'field' }, h('span', { class: 'small' }, '出題時に単語を'),
+      seg(SHOWS, S.settings.showWord !== false, v => setShowWord(v, route))),
+    h('p', { class: 'small muted' }, '「隠す」は音だけを聞いて母音を答えるモードです。答えを選ぶと綴りが赤字つきで出ます。英語耳の聞き分けそのものを鍛えたいときに。'),
     h('p', { class: 'small muted' }, '「出題時」は単語が出た瞬間に読み上げます（既定）。綴りを見ながら音も聞くので、英語耳の音と綴りが結びつきます。綴りだけで答える練習をしたいときは「回答後」にしてください。単語帳や結果画面のタップはどの設定でも鳴ります。'),
     h('div', { class: 'row', style: 'margin-top:.6rem' },
       h('button', { class: 'btn small', onClick: () => {
@@ -768,6 +783,15 @@ function renderDrill(main, spec, only) {
     seg(ROUNDS.map(r => [r, `${r}枚`]), S.settings.round, v => { S.settings.round = v; persistSettings(); }));
   const whyRow = h('p', { class: 'small muted', hidden: !S.settings.cards },
     'ミックス: 出題する語はフォニックス（綴りの型）、選択肢は英語耳（日本語で潰れる音）＋その綴りが取る別の音。間違えると両方の理由が出ます。');
+  // 音声と「単語を隠す」は互いに制約があるので、変えたら 2 行だけ描き直す
+  const speakRow = h('div', { class: 'field' }), showRow = h('div', { class: 'field' });
+  const redrawCfg = () => {
+    speakRow.replaceChildren(h('span', { class: 'small' }, '音声を鳴らす'),
+      seg(SPEAKS, S.settings.speak, v => { S.settings.speak = v; if (v === 'off' && S.settings.showWord === false) { S.settings.showWord = true; toast('単語を見せる設定に戻しました（音なしでは隠せません）'); } persistSettings(); redrawCfg(); }));
+    showRow.replaceChildren(h('span', { class: 'small' }, '出題時に単語を'),
+      seg(SHOWS, S.settings.showWord !== false, v => setShowWord(v, redrawCfg)));
+  };
+  redrawCfg();
   const cfg = h('section', { class: 'card' },
     h('h2', {}, spec.title), h('p', { class: 'small muted' }, spec.hint || ''),
     h('p', { class: 'small' }, spec.mix
@@ -778,7 +802,7 @@ function renderDrill(main, spec, only) {
     h('div', { class: 'field' }, h('span', { class: 'small' }, '1 セッションの枚数'), seg(COUNTS.map(c => [c, c || '無制限']), count, v => { count = v; S.settings.count = v; persistSettings(); })),
     h('div', { class: 'field' }, h('span', { class: 'small' }, '回答の制限時間'), seg(LIMITS.map(l => [l, l ? `${l}秒` : 'なし']), S.settings.limit, v => { S.settings.limit = v; persistSettings(); })),
     h('div', { class: 'field' }, h('span', { class: 'small' }, '不正解のあと'), seg([[true, '1.5秒で自動的に次へ'], [false, '「次へ」を押す']], S.settings.autoNext, v => { S.settings.autoNext = v; persistSettings(); })),
-    h('div', { class: 'field' }, h('span', { class: 'small' }, '音声を鳴らす'), seg(SPEAKS, S.settings.speak, v => { S.settings.speak = v; persistSettings(); })),
+    speakRow, showRow,
     h('div', { class: 'field' }, h('span', { class: 'small' }, '形式'), seg([[false, 'ふつう'], [true, 'ミックス（カード）']], !!S.settings.cards, v => { S.settings.cards = v; persistSettings(); roundRow.hidden = !v; whyRow.hidden = !v; })),
     roundRow, whyRow,
     only === 'weak' ? h('p', { class: 'small err' }, `苦手な語だけ（${all.filter(isWeak).length} 語）`) : null,
@@ -839,7 +863,7 @@ function renderDrill(main, spec, only) {
     if (idx >= queue.length || (count && answered >= count)) return finish();
     clearTimeout(timer); timer = null; clearTimeout(limitT); limitT = null;
     cur = queue[idx]; locked = false;
-    wordEl.replaceChildren(hlWord(cur)); wordEl.className = 'word';
+    wordEl.replaceChildren(hideWord() ? hiddenWordEl(cur) : hlWord(cur)); wordEl.className = 'word';
     drawChoices(choiceSounds(cur.sound));
     const lim = S.settings.limit;
     tbar.hidden = !lim;
@@ -849,7 +873,7 @@ function renderDrill(main, spec, only) {
       limitT = setTimeout(() => answer(null), lim * 1000);
     }
     fb.replaceChildren(); nextBtn.hidden = true;
-    if (speakAt('q')) speak(cur.word);
+    if (speakAt('q') || hideWord()) speak(cur.word);
     status.replaceChildren(h('span', {}, `${answered + 1}${count ? ' / ' + count : ''}`), h('span', {}, `正解 ${correct}　連続 ${streak}`));
     bar.firstChild.style.width = (count ? Math.min(100, answered / count * 100) : 0) + '%';
   }
@@ -860,7 +884,7 @@ function renderDrill(main, spec, only) {
     const timedOut = s == null;
     const ok = !timedOut && s === cur.sound; answered++;
     per[cur.sound] = per[cur.sound] || { n: 0, c: 0 }; per[cur.sound].n++;
-    wordEl.textContent = cur.word;
+    if (hideWord()) wordEl.replaceChildren(hlWord(cur)); else wordEl.textContent = cur.word;
     wordEl.classList.add(ok ? 'ok' : 'ng');
     choices.querySelectorAll('.choice').forEach(b => { b.disabled = true; if (b.dataset.s === cur.sound) b.classList.add('ok'); else if (b.dataset.s === s) b.classList.add('ng'); });
     const note = cur.note ? h('div', { class: 'small muted' }, '注: ' + cur.note) : null;
@@ -977,8 +1001,8 @@ function renderCards(main, spec, only, count, onBack) {
     clearTimeout(timer); timer = null; clearTimeout(limitT); limitT = null;
     if (ci >= cards.length) return roundEnd();
     cur = cards[ci]; locked = false;
-    tag.textContent = cur.g.replace('_e', '_e');
-    wordEl.replaceChildren(hlWord(cur)); wordEl.className = 'word';
+    tag.textContent = hideWord() ? '？' : cur.g.replace('_e', '_e');
+    wordEl.replaceChildren(hideWord() ? hiddenWordEl(cur) : hlWord(cur)); wordEl.className = 'word';
     card.className = 'mk-card';
     why.hidden = true; why.replaceChildren(); nextBtn.hidden = true;
     curChoices = mixChoices(cur, spec.sounds, 4);
@@ -990,7 +1014,7 @@ function renderCards(main, spec, only, count, onBack) {
     streakEl.textContent = streak ? `🔥 ${streak}` : '';
     const p = Math.round(ci / cards.length * 100);
     ring.style.setProperty('--p', p); ring.firstChild.textContent = p + '%';
-    if (speakAt('q')) speak(cur.word);
+    if (speakAt('q') || hideWord()) speak(cur.word);
     const lim = S.settings.limit;
     tbar.hidden = !lim;
     if (lim) {
@@ -1006,7 +1030,7 @@ function renderCards(main, spec, only, count, onBack) {
     const timedOut = x == null, ok = !timedOut && x === cur.sound;
     done++;
     per[cur.sound] = per[cur.sound] || { n: 0, c: 0 }; per[cur.sound].n++;
-    wordEl.textContent = cur.word;
+    if (hideWord()) { wordEl.replaceChildren(hlWord(cur)); tag.textContent = cur.g.replace('_e', '_e'); } else wordEl.textContent = cur.word;
     card.classList.add(ok ? 'ok' : 'ng');
     choices.querySelectorAll('.choice').forEach(b => { b.disabled = true; if (b.dataset.s === cur.sound) b.classList.add('ok'); else if (b.dataset.s === x) b.classList.add('ng'); });
     if (ok) { correct++; streak++; best = Math.max(best, streak); per[cur.sound].c++; }
